@@ -12,7 +12,7 @@ export const getRandomInteger = (a = 0, b = 1) => {
 export const createCards = (cardsCount) => {
   let cardsTemplate = '';
   for (let index=0; index < cardsCount; index++) {
-    cardsTemplate = cardsTemplate.concat(createCardTemplate())
+    cardsTemplate = cardsTemplate.concat(createCardTemplate());
   }
   return cardsTemplate;
 };
