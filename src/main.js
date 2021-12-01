@@ -1,4 +1,4 @@
-import {RenderPosition, renderTemplate} from './render';
+import {renderTemplate} from './render';
 import {createUserProfileTemplate} from './view/user-profile';
 import {createMainMenuTemplate} from './view/main-menu';
 import {createSortTemplate} from './view/sort';
@@ -14,15 +14,15 @@ const headerElement = document.querySelector('.header');
 const mainElement = document.querySelector('.main');
 const footerElement = document.querySelector('.footer');
 
-renderTemplate(headerElement, createUserProfileTemplate(), RenderPosition.BEFOREEND);
-renderTemplate(mainElement, createMainMenuTemplate(), RenderPosition.BEFOREEND);
-renderTemplate(mainElement, createSortTemplate(), RenderPosition.BEFOREEND);
-renderTemplate(mainElement, createFilmsTemplate(), RenderPosition.BEFOREEND);
+renderTemplate(headerElement, createUserProfileTemplate());
+renderTemplate(mainElement, createMainMenuTemplate());
+renderTemplate(mainElement, createSortTemplate());
+renderTemplate(mainElement, createFilmsTemplate());
 
 const [listFilms, listTopRated, listMostCommented] = document.querySelectorAll('.films-list');
 
-renderTemplate(listFilms, createListTemplate(LIST_FILMS_CHUNK), RenderPosition.BEFOREEND);
-renderTemplate(listFilms, createShowMoreTemplate(), RenderPosition.BEFOREEND);
-renderTemplate(listTopRated, createListTemplate(LIST_EXTRAS_CHUNK), RenderPosition.BEFOREEND);
-renderTemplate(listMostCommented, createListTemplate(LIST_EXTRAS_CHUNK), RenderPosition.BEFOREEND);
-renderTemplate(footerElement, createFooterStatisticsTemplate(), RenderPosition.BEFOREEND);
+renderTemplate(listFilms, createListTemplate(LIST_FILMS_CHUNK));
+renderTemplate(listFilms, createShowMoreTemplate());
+renderTemplate(listTopRated, createListTemplate(LIST_EXTRAS_CHUNK));
+renderTemplate(listMostCommented, createListTemplate(LIST_EXTRAS_CHUNK));
+renderTemplate(footerElement, createFooterStatisticsTemplate());
