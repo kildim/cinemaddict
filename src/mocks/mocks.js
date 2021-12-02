@@ -86,7 +86,7 @@ const filmId = idMaker();
 const commentId = idMaker();
 const userID = idMaker();
 
-const getArrayRandomSlice = (array) => Array.from({length: getRandomInteger(0, array.length)}, () => array[getRandomInteger(0, array.length - 1)]);
+const getArrayRandomSlice = (array) => Array.from({length: getRandomInteger(1, array.length)}, () => array[getRandomInteger(0, array.length - 1)]);
 
 const divideIntoSentences = (text) => text.split(SENTENCES_DIVIDER);
 
@@ -152,6 +152,8 @@ const getFilmMock = () => ({
   watchlist: Boolean(getRandomInteger(0, 1)),
   alreadyWatched: Boolean(getRandomInteger(0, 1)),
   watchingDate: getRandomDate(2000, 2020),
+  watchList: Boolean(getRandomInteger(0, 1)),
+  watched: Boolean(getRandomInteger(0, 1)),
   favorite: Boolean(getRandomInteger(0, 1)),
 });
 
