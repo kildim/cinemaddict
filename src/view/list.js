@@ -1,7 +1,7 @@
-import {createCards} from '../utils';
+import {createCards} from '../utils/utils';
 
-export const createListTemplate = (cardsCount) => `
+export const createListTemplate = (films, cardsCount) => `
 <div class="films-list__container">
-  ${createCards(cardsCount)}
+  ${createCards(films, cardsCount)}
 </div>
 `;
