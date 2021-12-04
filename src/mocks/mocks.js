@@ -1,5 +1,5 @@
 import {getRandomInteger} from '../utils/utils.js';
-import {EMOTIONS} from '../utils/utils.js';
+import {EMOTIONS} from '../constants';
 import dayjs from 'dayjs';
 
 const AGE_RATINGS = ['0+', '6+', '12+', '16+', '18+'];
@@ -157,6 +157,12 @@ const getFilmMock = () => ({
   favorite: Boolean(getRandomInteger(0, 1)),
 });
 
+const getMockWatchInfo = (movksCount) => ({
+  watchList: getRandomInteger(0, movksCount),
+  history: getRandomInteger(0, movksCount),
+  favorites: getRandomInteger(0, movksCount),
+});
+
 const getMockFilms = (mocksCount) => Array.from({length: mocksCount}, getFilmMock);
 
-export {getMockFilms, getMockComments, getMockUser};
+export {getMockFilms, getMockComments, getMockUser, getMockWatchInfo};
