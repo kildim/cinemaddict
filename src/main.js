@@ -65,13 +65,13 @@ renderTemplate(listMostCommentedContainer, createCardsTemplate(listMostCommented
 if (showMoreButton) {
   showMoreButton.addEventListener('click', (event)=> {
     event.preventDefault();
-    listFilmsHead = listFilmsTail + 1;
+    listFilmsHead = listFilmsTail;
     listFilmsTail += LIST_FILMS_CHUNK;
     if (listFilmsTail > films.length) {
       listFilmsTail = films.length;
       showMoreButton.remove();
     }
-    listFilmsSampling = sliceArray(films, listFilmsHead, listFilmsTail);
+    listFilmsSampling = films.slice(listFilmsHead, listFilmsTail);
     renderTemplate(listFilmsContainer, createCardsTemplate(listFilmsSampling));
   });
 }
