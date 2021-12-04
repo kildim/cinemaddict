@@ -9,5 +9,5 @@ export const sliceArray = (array, head, tail) => {
   if (head === 0) {return  array.slice(Math.min(array.length, tail));
   } else {
     return array.slice(head - 1, Math.min(array.length, tail));
-  };
+  }
 };
