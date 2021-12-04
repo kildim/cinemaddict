@@ -10,7 +10,6 @@ import {getMockFilms, getMockWatchInfo} from './mocks/mocks';
 import {createFilmDetailsTemplate} from './view/film-details';
 import {FILM_MOCKS_COUNT, LIST_EXTRAS_CHUNK, LIST_FILMS_CHUNK} from './constants';
 import {createCardTemplate} from './view/card';
-import {sliceArray} from './utils/utils';
 
 const films = getMockFilms(FILM_MOCKS_COUNT);
 const watchInfo = getMockWatchInfo(FILM_MOCKS_COUNT);
