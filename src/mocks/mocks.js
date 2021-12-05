@@ -2,6 +2,8 @@ import {getRandomInteger} from '../utils/utils.js';
 import {EMOTIONS} from '../constants';
 import dayjs from 'dayjs';
 
+export const FILM_MOCKS_COUNT = 17;
+
 const AGE_RATINGS = ['0+', '6+', '12+', '16+', '18+'];
 const TITLES = [
   'The Dance of Life',
@@ -76,12 +78,11 @@ const LOREM_IPSUM_TEXT =
 const AVATAR = 'images/bitmap@2x.png';
 const SENTENCES_DIVIDER = /(?<=\.) /;
 
-const idMaker = function* () {
+const idMaker = () => {
   let index = 0;
-  while (true) {
-    yield index++;
-  }
+  return () => index++;
 };
+
 const filmId = idMaker();
 const commentId = idMaker();
 const userID = idMaker();
@@ -120,21 +121,21 @@ const getRandomDescription = () => {
 const getRandomComment = getRandomDescription;
 
 const getCommentMock = () => ({
-  id: commentId.next().value,
+  id: commentId(),
   author: getRandomElementFromArray(AUTHORS),
   comment: getRandomComment(),
   date: getRandomDate(2021, 2021),
   emotion: getRandomElementFromArray(EMOTIONS),
 });
 const getMockUser = () => ({
-  id: userID.next().value,
+  id: userID(),
   avatar: `${AVATAR}`,
 });
 
 const getMockComments = () => Array.from({length: getRandomInteger(0, 5)}, getCommentMock);
 
 const getFilmMock = () => ({
-  id: filmId.next().value,
+  id: filmId(),
   comments: getMockComments(),
   title: getRandomElementFromArray(TITLES),
   alternativeTitle: getRandomElementFromArray(TITLES),
@@ -157,10 +158,10 @@ const getFilmMock = () => ({
   favorite: Boolean(getRandomInteger(0, 1)),
 });
 
-const getMockWatchInfo = (movksCount) => ({
-  watchList: getRandomInteger(0, movksCount),
-  history: getRandomInteger(0, movksCount),
-  favorites: getRandomInteger(0, movksCount),
+const getMockWatchInfo = (mocksCount) => ({
+  watchList: getRandomInteger(0, mocksCount),
+  history: getRandomInteger(0, mocksCount),
+  favorites: getRandomInteger(0, mocksCount),
 });
 
 const getMockFilms = (mocksCount) => Array.from({length: mocksCount}, getFilmMock);

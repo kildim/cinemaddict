@@ -6,23 +6,18 @@ import {createFilmsTemplate} from './view/films';
 import {createListTemplate} from './view/list';
 import {createShowMoreTemplate} from './view/show-more';
 import {createFooterStatisticsTemplate} from './view/footer-statistics';
-import {getMockFilms, getMockWatchInfo} from './mocks/mocks';
-import {createFilmDetailsTemplate} from './view/film-details';
-import {FILM_MOCKS_COUNT, LIST_EXTRAS_CHUNK, LIST_FILMS_CHUNK} from './constants';
+// import {createFilmDetailsTemplate} from './view/film-details';
 import {createCardTemplate} from './view/card';
+import {getFilms, getWatchInfo} from './data/data-adapter';
 
-const films = getMockFilms(FILM_MOCKS_COUNT);
-const watchInfo = getMockWatchInfo(FILM_MOCKS_COUNT);
+export const LIST_FILMS_CHUNK = 5;
+export const LIST_EXTRAS_CHUNK = 2;
 
-const createCardsTemplate = (list) => {
-  if (list.length < 1) {return '';}
-  const cardsCount = list.length;
-  let cardsTemplate = '';
-  for (let index=0; index < cardsCount; index++) {
-    cardsTemplate = cardsTemplate.concat(createCardTemplate(list[index]));
-  }
-  return cardsTemplate;
-};
+
+const films = getFilms;
+const watchInfo = getWatchInfo;
+
+const createCardsTemplate = (list) => list.reduce((capacitor, item) => capacitor.concat(createCardTemplate(item)), '');
 
 const headerElement = document.querySelector('.header');
 const mainElement = document.querySelector('.main');
@@ -60,21 +55,22 @@ renderTemplate(listFilmsContainer, createCardsTemplate(listFilmsSampling));
 renderTemplate(listTopRatedContainer, createCardsTemplate(listTopRatedSampling));
 renderTemplate(listMostCommentedContainer, createCardsTemplate(listMostCommentedSampling));
 
+const onClickShowMoreHandler = (event)=> {
+  event.preventDefault();
+  listFilmsHead = listFilmsTail;
+  listFilmsTail += LIST_FILMS_CHUNK;
+  if (listFilmsTail > films.length) {
+    listFilmsTail = films.length;
+    showMoreButton.remove();
+  }
+  listFilmsSampling = films.slice(listFilmsHead, listFilmsTail);
+  renderTemplate(listFilmsContainer, createCardsTemplate(listFilmsSampling));
+};
 
 if (showMoreButton) {
-  showMoreButton.addEventListener('click', (event)=> {
-    event.preventDefault();
-    listFilmsHead = listFilmsTail;
-    listFilmsTail += LIST_FILMS_CHUNK;
-    if (listFilmsTail > films.length) {
-      listFilmsTail = films.length;
-      showMoreButton.remove();
-    }
-    listFilmsSampling = films.slice(listFilmsHead, listFilmsTail);
-    renderTemplate(listFilmsContainer, createCardsTemplate(listFilmsSampling));
-  });
+  showMoreButton.addEventListener('click', onClickShowMoreHandler);
 }
 
 renderTemplate(footerElement, createFooterStatisticsTemplate());
 
-renderTemplate(document.body, createFilmDetailsTemplate(films[0]));
+// renderTemplate(document.body, createFilmDetailsTemplate(films[0]));

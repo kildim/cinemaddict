@@ -1,9 +1,9 @@
-import {MAX_DESCRIPTION_LENGTH} from '../constants';
 import {formatTime} from '../utils/date-time';
 
 export const createCardTemplate = (film) => {
   const {title, totalRating, releaseDate, runtime, poster, genres, description, comments, watchList, watched, favorite} = film;
   const releaseYear = new Date(releaseDate).getFullYear();
+  const MAX_DESCRIPTION_LENGTH = 139;
 
   const getRelevantActiveClass = (isActiveFlag) => isActiveFlag ? 'film-card__controls-item--active' : '';
   const truncateDescription = (text) => text.length > MAX_DESCRIPTION_LENGTH ? `
