@@ -2,8 +2,6 @@ import {getRandomInteger} from '../utils/utils.js';
 import {EMOTIONS} from '../constants';
 import dayjs from 'dayjs';
 
-export const FILM_MOCKS_COUNT = 17;
-
 const AGE_RATINGS = ['0+', '6+', '12+', '16+', '18+'];
 const TITLES = [
   'The Dance of Life',
