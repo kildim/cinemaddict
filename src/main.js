@@ -6,7 +6,7 @@ import {createFilmsTemplate} from './view/films';
 import {createListTemplate} from './view/list';
 import {createShowMoreTemplate} from './view/show-more';
 import {createFooterStatisticsTemplate} from './view/footer-statistics';
-// import {createFilmDetailsTemplate} from './view/film-details';
+import {createFilmDetailsTemplate} from './view/film-details';
 import {createCardTemplate} from './view/card';
 import {getFilms, getWatchInfo} from './data/data-adapter';
 
@@ -71,6 +71,6 @@ if (showMoreButton) {
   showMoreButton.addEventListener('click', onClickShowMoreHandler);
 }
 
-renderTemplate(footerElement, createFooterStatisticsTemplate());
+renderTemplate(footerElement, createFooterStatisticsTemplate(films.length));
 
-// renderTemplate(document.body, createFilmDetailsTemplate(films[0]));
+renderTemplate(document.body, createFilmDetailsTemplate(films[0]));
