@@ -71,6 +71,6 @@ if (showMoreButton) {
   showMoreButton.addEventListener('click', onClickShowMoreHandler);
 }
 
-renderTemplate(footerElement, createFooterStatisticsTemplate());
+renderTemplate(footerElement, createFooterStatisticsTemplate(films.length));
 
 // renderTemplate(document.body, createFilmDetailsTemplate(films[0]));
