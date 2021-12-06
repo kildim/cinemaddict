@@ -1,13 +1,13 @@
 import {renderTemplate} from './render';
-import {createUserProfileTemplate} from './view/user-profile';
-import {createMainMenuTemplate} from './view/main-menu';
-import {createSortTemplate} from './view/sort';
-import {createFilmsTemplate} from './view/films';
+import UserProfile from './view/user-profile';
+import MainMenu from './view/main-menu';
+import Sort from './view/sort';
+import Films, {createFilmsTemplate} from './view/films';
 import {createListTemplate} from './view/list';
 import {createShowMoreTemplate} from './view/show-more';
 import {createFooterStatisticsTemplate} from './view/footer-statistics';
 // import {createFilmDetailsTemplate} from './view/film-details';
-import {createCardTemplate} from './view/card';
+import Card from './view/card';
 import {getFilms, getWatchInfo} from './data/data-adapter';
 
 export const LIST_FILMS_CHUNK = 5;
@@ -17,16 +17,16 @@ export const LIST_EXTRAS_CHUNK = 2;
 const films = getFilms;
 const watchInfo = getWatchInfo;
 
-const createCardsTemplate = (list) => list.reduce((capacitor, item) => capacitor.concat(createCardTemplate(item)), '');
+const createCardsTemplate = (list) => list.reduce((capacitor, item) => capacitor.concat(new Card(item).template), '');
 
 const headerElement = document.querySelector('.header');
 const mainElement = document.querySelector('.main');
 const footerElement = document.querySelector('.footer');
 
-renderTemplate(headerElement, createUserProfileTemplate());
-renderTemplate(mainElement, createMainMenuTemplate(watchInfo));
-renderTemplate(mainElement, createSortTemplate());
-renderTemplate(mainElement, createFilmsTemplate());
+renderTemplate(headerElement, new UserProfile().template);
+renderTemplate(mainElement, new MainMenu(watchInfo).template);
+renderTemplate(mainElement, new Sort().template);
+renderTemplate(mainElement, new Films().template);
 
 const [listFilms, listTopRated, listMostCommented] = document.querySelectorAll('.films-list');
 

@@ -1,4 +1,6 @@
-export const createMainMenuTemplate = (watchInfo) => {
+import {createElement} from '../render';
+
+const createMainMenuTemplate = (watchInfo) => {
   const {watchList, history, favorites} = watchInfo;
   return (
     `
@@ -14,3 +16,28 @@ export const createMainMenuTemplate = (watchInfo) => {
 `
   ) ;
 };
+
+export default class MainMenu {
+  #element = null;
+  #watchInfo = null;
+
+  constructor(watchInfo) {
+    this.#watchInfo = watchInfo;
+  }
+
+  get element() {
+    if (!this.#element) {
+      this.#element = createElement(this.template);
+    }
+
+    return this.#element;
+  }
+
+  get template() {
+    return createMainMenuTemplate(this.#watchInfo);
+  }
+
+  removeElement() {
+    this.#element = null;
+  }
+}
