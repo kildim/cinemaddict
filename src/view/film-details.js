@@ -178,8 +178,11 @@ export default class FilmDetails {
   #film = null;
   #externalHandlers = {}
 
-  constructor(film) {
+  init = (film, filmDetailsHandlers) => {
+    if (this.#element) {this.removeElement();}
     this.#film = film;
+    this.#element = createElement(this.template);
+    this.setExternalHandlers(filmDetailsHandlers);
   }
 
   #clickCloseHandler = (event) => {

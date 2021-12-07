@@ -38,8 +38,22 @@ const createCardTemplate = (film) => {
 export default class Card {
   #element = null;
   #film = null;
+  #externalHandlers = {}
+
   constructor(film) {
     this.#film = film;
+  }
+
+  #clickCardHandler = (event) => {
+    event.preventDefault();
+    this.#externalHandlers.clickCard(this.#film);
+  }
+
+  setExternalHandlers = ({clickCard = null}) => {
+    this.#externalHandlers.clickCard = clickCard;
+
+    const closeButton = this.element.querySelector('.film-card__link');
+    closeButton.addEventListener('click', this.#clickCardHandler);
   }
 
   get element() {
