@@ -20,6 +20,6 @@ export default class ShowMore {
   }
 
   removeElement() {
-    this.#element = null;
+    this.#element.remove();
   }
 }

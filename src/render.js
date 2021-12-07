@@ -9,7 +9,7 @@ export const createElement = (template) => {
   return newElement.firstChild;
 };
 
-export const renderElement = (container, element, place = 'beforeend') => {
+export const render = (container, element, place = 'beforeend') => {
   switch (place) {
     case 'beforebegin':
       container.before(element);
