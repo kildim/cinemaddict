@@ -27,6 +27,6 @@ export default class FooterStatistics {
   }
 
   removeElement() {
-    this.#element = null;
+    this.#element.remove();
   }
 }

@@ -24,6 +24,6 @@ export default class Sort {
   }
 
   removeElement() {
-    this.#element = null;
+    this.#element.remove();
   }
 }

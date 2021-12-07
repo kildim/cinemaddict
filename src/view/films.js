@@ -30,6 +30,6 @@ export default class Films {
   }
 
   removeElement() {
-    this.#element = null;
+    this.#element.remove();
   }
 }

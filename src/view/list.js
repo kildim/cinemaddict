@@ -23,6 +23,6 @@ export default class List {
     }
 
     removeElement() {
-      this.#element = null;
+      this.#element.remove();
     }
 }

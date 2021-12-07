@@ -23,6 +23,6 @@ export default class UserProfile {
   }
 
   removeElement() {
-    this.#element = null;
+    this.#element.remove();
   }
 }

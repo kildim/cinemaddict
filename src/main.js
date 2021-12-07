@@ -8,6 +8,7 @@ import ShowMore from './view/show-more';
 import FooterStatistics from './view/footer-statistics';
 import Card from './view/card';
 import {getFilms, getWatchInfo} from './data/data-adapter';
+import FilmDetails from './view/film-details';
 
 export const LIST_FILMS_CHUNK = 5;
 export const LIST_EXTRAS_CHUNK = 2;
@@ -21,6 +22,12 @@ const renderCards = (container, list) => list.forEach((item) => render(container
 const headerElement = document.querySelector('.header');
 const mainElement = document.querySelector('.main');
 const footerElement = document.querySelector('.footer');
+
+const filmDetails = new FilmDetails(films[0]);
+const removeFilmDetails = () => {
+  filmDetails.removeElement();
+};
+filmDetails.setExternalHandlers({closeFilmDetails: removeFilmDetails});
 
 render(headerElement, new UserProfile().element);
 render(mainElement, new MainMenu(watchInfo).element);
@@ -73,4 +80,6 @@ if (showMore) {
   showMore.element.addEventListener('click', onClickShowMoreHandler);
 }
 
-renderTemplate(footerElement, new FooterStatistics(films.length).template);
+render(footerElement, new FooterStatistics(films.length).element);
+
+render(document.body, filmDetails.element);

@@ -38,6 +38,6 @@ export default class MainMenu {
   }
 
   removeElement() {
-    this.#element = null;
+    this.#element.remove();
   }
 }
