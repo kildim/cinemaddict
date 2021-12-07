@@ -176,25 +176,18 @@ const createFilmDetailsTemplate = (film) => {
 export default class FilmDetails {
   #element = null;
   #film = null;
-  #externalHandlers = {}
 
-  init = (film, filmDetailsHandlers) => {
+  init = (film) => {
     if (this.#element) {this.removeElement();}
     this.#film = film;
     this.#element = createElement(this.template);
-    this.setExternalHandlers(filmDetailsHandlers);
+    const closeButton = this.element.querySelector('.film-details__close-btn');
+    closeButton.addEventListener('click', this.#clickCloseHandler);
   }
 
   #clickCloseHandler = (event) => {
     event.preventDefault();
-    this.#externalHandlers.clickClose();
-  }
-
-  setExternalHandlers = ({closeFilmDetails = null}) => {
-    this.#externalHandlers.clickClose = closeFilmDetails;
-
-    const closeButton = this.element.querySelector('.film-details__close-btn');
-    closeButton.addEventListener('click', this.#clickCloseHandler);
+    this.removeElement();
   }
 
   get element() {

@@ -30,11 +30,8 @@ const mainElement = document.querySelector('.main');
 const footerElement = document.querySelector('.footer');
 
 const filmDetails = new FilmDetails();
-const removeFilmDetails = () => {
-  filmDetails.removeElement();
-};
 const showFilmDetails = (film) => () => {
-  filmDetails.init(film, {closeFilmDetails: removeFilmDetails});
+  filmDetails.init(film);
   render(document.body, filmDetails.element);
 };
 
