@@ -78,12 +78,7 @@ if (films.length > 0) {
     render(listFilms.element, showMore.element);
   }
 
-  const onEscapeKeyDownHandler = (event) => {
-    if (event.key === 'Escape' || event.key === 'Esc') {
-      event.preventDefault();
-      filmDetails.removeElement();
-    }
-  };
+
   const onClickShowMoreHandler = (event)=> {
     event.preventDefault();
     listFilmsHead = listFilmsTail;
@@ -99,7 +94,6 @@ if (films.length > 0) {
   if (showMore) {
     showMore.element.addEventListener('click', onClickShowMoreHandler);
   }
-  document.addEventListener('keydown', onEscapeKeyDownHandler);
 } else {
   filmsEmpty.init(filters.allMovies);
   render(mainElement, listsContainerElement);

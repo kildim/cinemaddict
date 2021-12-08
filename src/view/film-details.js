@@ -176,19 +176,28 @@ const createFilmDetailsTemplate = (film) => {
 export default class FilmDetails {
   #element = null;
   #film = null;
+  #closeButton = null;
 
   init = (film) => {
     this.removeElement();
     this.#film = film;
     this.#element = createElement(this.template);
-    const closeButton = this.element.querySelector('.film-details__close-btn');
-    closeButton.addEventListener('click', this.#clickCloseHandler);
+    this.#closeButton = this.element.querySelector('.film-details__close-btn');
+    this.#closeButton.addEventListener('click', this.#clickCloseHandler);
+    document.addEventListener('keydown', this.#onEscapeKeyDownHandler);
   }
 
   #clickCloseHandler = (event) => {
     event.preventDefault();
     this.removeElement();
   }
+
+  #onEscapeKeyDownHandler = (event) => {
+    if (event.key === 'Escape' || event.key === 'Esc') {
+      event.preventDefault();
+      this.removeElement();
+    }
+  };
 
   get element() {
     if (!this.#element) {
@@ -204,6 +213,8 @@ export default class FilmDetails {
 
   removeElement() {
     if (this.#element) {
+      document.removeEventListener('keydown', this.#onEscapeKeyDownHandler);
+      this.#closeButton.removeEventListener('click', this.#clickCloseHandler);
       this.#element.remove();
     }
   }
