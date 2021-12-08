@@ -3,7 +3,6 @@ import UserProfile from './view/user-profile';
 import MainMenu from './view/main-menu';
 import Sort from './view/sort';
 import ListsContainer from './view/lists-container';
-import List from './view/list';
 import ShowMore from './view/show-more';
 import FooterStatistics from './view/footer-statistics';
 import Card from './view/card';
