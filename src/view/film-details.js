@@ -178,7 +178,7 @@ export default class FilmDetails {
   #film = null;
 
   init = (film) => {
-    if (this.#element) {this.removeElement();}
+    this.removeElement();
     this.#film = film;
     this.#element = createElement(this.template);
     const closeButton = this.element.querySelector('.film-details__close-btn');
@@ -203,6 +203,8 @@ export default class FilmDetails {
   }
 
   removeElement() {
-    this.#element.remove();
+    if (this.#element) {
+      this.#element.remove();
+    }
   }
 }
