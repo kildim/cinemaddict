@@ -1,14 +1,14 @@
-import {renderTemplate} from './render';
-import {createUserProfileTemplate} from './view/user-profile';
-import {createMainMenuTemplate} from './view/main-menu';
-import {createSortTemplate} from './view/sort';
-import {createFilmsTemplate} from './view/films';
-import {createListTemplate} from './view/list';
-import {createShowMoreTemplate} from './view/show-more';
-import {createFooterStatisticsTemplate} from './view/footer-statistics';
-// import {createFilmDetailsTemplate} from './view/film-details';
-import {createCardTemplate} from './view/card';
+import {render} from './render';
+import UserProfile from './view/user-profile';
+import MainMenu from './view/main-menu';
+import Sort from './view/sort';
+import Films from './view/films';
+import List from './view/list';
+import ShowMore from './view/show-more';
+import FooterStatistics from './view/footer-statistics';
+import Card from './view/card';
 import {getFilms, getWatchInfo} from './data/data-adapter';
+import FilmDetails from './view/film-details';
 
 export const LIST_FILMS_CHUNK = 5;
 export const LIST_EXTRAS_CHUNK = 2;
@@ -17,16 +17,28 @@ export const LIST_EXTRAS_CHUNK = 2;
 const films = getFilms;
 const watchInfo = getWatchInfo;
 
-const createCardsTemplate = (list) => list.reduce((capacitor, item) => capacitor.concat(createCardTemplate(item)), '');
+const renderCards = (container, list, cardHandlers) => list.forEach((item) => {
+  const {clickCardHandler} = cardHandlers;
+  const card = new Card(item);
+
+  card.setExternalHandlers({clickCard: clickCardHandler(item)});
+  render(container, card.element);
+});
 
 const headerElement = document.querySelector('.header');
 const mainElement = document.querySelector('.main');
 const footerElement = document.querySelector('.footer');
 
-renderTemplate(headerElement, createUserProfileTemplate());
-renderTemplate(mainElement, createMainMenuTemplate(watchInfo));
-renderTemplate(mainElement, createSortTemplate());
-renderTemplate(mainElement, createFilmsTemplate());
+const filmDetails = new FilmDetails();
+const showFilmDetails = (film) => () => {
+  filmDetails.init(film);
+  render(document.body, filmDetails.element);
+};
+
+render(headerElement, new UserProfile().element);
+render(mainElement, new MainMenu(watchInfo).element);
+render(mainElement, new Sort().element);
+render(mainElement, new Films().element);
 
 const [listFilms, listTopRated, listMostCommented] = document.querySelectorAll('.films-list');
 
@@ -37,23 +49,26 @@ let listFilmsSampling = films.slice(listFilmsHead, listFilmsTail);
 const listTopRatedSampling = films.slice(0, LIST_EXTRAS_CHUNK);
 const listMostCommentedSampling = films.slice(0, LIST_EXTRAS_CHUNK);
 
-renderTemplate(listFilms, createListTemplate());
+const filmsList = new List();
+render(listFilms, filmsList.element);
 
+let showMore = null;
 if (films.length > LIST_FILMS_CHUNK) {
-  renderTemplate(listFilms, createShowMoreTemplate());
+  showMore = new ShowMore();
+  render(listFilms, showMore.element);
 }
 
-renderTemplate(listTopRated, createListTemplate());
-renderTemplate(listMostCommented, createListTemplate());
+render(listTopRated, new List().element);
+render(listMostCommented, new List().element);
 
 const listFilmsContainer = listFilms.querySelector('.films-list__container');
 const listTopRatedContainer = listTopRated.querySelector('.films-list__container');
 const listMostCommentedContainer = listMostCommented.querySelector('.films-list__container');
-const showMoreButton = document.querySelector('.films-list__show-more');
 
-renderTemplate(listFilmsContainer, createCardsTemplate(listFilmsSampling));
-renderTemplate(listTopRatedContainer, createCardsTemplate(listTopRatedSampling));
-renderTemplate(listMostCommentedContainer, createCardsTemplate(listMostCommentedSampling));
+renderCards(listFilmsContainer, listFilmsSampling, {clickCardHandler: showFilmDetails});
+renderCards(listTopRatedContainer, listTopRatedSampling, {clickCardHandler: showFilmDetails});
+renderCards(listMostCommentedContainer, listMostCommentedSampling, {clickCardHandler: showFilmDetails});
+
 
 const onClickShowMoreHandler = (event)=> {
   event.preventDefault();
@@ -61,16 +76,14 @@ const onClickShowMoreHandler = (event)=> {
   listFilmsTail += LIST_FILMS_CHUNK;
   if (listFilmsTail > films.length) {
     listFilmsTail = films.length;
-    showMoreButton.remove();
+    showMore.removeElement();
   }
   listFilmsSampling = films.slice(listFilmsHead, listFilmsTail);
-  renderTemplate(listFilmsContainer, createCardsTemplate(listFilmsSampling));
+  renderCards(listFilmsContainer, listFilmsSampling, {clickCardHandler: showFilmDetails});
 };
 
-if (showMoreButton) {
-  showMoreButton.addEventListener('click', onClickShowMoreHandler);
+if (showMore) {
+  showMore.element.addEventListener('click', onClickShowMoreHandler);
 }
 
-renderTemplate(footerElement, createFooterStatisticsTemplate());
-
-// renderTemplate(document.body, createFilmDetailsTemplate(films[0]));
+render(footerElement, new FooterStatistics(films.length).element);

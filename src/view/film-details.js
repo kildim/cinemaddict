@@ -1,5 +1,6 @@
 import {formatCommentDataTime, formatDate, formatTime} from '../utils/date-time';
 import {getMockComments} from '../mocks/mocks';
+import {createElement} from '../render';
 
 const createGenresListTemplate = (genres) =>
   genres.map((genre) => (
@@ -32,7 +33,7 @@ const createCommentsList = (comments) =>
 const commaSeparatedList = (phrases) => phrases.join(', ');
 const getRelevantActiveClass = (isActiveFlag) => isActiveFlag ? 'film-details__control-button--active' : '';
 
-export const createFilmDetailsTemplate = (film) => {
+const createFilmDetailsTemplate = (film) => {
   const {
     title,
     poster,
@@ -171,3 +172,37 @@ export const createFilmDetailsTemplate = (film) => {
     `
   );
 };
+
+export default class FilmDetails {
+  #element = null;
+  #film = null;
+
+  init = (film) => {
+    if (this.#element) {this.removeElement();}
+    this.#film = film;
+    this.#element = createElement(this.template);
+    const closeButton = this.element.querySelector('.film-details__close-btn');
+    closeButton.addEventListener('click', this.#clickCloseHandler);
+  }
+
+  #clickCloseHandler = (event) => {
+    event.preventDefault();
+    this.removeElement();
+  }
+
+  get element() {
+    if (!this.#element) {
+      this.#element = createElement(this.template);
+    }
+
+    return this.#element;
+  }
+
+  get template() {
+    return createFilmDetailsTemplate(this.#film);
+  }
+
+  removeElement() {
+    this.#element.remove();
+  }
+}

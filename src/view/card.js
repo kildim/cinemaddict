@@ -1,6 +1,7 @@
 import {formatTime} from '../utils/date-time';
+import {createElement} from '../render';
 
-export const createCardTemplate = (film) => {
+const createCardTemplate = (film) => {
   const {title, totalRating, releaseDate, runtime, poster, genres, description, comments, watchList, watched, favorite} = film;
   const releaseYear = new Date(releaseDate).getFullYear();
   const MAX_DESCRIPTION_LENGTH = 139;
@@ -33,3 +34,41 @@ export const createCardTemplate = (film) => {
 `
   );
 };
+
+export default class Card {
+  #element = null;
+  #film = null;
+  #externalHandlers = {}
+
+  constructor(film) {
+    this.#film = film;
+  }
+
+  #clickCardHandler = (event) => {
+    event.preventDefault();
+    this.#externalHandlers.clickCard(this.#film);
+  }
+
+  setExternalHandlers = ({clickCard = null}) => {
+    this.#externalHandlers.clickCard = clickCard;
+
+    const closeButton = this.element.querySelector('.film-card__link');
+    closeButton.addEventListener('click', this.#clickCardHandler);
+  }
+
+  get element() {
+    if (!this.#element) {
+      this.#element = createElement(this.template);
+    }
+
+    return this.#element;
+  }
+
+  get template() {
+    return createCardTemplate(this.#film);
+  }
+
+  removeElement() {
+    this.#element.remove();
+  }
+}
