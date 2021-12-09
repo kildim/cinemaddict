@@ -1,5 +1,5 @@
 import {filters} from '../constants';
-import {createElement} from '../utils/render';
+import AbstractView from './abstract-view';
 
 const message =
   {
@@ -17,29 +17,15 @@ const createFilmsEmptyTemplate = (filter) => (
   `
 );
 
-export default class FilmsEmpty {
-  #element = null;
+export default class FilmsEmpty extends AbstractView{
   #filter = null;
 
   init = (filter) => {
     this.removeElement();
     this.#filter = filter;
-    this.#element = createElement(this.template);
-  }
-
-  get element() {
-    if (!this.#element) {
-      this.#element = createElement(this.template);
-    }
-
-    return this.#element;
   }
 
   get template() {
     return createFilmsEmptyTemplate(this.#filter);
-  }
-
-  removeElement() {
-    this.#element = null;
   }
 }

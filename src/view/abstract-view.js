@@ -2,7 +2,7 @@ import {createElement} from '../utils/render.js';
 
 export default class AbstractView {
   #element = null;
-  _callback = {};
+  _externalHandlers = {};
 
   constructor() {
     if (new.target === AbstractView) {
@@ -23,6 +23,9 @@ export default class AbstractView {
   }
 
   removeElement() {
+    if (this.#element) {
+      this.#element.remove();
+    }
     this.#element = null;
   }
 }

@@ -1,4 +1,5 @@
 import {createElement} from '../utils/render';
+import AbstractView from './abstract-view';
 
 const createFooterStatisticsTemplate = (count) => `
     <section class="footer__statistics">
@@ -6,27 +7,15 @@ const createFooterStatisticsTemplate = (count) => `
     </section>
 `;
 
-export default class FooterStatistics {
-  #element = null;
+export default class FooterStatistics extends AbstractView{
   #count = null;
 
   constructor(count) {
+    super();
     this.#count = count;
-  }
-
-  get element() {
-    if (!this.#element) {
-      this.#element = createElement(this.template);
-    }
-
-    return this.#element;
   }
 
   get template() {
     return createFooterStatisticsTemplate(this.#count);
-  }
-
-  removeElement() {
-    this.#element.remove();
   }
 }

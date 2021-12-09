@@ -1,6 +1,7 @@
 import {formatCommentDataTime, formatDate, formatTime} from '../utils/date-time';
 import {getMockComments} from '../mocks/mocks';
 import {createElement} from '../utils/render';
+import AbstractView from './abstract-view';
 
 const createGenresListTemplate = (genres) =>
   genres.map((genre) => (
@@ -173,15 +174,14 @@ const createFilmDetailsTemplate = (film) => {
   );
 };
 
-export default class FilmDetails {
-  #element = null;
+export default class FilmDetails extends AbstractView{
   #film = null;
   #closeButton = null;
 
   init = (film) => {
     this.removeElement();
     this.#film = film;
-    this.#element = createElement(this.template);
+    // this.#element = createElement(this.template);
     this.#closeButton = this.element.querySelector('.film-details__close-btn');
     this.#closeButton.addEventListener('click', this.#clickCloseHandler);
     document.addEventListener('keydown', this.#onEscapeKeyDownHandler);
@@ -199,23 +199,12 @@ export default class FilmDetails {
     }
   };
 
-  get element() {
-    if (!this.#element) {
-      this.#element = createElement(this.template);
-    }
-
-    return this.#element;
-  }
-
   get template() {
     return createFilmDetailsTemplate(this.#film);
   }
 
   removeElement() {
-    if (this.#element) {
-      document.removeEventListener('keydown', this.#onEscapeKeyDownHandler);
-      this.#closeButton.removeEventListener('click', this.#clickCloseHandler);
-      this.#element.remove();
-    }
+    document.removeEventListener('keydown', this.#onEscapeKeyDownHandler);
+    super.removeElement();
   }
 }
