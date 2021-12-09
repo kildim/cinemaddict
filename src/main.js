@@ -1,4 +1,4 @@
-import {render} from './render';
+import {render} from './utils/render';
 import UserProfile from './view/user-profile';
 import MainMenu from './view/main-menu';
 import Sort from './view/sort';

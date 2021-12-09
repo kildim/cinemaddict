@@ -1,4 +1,4 @@
-import {createElement} from '../render';
+import {createElement} from '../utils/render';
 
 const createExtrasContainerTemplate = (title) => `
     <section class="films-list films-list--extra">

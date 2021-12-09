@@ -1,6 +1,6 @@
 import {formatCommentDataTime, formatDate, formatTime} from '../utils/date-time';
 import {getMockComments} from '../mocks/mocks';
-import {createElement} from '../render';
+import {createElement} from '../utils/render';
 
 const createGenresListTemplate = (genres) =>
   genres.map((genre) => (

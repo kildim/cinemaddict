@@ -1,5 +1,5 @@
 import {filters} from '../constants';
-import {createElement} from '../render';
+import {createElement} from '../utils/render';
 
 const message =
   {

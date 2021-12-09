@@ -1,5 +1,5 @@
 import {formatTime} from '../utils/date-time';
-import {createElement} from '../render';
+import {createElement} from '../utils/render';
 
 const createCardTemplate = (film) => {
   const {title, totalRating, releaseDate, runtime, poster, genres, description, comments, watchList, watched, favorite} = film;
