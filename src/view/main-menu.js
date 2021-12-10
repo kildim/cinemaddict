@@ -1,4 +1,3 @@
-import {createElement} from '../utils/render';
 import AbstractView from './abstract-view';
 
 const createMainMenuTemplate = (watchInfo) => {

@@ -1,6 +1,5 @@
 import {formatCommentDataTime, formatDate, formatTime} from '../utils/date-time';
 import {getMockComments} from '../mocks/mocks';
-import {createElement} from '../utils/render';
 import AbstractView from './abstract-view';
 
 const createGenresListTemplate = (genres) =>
