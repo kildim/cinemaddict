@@ -180,7 +180,6 @@ export default class FilmDetails extends AbstractView{
   init = (film) => {
     this.removeElement();
     this.#film = film;
-    // this.#element = createElement(this.template);
     this.#closeButton = this.element.querySelector('.film-details__close-btn');
     this.#closeButton.addEventListener('click', this.#clickCloseHandler);
     document.addEventListener('keydown', this.#onEscapeKeyDownHandler);

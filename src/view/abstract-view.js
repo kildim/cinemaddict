@@ -1,4 +1,9 @@
-import {createElement} from '../utils/render.js';
+const createElement = (template) => {
+  const newElement = document.createElement('div');
+  newElement.innerHTML = template.trim();
+
+  return newElement.firstChild;
+};
 
 export default class AbstractView {
   #element = null;

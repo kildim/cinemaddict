@@ -1,12 +1,5 @@
 import AbstractView from '../view/abstract-view';
 
-export const createElement = (template) => {
-  const newElement = document.createElement('div');
-  newElement.innerHTML = template.trim();
-
-  return newElement.firstChild;
-};
-
 export const render = (container, element, place = 'beforeend') => {
   switch (place) {
     case 'beforebegin':
@@ -46,10 +39,9 @@ export const remove = (component) => {
     return;
   }
 
-  if (!(component instanceof AbstractView)) {
-    throw new Error('Can remove only components');
+  if (component instanceof AbstractView) {
+    component.removeElement();
+  } else {
+    component.remove();
   }
-
-  component.element.remove();
-  component.removeElement();
 };
