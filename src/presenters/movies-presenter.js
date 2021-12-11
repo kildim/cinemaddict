@@ -1,4 +1,4 @@
-import {render} from '../utils/render';
+import {render, replace} from '../utils/render';
 import UserProfile from '../view/user-profile';
 import MainMenu from '../view/main-menu';
 import ListsContainer from '../view/lists-container';
@@ -10,6 +10,8 @@ import {LIST_EXTRAS_CHUNK, LIST_FILMS_CHUNK} from '../main';
 import FilmDetails from '../view/film-details';
 import FilmsEmpty from '../view/films-empty';
 import MoviesContainer from '../view/movies-container';
+import {changeFilm} from '../data/data-adapter';
+import Card from '../view/card';
 
 export default class MoviesPresenter {
   #films = null;
@@ -42,6 +44,40 @@ export default class MoviesPresenter {
     render(document.body, this.#details);
   };
 
+  switchWatchListFlag = (card) => () => {
+    const film = this.#films.find((movie) => movie.id === card.id);
+    film.watchList = !film.watchList;
+    const newCard = new Card(film);
+    newCard.setExternalHandlers(this.cardHandlers);
+    replace(newCard, card);
+    changeFilm(film);
+  }
+
+  switchWatchedFlag = (card) => () => {
+    const film = this.#films.find((movie) => movie.id === card.id);
+    film.watched = !film.watched;
+    const newCard = new Card(film);
+    newCard.setExternalHandlers(this.cardHandlers);
+    replace(newCard, card);
+    changeFilm(film);
+  }
+
+  switchFavoriteFlag = (card) => () => {
+    const film = this.#films.find((movie) => movie.id === card.id);
+    film.favorite = !film.favorite;
+    const newCard = new Card(film);
+    newCard.setExternalHandlers(this.cardHandlers);
+    replace(newCard, card);
+    changeFilm(film);
+  }
+
+  cardHandlers = {
+    clickCardHandler: this.renderDetails,
+    clickWatchListHandler: this.switchWatchListFlag,
+    clickWatchedHandler: this.switchWatchedFlag,
+    clickFavoriteHandler: this.switchFavoriteFlag
+  };
+
   onClickShowMoreHandler = (list) => () => {
     this.#listHead = this.#listTail;
     this.#listTail += LIST_FILMS_CHUNK;
@@ -50,7 +86,7 @@ export default class MoviesPresenter {
       this.#more.removeElement();
     }
     const listFilmsSampling = this.#films.slice(this.#listHead, this.#listTail);
-    list.renderCards(listFilmsSampling, {clickCardHandler: this.renderDetails});
+    list.renderCards(listFilmsSampling, this.cardHandlers);
   };
 
   renderFilmsListsContent(listsContainer) {
@@ -69,9 +105,9 @@ export default class MoviesPresenter {
     const listTopRatedSampling = this.#films.slice(0, LIST_EXTRAS_CHUNK);
     const listMostCommentedSampling = this.#films.slice(0, LIST_EXTRAS_CHUNK);
 
-    listFilms.renderCards(listFilmsSampling, {clickCardHandler: this.renderDetails});
-    listTopRated.renderCards(listTopRatedSampling, {clickCardHandler: this.renderDetails});
-    listMostCommented.renderCards(listMostCommentedSampling, {clickCardHandler: this.renderDetails});
+    listFilms.renderCards(listFilmsSampling, this.cardHandlers);
+    listTopRated.renderCards(listTopRatedSampling, this.cardHandlers);
+    listMostCommented.renderCards(listMostCommentedSampling, this.cardHandlers);
 
     if (this.#films.length > this.#listTail) {
       this.#more.setExternalHandlers({clickMore: this.onClickShowMoreHandler(listFilms)});
@@ -88,8 +124,8 @@ export default class MoviesPresenter {
   }
 
   renderContent() {
-    render(this.#header, new UserProfile().element);
-    render(this.#main, new MainMenu(this.#watchInfo).element);
+    render(this.#header, new UserProfile());
+    render(this.#main, new MainMenu(this.#watchInfo));
 
     const listsContainer = new ListsContainer();
 

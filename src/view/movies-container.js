@@ -31,10 +31,9 @@ export default class MoviesContainer extends AbstractView {
 
   renderCards(list, cardHandlers) {
     list.forEach((item) => {
-      const {clickCardHandler} = cardHandlers;
       const card = new Card(item);
 
-      card.setExternalHandlers({clickCard: clickCardHandler(item)});
+      card.setExternalHandlers(cardHandlers);
       render(this.cardsContainer, card.element);
     });
   }
