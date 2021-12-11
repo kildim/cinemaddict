@@ -3,24 +3,13 @@ import UserProfile from '../view/user-profile';
 import MainMenu from '../view/main-menu';
 import ListsContainer from '../view/lists-container';
 import Sort from '../view/sort';
-// import AllMoviesContainer from '../view/all-movies-container';
-// import ExtrasContainer from '../view/extras-container';
 import ShowMore from '../view/show-more';
 import {filters} from '../constants';
 import FooterStatistics from '../view/footer-statistics';
 import {LIST_EXTRAS_CHUNK, LIST_FILMS_CHUNK} from '../main';
-// import Card from '../view/card';
 import FilmDetails from '../view/film-details';
 import FilmsEmpty from '../view/films-empty';
 import MoviesContainer from '../view/movies-container';
-
-// const renderCards = (container, list, cardHandlers) => list.forEach((item) => {
-//   const {clickCardHandler} = cardHandlers;
-//   const card = new Card(item);
-//
-//   card.setExternalHandlers({clickCard: clickCardHandler(item)});
-//   render(container, card.element);
-// });
 
 export default class MoviesPresenter {
   #films = null;
@@ -48,7 +37,7 @@ export default class MoviesPresenter {
     this.#listTail = Math.min(this.#films.length, LIST_FILMS_CHUNK);
   }
 
-  showDetails = (film) => () => {
+  renderDetails = (film) => () => {
     this.#details.init(film);
     render(document.body, this.#details);
   };
@@ -61,45 +50,53 @@ export default class MoviesPresenter {
       this.#more.removeElement();
     }
     const listFilmsSampling = this.#films.slice(this.#listHead, this.#listTail);
-    list.renderCards(listFilmsSampling, {clickCardHandler: this.showDetails});
+    list.renderCards(listFilmsSampling, {clickCardHandler: this.renderDetails});
   };
 
-  renderContent() {
+  renderFilmsListsContent(listsContainer) {
+    render(this.#main, new Sort());
+    render(this.#main, listsContainer);
+
+    const listFilms = new MoviesContainer('All movies. Upcoming', false);
+    const listTopRated = new MoviesContainer('Top rated');
+    const listMostCommented = new MoviesContainer('Most commented');
+
+    render(listsContainer, listFilms);
+    render(listsContainer, listTopRated);
+    render(listsContainer, listMostCommented);
+
+    const listFilmsSampling = this.#films.slice(this.#listHead, this.#listTail);
+    const listTopRatedSampling = this.#films.slice(0, LIST_EXTRAS_CHUNK);
+    const listMostCommentedSampling = this.#films.slice(0, LIST_EXTRAS_CHUNK);
+
+    listFilms.renderCards(listFilmsSampling, {clickCardHandler: this.renderDetails});
+    listTopRated.renderCards(listTopRatedSampling, {clickCardHandler: this.renderDetails});
+    listMostCommented.renderCards(listMostCommentedSampling, {clickCardHandler: this.renderDetails});
+
+    if (this.#films.length > this.#listTail) {
+      this.#more.setExternalHandlers({clickMore: this.onClickShowMoreHandler(listFilms)});
+      render(listFilms, this.#more);
+    }
+  }
+
+  renderEmptyListsContent(listsContainer){
     const filmsEmpty = new FilmsEmpty();
 
+    filmsEmpty.init(filters.allMovies);
+    render(this.#main, listsContainer);
+    render(listsContainer, filmsEmpty);
+  }
+
+  renderContent() {
     render(this.#header, new UserProfile().element);
     render(this.#main, new MainMenu(this.#watchInfo).element);
 
     const listsContainer = new ListsContainer();
 
     if (this.#films.length > 0) {
-      render(this.#main, new Sort());
-      render(this.#main, listsContainer);
-
-      const listFilms = new MoviesContainer('All movies. Upcoming', false);
-      const listTopRated = new MoviesContainer('Top rated');
-      const listMostCommented = new MoviesContainer('Most commented');
-
-      render(listsContainer, listFilms);
-      render(listsContainer, listTopRated);
-      render(listsContainer, listMostCommented);
-
-      const listFilmsSampling = this.#films.slice(this.#listHead, this.#listTail);
-      const listTopRatedSampling = this.#films.slice(0, LIST_EXTRAS_CHUNK);
-      const listMostCommentedSampling = this.#films.slice(0, LIST_EXTRAS_CHUNK);
-
-      listFilms.renderCards(listFilmsSampling, {clickCardHandler: this.showDetails});
-      listTopRated.renderCards(listTopRatedSampling, {clickCardHandler: this.showDetails});
-      listMostCommented.renderCards(listMostCommentedSampling, {clickCardHandler: this.showDetails});
-
-      if (this.#films.length > this.#listTail) {
-        this.#more.setExternalHandlers({clickMore: this.onClickShowMoreHandler(listFilms)});
-        render(listFilms, this.#more);
-      }
+      this.renderFilmsListsContent(listsContainer);
     } else {
-      filmsEmpty.init(filters.allMovies);
-      render(this.#main, listsContainer);
-      render(listsContainer, filmsEmpty);
+      this.renderEmptyListsContent(listsContainer);
     }
 
     render(this.#footer, new FooterStatistics(this.#films.length));
