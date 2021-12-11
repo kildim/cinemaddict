@@ -1,18 +1,21 @@
 import AbstractView from '../view/abstract-view';
 
 export const render = (container, element, place = 'beforeend') => {
+  const parent = container instanceof AbstractView ? container.element : container;
+  const child = element instanceof AbstractView ? element.element : element;
+
   switch (place) {
     case 'beforebegin':
-      container.before(element);
+      parent.before(child);
       break;
     case 'afterbegin':
-      container.prepend(element);
+      parent.prepend(child);
       break;
     case 'beforeend':
-      container.append(element);
+      parent.append(child);
       break;
     case 'afterend':
-      container.after(element);
+      parent.after(child);
       break;
   }
 };
