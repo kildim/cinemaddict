@@ -1,5 +1,5 @@
 import {formatTime} from '../utils/date-time';
-import {createElement} from '../render';
+import AbstractView from './abstract-view';
 
 const createCardTemplate = (film) => {
   const {title, totalRating, releaseDate, runtime, poster, genres, description, comments, watchList, watched, favorite} = film;
@@ -35,40 +35,27 @@ const createCardTemplate = (film) => {
   );
 };
 
-export default class Card {
-  #element = null;
+export default class Card extends AbstractView {
   #film = null;
-  #externalHandlers = {}
 
   constructor(film) {
+    super();
     this.#film = film;
   }
 
   #clickCardHandler = (event) => {
     event.preventDefault();
-    this.#externalHandlers.clickCard(this.#film);
+    this._externalHandlers.clickCard(this.#film);
   }
 
   setExternalHandlers = ({clickCard = null}) => {
-    this.#externalHandlers.clickCard = clickCard;
+    this._externalHandlers.clickCard = clickCard;
 
     const closeButton = this.element.querySelector('.film-card__link');
     closeButton.addEventListener('click', this.#clickCardHandler);
   }
 
-  get element() {
-    if (!this.#element) {
-      this.#element = createElement(this.template);
-    }
-
-    return this.#element;
-  }
-
   get template() {
     return createCardTemplate(this.#film);
-  }
-
-  removeElement() {
-    this.#element.remove();
   }
 }
