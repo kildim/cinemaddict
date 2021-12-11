@@ -21,7 +21,7 @@ export default class MoviesContainer extends AbstractView {
     this.#isExtras = isExtras;
   }
 
-  getCardsContainer() {
+  get cardsContainer() {
     if (!this.#cardsContainer) {
       this.#cardsContainer = this.element.querySelector('.films-list__container');
     }
@@ -35,7 +35,7 @@ export default class MoviesContainer extends AbstractView {
       const card = new Card(item);
 
       card.setExternalHandlers({clickCard: clickCardHandler(item)});
-      render(this.getCardsContainer(), card.element);
+      render(this.cardsContainer, card.element);
     });
   }
 

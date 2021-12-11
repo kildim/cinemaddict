@@ -53,16 +53,15 @@ export default class MoviesPresenter {
     render(document.body, this.#details);
   };
 
-  onClickShowMoreHandler = (event)=> {
-    event.preventDefault();
+  onClickShowMoreHandler = (list) => () => {
     this.#listHead = this.#listTail;
     this.#listTail += LIST_FILMS_CHUNK;
     if (this.#listTail > this.#films.length) {
       this.#listTail = this.#films.length;
       this.#more.removeElement();
     }
-    // const listFilmsSampling = this.#films.slice(this.#listHead, this.#listTail);
-    // listFilms.renderCards(listFilmsSampling, {clickCardHandler: this.showDetails});
+    const listFilmsSampling = this.#films.slice(this.#listHead, this.#listTail);
+    list.renderCards(listFilmsSampling, {clickCardHandler: this.showDetails});
   };
 
   renderContent() {
@@ -85,47 +84,24 @@ export default class MoviesPresenter {
       render(listsContainer, listTopRated);
       render(listsContainer, listMostCommented);
 
-
-      // let listFilmsTail = Math.min(this.#films.length, LIST_FILMS_CHUNK);
-      // let listFilmsHead = 0;
       const listFilmsSampling = this.#films.slice(this.#listHead, this.#listTail);
-
       const listTopRatedSampling = this.#films.slice(0, LIST_EXTRAS_CHUNK);
       const listMostCommentedSampling = this.#films.slice(0, LIST_EXTRAS_CHUNK);
-
-      // const listFilmsContainer = listFilms.getContainer();
-      // const listTopRatedContainer = listTopRated.getContainer();
-      // const listMostCommentedContainer = listMostCommented.getContainer();
 
       listFilms.renderCards(listFilmsSampling, {clickCardHandler: this.showDetails});
       listTopRated.renderCards(listTopRatedSampling, {clickCardHandler: this.showDetails});
       listMostCommented.renderCards(listMostCommentedSampling, {clickCardHandler: this.showDetails});
 
-      let showMore = null;
-      if (this.#films.length > LIST_FILMS_CHUNK) {
-        showMore = new ShowMore();
-        render(listFilms.element, showMore.element);
+      if (this.#films.length > this.#listTail) {
+        this.#more.setExternalHandlers({clickMore: this.onClickShowMoreHandler(listFilms)});
+        render(listFilms, this.#more);
       }
-
-
-      // const onClickShowMoreHandler = (event)=> {
-      //   event.preventDefault();
-      //   listFilmsHead = listFilmsTail;
-      //   listFilmsTail += LIST_FILMS_CHUNK;
-      //   if (listFilmsTail > this.#films.length) {
-      //     listFilmsTail = this.#films.length;
-      //     showMore.removeElement();
-      //   }
-      //   listFilmsSampling = this.#films.slice(listFilmsHead, listFilmsTail);
-      //   renderCards(listFilmsContainer, listFilmsSampling, {clickCardHandler: this.showDetails});
-      // };
-
     } else {
       filmsEmpty.init(filters.allMovies);
       render(this.#main, listsContainer);
-      render(listsContainer, filmsEmpty.element);
+      render(listsContainer, filmsEmpty);
     }
 
-    render(this.#footer, new FooterStatistics(this.#films.length).element);
+    render(this.#footer, new FooterStatistics(this.#films.length));
   }
 }
