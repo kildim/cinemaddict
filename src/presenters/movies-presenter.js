@@ -3,23 +3,24 @@ import UserProfile from '../view/user-profile';
 import MainMenu from '../view/main-menu';
 import ListsContainer from '../view/lists-container';
 import Sort from '../view/sort';
-import AllMoviesContainer from '../view/all-movies-container';
-import ExtrasContainer from '../view/extras-container';
+// import AllMoviesContainer from '../view/all-movies-container';
+// import ExtrasContainer from '../view/extras-container';
 import ShowMore from '../view/show-more';
 import {filters} from '../constants';
 import FooterStatistics from '../view/footer-statistics';
 import {LIST_EXTRAS_CHUNK, LIST_FILMS_CHUNK} from '../main';
-import Card from '../view/card';
+// import Card from '../view/card';
 import FilmDetails from '../view/film-details';
 import FilmsEmpty from '../view/films-empty';
+import MoviesContainer from '../view/movies-container';
 
-const renderCards = (container, list, cardHandlers) => list.forEach((item) => {
-  const {clickCardHandler} = cardHandlers;
-  const card = new Card(item);
-
-  card.setExternalHandlers({clickCard: clickCardHandler(item)});
-  render(container, card.element);
-});
+// const renderCards = (container, list, cardHandlers) => list.forEach((item) => {
+//   const {clickCardHandler} = cardHandlers;
+//   const card = new Card(item);
+//
+//   card.setExternalHandlers({clickCard: clickCardHandler(item)});
+//   render(container, card.element);
+// });
 
 export default class MoviesPresenter {
   #films = null;
@@ -27,6 +28,10 @@ export default class MoviesPresenter {
   #header = null;
   #main = null;
   #footer = null
+  #details = null;
+  #listHead = null;
+  #listTail = null;
+  #more = null;
 
   constructor(header, main, footer) {
     this.#header = header;
@@ -37,16 +42,31 @@ export default class MoviesPresenter {
   init(films, watchInfo) {
     this.#films = films;
     this.#watchInfo = watchInfo;
+    this.#details = new FilmDetails();
+    this.#more = new ShowMore();
+    this.#listHead = 0;
+    this.#listTail = Math.min(this.#films.length, LIST_FILMS_CHUNK);
   }
 
-  renderContent() {
-    const filmDetails = new FilmDetails();
-    const filmsEmpty = new FilmsEmpty();
+  showDetails = (film) => () => {
+    this.#details.init(film);
+    render(document.body, this.#details);
+  };
 
-    const showFilmDetails = (film) => () => {
-      filmDetails.init(film);
-      render(document.body, filmDetails.element);
-    };
+  onClickShowMoreHandler = (event)=> {
+    event.preventDefault();
+    this.#listHead = this.#listTail;
+    this.#listTail += LIST_FILMS_CHUNK;
+    if (this.#listTail > this.#films.length) {
+      this.#listTail = this.#films.length;
+      this.#more.removeElement();
+    }
+    // const listFilmsSampling = this.#films.slice(this.#listHead, this.#listTail);
+    // listFilms.renderCards(listFilmsSampling, {clickCardHandler: this.showDetails});
+  };
+
+  renderContent() {
+    const filmsEmpty = new FilmsEmpty();
 
     render(this.#header, new UserProfile().element);
     render(this.#main, new MainMenu(this.#watchInfo).element);
@@ -57,28 +77,29 @@ export default class MoviesPresenter {
       render(this.#main, new Sort());
       render(this.#main, listsContainer);
 
-      const listFilms = new AllMoviesContainer();
-      const listTopRated = new ExtrasContainer('Top rated');
-      const listMostCommented = new ExtrasContainer('Most commented');
+      const listFilms = new MoviesContainer('All movies. Upcoming', false);
+      const listTopRated = new MoviesContainer('Top rated');
+      const listMostCommented = new MoviesContainer('Most commented');
+
       render(listsContainer, listFilms);
       render(listsContainer, listTopRated);
       render(listsContainer, listMostCommented);
 
 
-      let listFilmsTail = Math.min(this.#films.length, LIST_FILMS_CHUNK);
-      let listFilmsHead = 0;
-      let listFilmsSampling = this.#films.slice(listFilmsHead, listFilmsTail);
+      // let listFilmsTail = Math.min(this.#films.length, LIST_FILMS_CHUNK);
+      // let listFilmsHead = 0;
+      const listFilmsSampling = this.#films.slice(this.#listHead, this.#listTail);
 
       const listTopRatedSampling = this.#films.slice(0, LIST_EXTRAS_CHUNK);
       const listMostCommentedSampling = this.#films.slice(0, LIST_EXTRAS_CHUNK);
 
-      const listFilmsContainer = listFilms.getContainer();
-      const listTopRatedContainer = listTopRated.getContainer();
-      const listMostCommentedContainer = listMostCommented.getContainer();
+      // const listFilmsContainer = listFilms.getContainer();
+      // const listTopRatedContainer = listTopRated.getContainer();
+      // const listMostCommentedContainer = listMostCommented.getContainer();
 
-      renderCards(listFilmsContainer, listFilmsSampling, {clickCardHandler: showFilmDetails});
-      renderCards(listTopRatedContainer, listTopRatedSampling, {clickCardHandler: showFilmDetails});
-      renderCards(listMostCommentedContainer, listMostCommentedSampling, {clickCardHandler: showFilmDetails});
+      listFilms.renderCards(listFilmsSampling, {clickCardHandler: this.showDetails});
+      listTopRated.renderCards(listTopRatedSampling, {clickCardHandler: this.showDetails});
+      listMostCommented.renderCards(listMostCommentedSampling, {clickCardHandler: this.showDetails});
 
       let showMore = null;
       if (this.#films.length > LIST_FILMS_CHUNK) {
@@ -87,21 +108,18 @@ export default class MoviesPresenter {
       }
 
 
-      const onClickShowMoreHandler = (event)=> {
-        event.preventDefault();
-        listFilmsHead = listFilmsTail;
-        listFilmsTail += LIST_FILMS_CHUNK;
-        if (listFilmsTail > this.#films.length) {
-          listFilmsTail = this.#films.length;
-          showMore.removeElement();
-        }
-        listFilmsSampling = this.#films.slice(listFilmsHead, listFilmsTail);
-        renderCards(listFilmsContainer, listFilmsSampling, {clickCardHandler: showFilmDetails});
-      };
+      // const onClickShowMoreHandler = (event)=> {
+      //   event.preventDefault();
+      //   listFilmsHead = listFilmsTail;
+      //   listFilmsTail += LIST_FILMS_CHUNK;
+      //   if (listFilmsTail > this.#films.length) {
+      //     listFilmsTail = this.#films.length;
+      //     showMore.removeElement();
+      //   }
+      //   listFilmsSampling = this.#films.slice(listFilmsHead, listFilmsTail);
+      //   renderCards(listFilmsContainer, listFilmsSampling, {clickCardHandler: this.showDetails});
+      // };
 
-      if (showMore) {
-        showMore.element.addEventListener('click', onClickShowMoreHandler);
-      }
     } else {
       filmsEmpty.init(filters.allMovies);
       render(this.#main, listsContainer);
