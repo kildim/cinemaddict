@@ -24,14 +24,16 @@ export default class MoviesPresenter {
   #listHead = null;
   #listTail = null;
   #more = null;
+  #onFilmChangesSubscribers = null;
 
   constructor(header, main, footer) {
     this.#header = header;
     this.#main = main;
     this.#footer = footer;
+    this.#onFilmChangesSubscribers = new Map();
   }
 
-  init(films, watchInfo) {
+  init (films, watchInfo) {
     this.#films = films;
     this.#watchInfo = watchInfo;
     this.#details = new FilmDetails();
@@ -40,36 +42,43 @@ export default class MoviesPresenter {
     this.#listTail = Math.min(this.#films.length, LIST_FILMS_CHUNK);
   }
 
-  switchWatchListFlag = (card) => () => {
+  subscribeOnFilmChanges = (object, callback) => {
+    this.#onFilmChangesSubscribers.set(object, callback);
+  }
 
-    const film = this.#films.find((movie) => movie.id === card.id);
+  unSubscribeOnFilmChanges = (object) => {
+    this.#onFilmChangesSubscribers.delete(object);
+  }
+
+  notifyOnFilmChanges(film) {
+    this.#onFilmChangesSubscribers.forEach((callback) => callback(film));
+  }
+
+  subscriptionOnFilmChanges = {
+    subscribeOnFilmChanges: this.subscribeOnFilmChanges,
+    unSubscribeOnFilmChanges: this.unSubscribeOnFilmChanges
+  }
+
+  switchWatchListFlag = (film) => () => {
     film.watchList = !film.watchList;
-    const newCard = new Card(film);
-    newCard.setExternalHandlers(this.cardHandlers);
-    // replace(newCard, card);
     changeFilm(film);
+    this.notifyOnFilmChanges(film);
   }
 
-  switchWatchedFlag = (card) => () => {
-    const film = this.#films.find((movie) => movie.id === card.id);
+  switchWatchedFlag = (film) => () => {
     film.watched = !film.watched;
-    const newCard = new Card(film);
-    newCard.setExternalHandlers(this.cardHandlers);
-    replace(newCard, card);
     changeFilm(film);
+    this.notifyOnFilmChanges(film);
   }
 
-  switchFavoriteFlag = (card) => () => {
-    const film = this.#films.find((movie) => movie.id === card.id);
+  switchFavoriteFlag = (film) => () => {
     film.favorite = !film.favorite;
-    const newCard = new Card(film);
-    newCard.setExternalHandlers(this.cardHandlers);
-    replace(newCard, card);
     changeFilm(film);
+    this.notifyOnFilmChanges(film);
   }
 
   renderDetails = (film) => () => {
-    this.#details.init(film);
+    this.#details.init(film, this.subscriptionOnFilmChanges);
     this.#details.setExternalHandlers(this.detailsHandlers);
     render(document.body, this.#details);
   };
@@ -115,15 +124,15 @@ export default class MoviesPresenter {
     const listMostCommentedSampling = this.#films.slice(0, LIST_EXTRAS_CHUNK);
 
     const filmsList = new ListPresenter(listFilms.cardsContainer);
-    filmsList.init(this.cardHandlers);
+    filmsList.init(this.cardHandlers, this.subscriptionOnFilmChanges);
     filmsList.addChunk(listFilmsSampling);
     filmsList.renderList();
     const topRatedList = new ListPresenter(listTopRated.cardsContainer);
-    topRatedList.init(this.cardHandlers);
+    topRatedList.init(this.cardHandlers, this.subscriptionOnFilmChanges);
     topRatedList.addChunk(listTopRatedSampling);
     topRatedList.renderList();
     const mostCommentedList = new ListPresenter(listMostCommented.cardsContainer);
-    mostCommentedList.init(this.cardHandlers);
+    mostCommentedList.init(this.cardHandlers, this.subscriptionOnFilmChanges);
     mostCommentedList.addChunk(listMostCommentedSampling);
     mostCommentedList.renderList();
 

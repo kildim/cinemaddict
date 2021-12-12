@@ -4,7 +4,7 @@ import {removeChildren} from '../utils/render';
 import {SORT_TYPE} from '../constants';
 
 export default class ListPresenter {
-  #cards = new Set();
+  #cards = new Map();
   #sort = SORT_TYPE.default;
   #container = null;
   #cardHandlers = {};
@@ -21,7 +21,7 @@ export default class ListPresenter {
     chunk.forEach((film) => {
       const card = new Card(film);
       card.setExternalHandlers(this.#cardHandlers);
-      this.#cards.add(card);
+      this.#cards.set(card.id, card);
     });
     this.renderList();
   }

@@ -50,17 +50,17 @@ export default class Card extends AbstractView {
 
   #clickWatchList = (event) => {
     event.preventDefault();
-    this._externalHandlers.clickWatchList(this);
+    this._externalHandlers.clickWatchList(this.#film);
   }
 
   #clickWatched = (event) => {
     event.preventDefault();
-    this._externalHandlers.clickWatched(this);
+    this._externalHandlers.clickWatched(this.#film);
   }
 
   #clickFavorite = (event) => {
     event.preventDefault();
-    this._externalHandlers.clickFavorite(this);
+    this._externalHandlers.clickFavorite(this.#film);
   }
 
   setExternalHandlers = (externalHandlers) => {
