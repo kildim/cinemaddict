@@ -34,7 +34,7 @@ export default class MoviesContainer extends AbstractView {
       const card = new Card(item);
 
       card.setExternalHandlers(cardHandlers);
-      render(this.cardsContainer, card.element);
+      render(this.cardsContainer, card);
     });
   }
 

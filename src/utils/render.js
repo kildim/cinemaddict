@@ -48,3 +48,9 @@ export const remove = (component) => {
     component.remove();
   }
 };
+
+export const removeChildren = (component) => {
+  while (component.firstChild) {
+    component.removeChild(component.firstChild);
+  }
+};
