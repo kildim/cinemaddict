@@ -84,8 +84,12 @@ export default class Card extends AbstractView {
     return this.#film.id;
   }
 
-  get filmDate() {
+  get releaseDate() {
     return this.#film.releaseDate;
+  }
+
+  get totalRating() {
+    return this.#film.totalRating;
   }
 
   get watchList() {

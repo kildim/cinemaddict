@@ -100,7 +100,7 @@ const getRandomDate = (minYear, maxYear) => {
   const minutes = String(getRandomInteger(0, 59));
   const seconds = String(getRandomInteger(0, 59));
 
-  return dayjs(`${year}-${month}-${day} ${hours}:${minutes}:${seconds}`);
+  return dayjs(`${year}-${month}-${day} ${hours}:${minutes}:${seconds}`).format();
 };
 const getRandomDescription = () => {
   const MAX_DESCRIPTION_LENGTH = 5;

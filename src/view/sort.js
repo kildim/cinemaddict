@@ -1,11 +1,13 @@
 import AbstractView from './abstract-view';
 import {SORT_TYPE} from '../constants';
 
-const createSortTemplate = () => `
+const getRelevantActiveClass = (isActiveFlag) => isActiveFlag ? 'sort__button--active' : '';
+
+const createSortTemplate = (sortType) => `
   <ul class="sort">
-    <li><a href="#" class="sort__button sort__button--active">Sort by default</a></li>
-    <li><a href="#" class="sort__button">Sort by date</a></li>
-    <li><a href="#" class="sort__button">Sort by rating</a></li>
+    <li><a href="#" class="sort__button ${getRelevantActiveClass(sortType === SORT_TYPE.default)}">Sort by default</a></li>
+    <li><a href="#" class="sort__button ${getRelevantActiveClass(sortType === SORT_TYPE.byDate)}">Sort by date</a></li>
+    <li><a href="#" class="sort__button ${getRelevantActiveClass(sortType === SORT_TYPE.byRating)}">Sort by rating</a></li>
   </ul>
 `;
 
@@ -15,6 +17,12 @@ const genProceedSortHandler = (sortType, handler) => (event) => {
 };
 
 export default class Sort extends AbstractView{
+  #sortType = null;
+
+  constructor(sortType) {
+    super();
+    this.#sortType = sortType;
+  }
 
   setExternalHandlers = (externalHandler) => {
     const [byDefault, byDate, byRating] = this.element.querySelectorAll('.sort__button');
@@ -25,6 +33,6 @@ export default class Sort extends AbstractView{
   }
 
   get template() {
-    return createSortTemplate();
+    return createSortTemplate(this.#sortType);
   }
 }

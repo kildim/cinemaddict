@@ -1,7 +1,6 @@
 import Card from '../view/card';
 import {render, replace} from '../utils/render';
 import {removeChildren} from '../utils/render';
-import {SORT_TYPE} from '../constants';
 const NOT_FOUND = -1;
 
 export default class ListPresenter {
@@ -15,7 +14,11 @@ export default class ListPresenter {
     this.#container = container;
   }
 
-  init(cardHandlers, subscriptionOnFilmChanges) {
+  init() {
+    this.#cards = [];
+  }
+
+  setExternalHandlers(cardHandlers, subscriptionOnFilmChanges) {
     this.#cardHandlers = cardHandlers;
     this.#subscribeOnFileChanges = subscriptionOnFilmChanges.subscribeOnFilmChanges;
     this.#unSubscribeOnFileChanges = subscriptionOnFilmChanges.unSubscribeOnFilmChanges;

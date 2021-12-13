@@ -1,10 +1,10 @@
-import {render} from '../utils/render';
+import {render, replace} from '../utils/render';
 import UserProfile from '../view/user-profile';
 import MainMenu from '../view/main-menu';
 import ListsContainer from '../view/lists-container';
 import Sort from '../view/sort';
 import ShowMore from '../view/show-more';
-import {FILTERS} from '../constants';
+import {FILTERS, SORT_TYPE} from '../constants';
 import FooterStatistics from '../view/footer-statistics';
 import {LIST_EXTRAS_CHUNK, LIST_FILMS_CHUNK} from '../main';
 import FilmsEmpty from '../view/films-empty';
@@ -24,6 +24,10 @@ export default class MoviesPresenter {
   #more = null;
   #onFilmChangesSubscribers = null;
   #detailsPresenter = null;
+  #sortType = null;
+  #sortedFilms = null;
+  #filmsListPresenter = null;
+  #menuSort = null;
 
   constructor(header, main, footer) {
     this.#header = header;
@@ -34,6 +38,8 @@ export default class MoviesPresenter {
 
   init (films, watchInfo) {
     this.#films = films;
+    this.#sortedFilms = [...this.#films];
+    this.#sortType = SORT_TYPE.default;
     this.#watchInfo = watchInfo;
     this.#detailsPresenter = new DetailsPresenter(document.body);
     this.#detailsPresenter.init(this.detailsHandlers, this.subscriptionOnFilmChanges);
@@ -97,18 +103,47 @@ export default class MoviesPresenter {
   onClickShowMoreHandler = (list) => () => {
     this.#listHead = this.#listTail;
     this.#listTail += LIST_FILMS_CHUNK;
-    if (this.#listTail > this.#films.length) {
-      this.#listTail = this.#films.length;
+    if (this.#listTail > this.#sortedFilms.length) {
+      this.#listTail = this.#sortedFilms.length;
       this.#more.removeElement();
     }
-    const listFilmsSampling = this.#films.slice(this.#listHead, this.#listTail);
+    const listFilmsSampling = this.#sortedFilms.slice(this.#listHead, this.#listTail);
     list.addChunk(listFilmsSampling);
+  };
+
+  changeSort = (sortType) => {
+    if (this.#sortType !== sortType) {
+      this.#sortType = sortType;
+      switch (this.#sortType) {
+        case SORT_TYPE.default:
+          this.#sortedFilms = [...this.#films];
+          break;
+        case  SORT_TYPE.byDate:
+          this.#sortedFilms = [...this.#films].sort((prevCard, succCard) => new Date(prevCard.releaseDate) - new Date(succCard.releaseDate));
+          break;
+        case  SORT_TYPE.byRating:
+          this.#sortedFilms = [...this.#films].sort((prevCard, succCard) => prevCard.totalRating - succCard.totalRating);
+          break;
+      }
+
+      this.#listHead = 0;
+      this.#listTail = Math.min(this.#films.length, LIST_FILMS_CHUNK);
+      this.#filmsListPresenter.init();
+
+      const listFilmsSampling = this.#sortedFilms.slice(this.#listHead, this.#listTail);
+      this.#filmsListPresenter.addChunk(listFilmsSampling);
+      this.#filmsListPresenter.renderList();
+      const newMenuSort = new Sort(this.#sortType);
+      replace(newMenuSort, this.#menuSort);
+      this.#menuSort = newMenuSort;
+      this.#menuSort.setExternalHandlers(this.changeSort);
+    }
   };
 
   renderFilmsListsContent(listsContainer) {
 
-    const menuSort = new Sort();
-    render(this.#main, menuSort);
+    this.#menuSort = new Sort(this.#sortType);
+    render(this.#main, this.#menuSort);
     render(this.#main, listsContainer);
 
     const listFilms = new MoviesContainer('All movies. Upcoming', false);
@@ -119,26 +154,26 @@ export default class MoviesPresenter {
     render(listsContainer, listTopRated);
     render(listsContainer, listMostCommented);
 
-    const listFilmsSampling = this.#films.slice(this.#listHead, this.#listTail);
+    const listFilmsSampling = this.#sortedFilms.slice(this.#listHead, this.#listTail);
     const listTopRatedSampling = this.#films.slice(0, LIST_EXTRAS_CHUNK);
     const listMostCommentedSampling = this.#films.slice(0, LIST_EXTRAS_CHUNK);
 
-    const filmsList = new ListPresenter(listFilms.cardsContainer);
-    filmsList.init(this.cardHandlers, this.subscriptionOnFilmChanges);
-    filmsList.addChunk(listFilmsSampling);
-    filmsList.renderList();
-    // menuSort.setExternalHandlers(filmsList.changeSort);
+    this.#filmsListPresenter = new ListPresenter(listFilms.cardsContainer);
+    this.#filmsListPresenter.setExternalHandlers(this.cardHandlers, this.subscriptionOnFilmChanges);
+    this.#filmsListPresenter.addChunk(listFilmsSampling);
+    this.#filmsListPresenter.renderList();
+    this.#menuSort.setExternalHandlers(this.changeSort);
     const topRatedList = new ListPresenter(listTopRated.cardsContainer);
-    topRatedList.init(this.cardHandlers, this.subscriptionOnFilmChanges);
+    topRatedList.setExternalHandlers(this.cardHandlers, this.subscriptionOnFilmChanges);
     topRatedList.addChunk(listTopRatedSampling);
     topRatedList.renderList();
     const mostCommentedList = new ListPresenter(listMostCommented.cardsContainer);
-    mostCommentedList.init(this.cardHandlers, this.subscriptionOnFilmChanges);
+    mostCommentedList.setExternalHandlers(this.cardHandlers, this.subscriptionOnFilmChanges);
     mostCommentedList.addChunk(listMostCommentedSampling);
     mostCommentedList.renderList();
 
     if (this.#films.length > this.#listTail) {
-      this.#more.setExternalHandlers({clickMore: this.onClickShowMoreHandler(filmsList)});
+      this.#more.setExternalHandlers({clickMore: this.onClickShowMoreHandler(this.#filmsListPresenter)});
       render(listFilms, this.#more);
     }
   }
