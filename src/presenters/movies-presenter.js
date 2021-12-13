@@ -107,7 +107,8 @@ export default class MoviesPresenter {
 
   renderFilmsListsContent(listsContainer) {
 
-    render(this.#main, new Sort());
+    const menuSort = new Sort();
+    render(this.#main, menuSort);
     render(this.#main, listsContainer);
 
     const listFilms = new MoviesContainer('All movies. Upcoming', false);
@@ -126,6 +127,7 @@ export default class MoviesPresenter {
     filmsList.init(this.cardHandlers, this.subscriptionOnFilmChanges);
     filmsList.addChunk(listFilmsSampling);
     filmsList.renderList();
+    // menuSort.setExternalHandlers(filmsList.changeSort);
     const topRatedList = new ListPresenter(listTopRated.cardsContainer);
     topRatedList.init(this.cardHandlers, this.subscriptionOnFilmChanges);
     topRatedList.addChunk(listTopRatedSampling);
