@@ -1,12 +1,12 @@
-import {filters} from '../constants';
+import {FILTERS} from '../constants';
 import AbstractView from './abstract-view';
 
 const message =
   {
-    [filters.allMovies]: 'There are no movies in our database',
-    [filters.watchlist]: 'There are no movies to watch now',
-    [filters.history]: 'There are no watched movies now',
-    [filters.favorites]: 'There are no favorite movies now'
+    [FILTERS.allMovies]: 'There are no movies in our database',
+    [FILTERS.watchlist]: 'There are no movies to watch now',
+    [FILTERS.history]: 'There are no watched movies now',
+    [FILTERS.favorites]: 'There are no favorite movies now'
   };
 
 const createFilmsEmptyTemplate = (filter) => (

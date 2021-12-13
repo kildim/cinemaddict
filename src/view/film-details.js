@@ -185,6 +185,35 @@ export default class FilmDetails extends AbstractView{
     document.addEventListener('keydown', this.#onEscapeKeyDownHandler);
   }
 
+  #clickWatchList = (event) => {
+    event.preventDefault();
+    this._externalHandlers.clickWatchList(this.#film);
+  }
+
+  #clickWatched = (event) => {
+    event.preventDefault();
+    this._externalHandlers.clickWatched(this.#film);
+  }
+
+  #clickFavorite = (event) => {
+    event.preventDefault();
+    this._externalHandlers.clickFavorite(this.#film);
+  }
+
+  setExternalHandlers = (externalHandlers) => {
+    this._externalHandlers.clickWatchList = externalHandlers.clickWatchListHandler(this.#film);
+    this._externalHandlers.clickWatched = externalHandlers.clickWatchedHandler(this.#film);
+    this._externalHandlers.clickFavorite = externalHandlers.clickFavoriteHandler(this.#film);
+
+    const watchListButton = this.element.querySelector('.film-details__control-button--watchlist');
+    const watchedButton = this.element.querySelector('.film-details__control-button--watched');
+    const favoriteButton = this.element.querySelector('.film-details__control-button--favorite');
+
+    watchListButton.addEventListener('click', this.#clickWatchList);
+    watchedButton.addEventListener('click', this.#clickWatched);
+    favoriteButton.addEventListener('click', this.#clickFavorite);
+  }
+
   #clickCloseHandler = (event) => {
     event.preventDefault();
     this.removeElement();
@@ -196,6 +225,10 @@ export default class FilmDetails extends AbstractView{
       this.removeElement();
     }
   };
+
+  get id() {
+    return this.#film.id;
+  }
 
   get template() {
     return createFilmDetailsTemplate(this.#film);
