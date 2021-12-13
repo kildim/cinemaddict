@@ -1,6 +1,4 @@
 import AbstractView from './abstract-view';
-import Card from './card';
-import {render} from '../utils/render';
 
 const createMoviesContainerTemplate = (title, visibilityClass, extrasClass) => `
     <section class="films-list ${extrasClass}">
@@ -27,15 +25,6 @@ export default class MoviesContainer extends AbstractView {
     }
 
     return this.#cardsContainer;
-  }
-
-  renderCards(list, cardHandlers) {
-    list.forEach((item) => {
-      const card = new Card(item);
-
-      card.setExternalHandlers(cardHandlers);
-      render(this.cardsContainer, card);
-    });
   }
 
   get template() {
