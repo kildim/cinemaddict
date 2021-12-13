@@ -7,12 +7,11 @@ import ShowMore from '../view/show-more';
 import {FILTERS} from '../constants';
 import FooterStatistics from '../view/footer-statistics';
 import {LIST_EXTRAS_CHUNK, LIST_FILMS_CHUNK} from '../main';
-import FilmDetails from '../view/film-details';
 import FilmsEmpty from '../view/films-empty';
 import MoviesContainer from '../view/movies-container';
 import {changeFilm} from '../data/data-adapter';
-import Card from '../view/card';
 import ListPresenter from './list-presenter';
+import DetailsPresenter from './details-presenter';
 
 export default class MoviesPresenter {
   #films = null;
@@ -20,11 +19,11 @@ export default class MoviesPresenter {
   #header = null;
   #main = null;
   #footer = null
-  #details = null;
   #listHead = null;
   #listTail = null;
   #more = null;
   #onFilmChangesSubscribers = null;
+  #detailsPresenter = null;
 
   constructor(header, main, footer) {
     this.#header = header;
@@ -36,7 +35,8 @@ export default class MoviesPresenter {
   init (films, watchInfo) {
     this.#films = films;
     this.#watchInfo = watchInfo;
-    this.#details = new FilmDetails();
+    this.#detailsPresenter = new DetailsPresenter(document.body);
+    this.#detailsPresenter.init(this.detailsHandlers, this.subscriptionOnFilmChanges);
     this.#more = new ShowMore();
     this.#listHead = 0;
     this.#listTail = Math.min(this.#films.length, LIST_FILMS_CHUNK);
@@ -78,9 +78,7 @@ export default class MoviesPresenter {
   }
 
   renderDetails = (film) => () => {
-    this.#details.init(film, this.subscriptionOnFilmChanges);
-    this.#details.setExternalHandlers(this.detailsHandlers);
-    render(document.body, this.#details);
+    this.#detailsPresenter.renderDetails(film);
   };
 
   cardHandlers = {
@@ -108,6 +106,7 @@ export default class MoviesPresenter {
   };
 
   renderFilmsListsContent(listsContainer) {
+
     render(this.#main, new Sort());
     render(this.#main, listsContainer);
 

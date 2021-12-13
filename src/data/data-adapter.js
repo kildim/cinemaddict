@@ -6,7 +6,5 @@ export const getFilms = getMockFilms(FILM_MOCKS_COUNT);
 export const getWatchInfo = getMockWatchInfo(FILM_MOCKS_COUNT);
 export function changeFilm(newFilmInfo) {
   // eslint-disable-next-line no-console
-  console.log(newFilmInfo);
-  // let oldFilmInfo = getFilms.find((movie) => movie.id === newFilmInfo.id);
-  // oldFilmInfo = !oldFilmInfo.watched;
+  console.log(`data-adapter: ${newFilmInfo}`);
 }

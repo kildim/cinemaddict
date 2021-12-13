@@ -187,23 +187,23 @@ export default class FilmDetails extends AbstractView{
 
   #clickWatchList = (event) => {
     event.preventDefault();
-    this._externalHandlers.clickWatchList(this);
+    this._externalHandlers.clickWatchList(this.#film);
   }
 
   #clickWatched = (event) => {
     event.preventDefault();
-    this._externalHandlers.clickWatched(this);
+    this._externalHandlers.clickWatched(this.#film);
   }
 
   #clickFavorite = (event) => {
     event.preventDefault();
-    this._externalHandlers.clickFavorite(this);
+    this._externalHandlers.clickFavorite(this.#film);
   }
 
   setExternalHandlers = (externalHandlers) => {
-    this._externalHandlers.clickWatchList = externalHandlers.clickWatchListHandler(this);
-    this._externalHandlers.clickWatched = externalHandlers.clickWatchedHandler(this);
-    this._externalHandlers.clickFavorite = externalHandlers.clickFavoriteHandler(this);
+    this._externalHandlers.clickWatchList = externalHandlers.clickWatchListHandler(this.#film);
+    this._externalHandlers.clickWatched = externalHandlers.clickWatchedHandler(this.#film);
+    this._externalHandlers.clickFavorite = externalHandlers.clickFavoriteHandler(this.#film);
 
     const watchListButton = this.element.querySelector('.film-details__control-button--watchlist');
     const watchedButton = this.element.querySelector('.film-details__control-button--watched');

@@ -1,5 +1,5 @@
 import Card from '../view/card';
-import {render} from '../utils/render';
+import {render, replace} from '../utils/render';
 import {removeChildren} from '../utils/render';
 import {SORT_TYPE} from '../constants';
 
@@ -8,13 +8,26 @@ export default class ListPresenter {
   #sort = SORT_TYPE.default;
   #container = null;
   #cardHandlers = {};
+  #subscribeOnFileChanges = null;
+  #unSubscribeOnFileChanges = null;
 
   constructor(container) {
     this.#container = container;
   }
 
-  init(cardHandlers) {
+  init(cardHandlers, subscriptionOnFilmChanges) {
     this.#cardHandlers = cardHandlers;
+    this.#subscribeOnFileChanges = subscriptionOnFilmChanges.subscribeOnFilmChanges;
+    this.#unSubscribeOnFileChanges = subscriptionOnFilmChanges.unSubscribeOnFilmChanges;
+    this.#subscribeOnFileChanges(this, this.onFilmChanges);
+  }
+
+  onFilmChanges = (film) => {
+    const oldCard = this.#cards.get(film.id);
+    const  newCard = new Card(film);
+    newCard.setExternalHandlers(this.#cardHandlers);
+    this.#cards.set(film.id, newCard);
+    replace(newCard, oldCard);
   }
 
   addChunk(chunk) {
@@ -33,5 +46,10 @@ export default class ListPresenter {
         this.#cards.forEach((card) => render(this.#container, card));
         break;
     }
+  }
+
+  removeElement() {
+    super.removeElement();
+    this.#unSubscribeOnFileChanges(this);
   }
 }

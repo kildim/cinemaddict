@@ -65,9 +65,9 @@ export default class Card extends AbstractView {
 
   setExternalHandlers = (externalHandlers) => {
     this._externalHandlers.clickCard = externalHandlers.clickCardHandler(this.#film);
-    this._externalHandlers.clickWatchList = externalHandlers.clickWatchListHandler(this);
-    this._externalHandlers.clickWatched = externalHandlers.clickWatchedHandler(this);
-    this._externalHandlers.clickFavorite = externalHandlers.clickFavoriteHandler(this);
+    this._externalHandlers.clickWatchList = externalHandlers.clickWatchListHandler(this.#film);
+    this._externalHandlers.clickWatched = externalHandlers.clickWatchedHandler(this.#film);
+    this._externalHandlers.clickFavorite = externalHandlers.clickFavoriteHandler(this.#film);
 
     const closeButton = this.element.querySelector('.film-card__link');
     const watchListButton = this.element.querySelector('.film-card__controls-item--add-to-watchlist');
