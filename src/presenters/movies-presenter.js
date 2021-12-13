@@ -1,4 +1,4 @@
-import {render, replace} from '../utils/render';
+import {render} from '../utils/render';
 import UserProfile from '../view/user-profile';
 import MainMenu from '../view/main-menu';
 import ListsContainer from '../view/lists-container';
