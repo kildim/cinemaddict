@@ -201,6 +201,7 @@ export default class FilmDetails extends AbstractView{
   }
 
   setExternalHandlers = (externalHandlers) => {
+    this._externalHandlers.closeDetails = externalHandlers.closeDetailsHandler();
     this._externalHandlers.clickWatchList = externalHandlers.clickWatchListHandler(this.#film);
     this._externalHandlers.clickWatched = externalHandlers.clickWatchedHandler(this.#film);
     this._externalHandlers.clickFavorite = externalHandlers.clickFavoriteHandler(this.#film);
@@ -216,13 +217,13 @@ export default class FilmDetails extends AbstractView{
 
   #clickCloseHandler = (event) => {
     event.preventDefault();
-    this.removeElement();
+    this._externalHandlers.closeDetails();
   }
 
   #onEscapeKeyDownHandler = (event) => {
     if (event.key === 'Escape' || event.key === 'Esc') {
       event.preventDefault();
-      this.removeElement();
+      this._externalHandlers.closeDetails();
     }
   };
 
