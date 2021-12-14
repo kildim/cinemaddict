@@ -6,5 +6,5 @@ export const getFilms = getMockFilms(FILM_MOCKS_COUNT);
 export const getWatchInfo = getMockWatchInfo(FILM_MOCKS_COUNT);
 export function changeFilm(newFilmInfo) {
   // eslint-disable-next-line no-console
-  console.log(`data-adapter: ${newFilmInfo}`);
+  console.log(newFilmInfo);
 }

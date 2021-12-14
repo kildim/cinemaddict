@@ -13,12 +13,16 @@ export default class DetailsPresenter {
   }
 
   init(detailsHandlers, subscriptionOnFilmChanges) {
-    this.#detailsHandlers = detailsHandlers;
+    this.#detailsHandlers = {...detailsHandlers, closeDetailsHandler: this.closeDetails};
     this.#subscribeOnFileChanges = subscriptionOnFilmChanges.subscribeOnFilmChanges;
     this.#unSubscribeOnFileChanges = subscriptionOnFilmChanges.unSubscribeOnFilmChanges;
     this.#subscribeOnFileChanges(this, this.onFilmChanges);
   }
 
+  closeDetails = () => () => {
+    remove (this.#details);
+    this.#details = null;
+  }
 
   onFilmChanges = (film) => {
     if (this.#details && this.#details.id === film.id) {
@@ -36,7 +40,7 @@ export default class DetailsPresenter {
   }
 
   removeElement() {
-    super.removeElement();
     this.#unSubscribeOnFileChanges(this);
+    super.removeElement();
   }
 }

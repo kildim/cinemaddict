@@ -46,6 +46,7 @@ export const remove = (component) => {
     component.removeElement();
   } else {
     component.remove();
+    component = null;
   }
 };
 

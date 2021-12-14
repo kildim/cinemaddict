@@ -1,11 +1,10 @@
 import Card from '../view/card';
 import {render, replace} from '../utils/render';
 import {removeChildren} from '../utils/render';
-import {SORT_TYPE} from '../constants';
+const NOT_FOUND = -1;
 
 export default class ListPresenter {
-  #cards = new Map();
-  #sort = SORT_TYPE.default;
+  #cards = [];
   #container = null;
   #cardHandlers = {};
   #subscribeOnFileChanges = null;
@@ -15,7 +14,11 @@ export default class ListPresenter {
     this.#container = container;
   }
 
-  init(cardHandlers, subscriptionOnFilmChanges) {
+  init() {
+    this.#cards = [];
+  }
+
+  setExternalHandlers(cardHandlers, subscriptionOnFilmChanges) {
     this.#cardHandlers = cardHandlers;
     this.#subscribeOnFileChanges = subscriptionOnFilmChanges.subscribeOnFilmChanges;
     this.#unSubscribeOnFileChanges = subscriptionOnFilmChanges.unSubscribeOnFilmChanges;
@@ -23,29 +26,29 @@ export default class ListPresenter {
   }
 
   onFilmChanges = (film) => {
-    const oldCard = this.#cards.get(film.id);
-    const  newCard = new Card(film);
-    newCard.setExternalHandlers(this.#cardHandlers);
-    this.#cards.set(film.id, newCard);
-    replace(newCard, oldCard);
+    const cardIndex = this.#cards.findIndex((card) => card.id === film.id);
+    if (cardIndex > NOT_FOUND) {
+      const oldCard = this.#cards[cardIndex];
+      const newCard = new Card(film);
+      newCard.setExternalHandlers(this.#cardHandlers);
+      this.#cards[cardIndex] = newCard;
+      replace(newCard, oldCard);
+      oldCard.removeElement();
+    }
   }
 
   addChunk(chunk) {
     chunk.forEach((film) => {
       const card = new Card(film);
       card.setExternalHandlers(this.#cardHandlers);
-      this.#cards.set(card.id, card);
+      this.#cards.push(card);
     });
     this.renderList();
   }
 
   renderList() {
     removeChildren(this.#container);
-    switch (this.#sort) {
-      case 'Sort by default':
-        this.#cards.forEach((card) => render(this.#container, card));
-        break;
-    }
+    this.#cards.forEach((card) => render(this.#container, card));
   }
 
   removeElement() {
