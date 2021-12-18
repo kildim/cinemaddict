@@ -146,7 +146,7 @@ const createFilmDetailsTemplate = (film) => {
         <div class="film-details__new-comment">
           <div class="film-details__add-emoji-label">
           </div>
-          <input hidden name="selected-emoji" value=""> 
+          <input hidden name="selected-emoji"> 
           <label class="film-details__comment-label">
             <textarea class="film-details__comment-input" placeholder="Select reaction below and write comment here" name="comment"></textarea>
           </label>
@@ -184,19 +184,18 @@ const createFilmDetailsTemplate = (film) => {
 export default class FilmDetails extends SmartView{
   #film = null;
   #closeButton = null;
-  #selectedEmoji = null;
   #emojis = [];
 
   init = (film) => {
     this.removeElement();
     this.#film = film;
     this.#closeButton = this.element.querySelector('.film-details__close-btn');
-    this.#selectedEmoji = this.element.querySelector('input[name=selected-emoji]');
     this.#emojis = Array.from(this.element.querySelectorAll('.film-details__emoji-label'));
 
+
     this.#closeButton.addEventListener('click', this.#clickCloseHandler);
-    this.#emojis.forEach((emojiLabel) => emojiLabel.addEventListener('click', this.#clickEmotion));
     document.addEventListener('keydown', this.#onKeyDownHandler);
+    this.#emojis.forEach((emojiLabel) => emojiLabel.addEventListener('click', this.#clickEmotion));
   }
 
   #clickWatchList = (event) => {
@@ -217,7 +216,9 @@ export default class FilmDetails extends SmartView{
   #clickEmotion = (event) => {
     const emoji = event.currentTarget.attributes.for.value;
     const emojisPlace = this.element.querySelector('.film-details__add-emoji-label');
+    const selectedEmoji = this.element.querySelector('input[name=selected-emoji]');
     const prevEmotion = emojisPlace.firstChild;
+
     const newEmotion = document.createElement('img');
     newEmotion.src = EMOJIS_PATHS[emoji];
     newEmotion.height=55;
@@ -229,6 +230,7 @@ export default class FilmDetails extends SmartView{
       emojisPlace.removeChild(prevEmotion);
     }
     emojisPlace.appendChild(newEmotion);
+    selectedEmoji.value = emoji;
   }
 
   setExternalHandlers = (externalHandlers) => {
@@ -265,10 +267,6 @@ export default class FilmDetails extends SmartView{
 
   get id() {
     return this.#film.id;
-  }
-
-  get selectedEmoji() {
-    return this.#selectedEmoji;
   }
 
   get template() {
