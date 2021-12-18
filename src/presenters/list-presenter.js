@@ -51,8 +51,7 @@ export default class ListPresenter {
     this.#cards.forEach((card) => render(this.#container, card));
   }
 
-  removeElement() {
-    super.removeElement();
+  destruct() {
     this.#unSubscribeOnFileChanges(this);
   }
 }

@@ -20,7 +20,7 @@ export default class DetailsPresenter {
   }
 
   closeDetails = () => () => {
-    remove (this.#details);
+    this.#details.removeElement();
     this.#details = null;
   }
 
@@ -39,8 +39,7 @@ export default class DetailsPresenter {
     render(this.#container, this.#details);
   }
 
-  removeElement() {
+  destruct() {
     this.#unSubscribeOnFileChanges(this);
-    super.removeElement();
   }
 }
