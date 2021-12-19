@@ -216,7 +216,6 @@ export default class FilmDetails extends SmartView{
   #clickEmotion = (event) => {
     const emoji = event.currentTarget.attributes.for.value;
     const emojisPlace = this.element.querySelector('.film-details__add-emoji-label');
-    const selectedEmoji = this.element.querySelector('input[name=selected-emoji]');
     const prevEmotion = emojisPlace.firstChild;
 
     const newEmotion = document.createElement('img');
@@ -224,18 +223,16 @@ export default class FilmDetails extends SmartView{
     newEmotion.height=55;
     newEmotion.width=55;
     newEmotion.alt='emoji';
-    event.preventDefault();
 
     if (prevEmotion) {
       emojisPlace.removeChild(prevEmotion);
     }
     emojisPlace.appendChild(newEmotion);
-    selectedEmoji.value = emoji;
   }
 
   setExternalHandlers = (externalHandlers) => {
     this._externalHandlers.closeDetails = externalHandlers.closeDetailsHandler();
-    // this._externalHandlers.submitDetails = externalHandlers.submitDetailsHandler();
+    //TO-DO this._externalHandlers.submitDetails = externalHandlers.submitDetailsHandler();
     this._externalHandlers.clickWatchList = externalHandlers.clickWatchListHandler(this.#film);
     this._externalHandlers.clickWatched = externalHandlers.clickWatchedHandler(this.#film);
     this._externalHandlers.clickFavorite = externalHandlers.clickFavoriteHandler(this.#film);
@@ -257,7 +254,7 @@ export default class FilmDetails extends SmartView{
   #onKeyDownHandler = (event) => {
     if (event.code === 'Enter' && (event.ctrlKey || event.metaKey)) {
       event.preventDefault();
-      this._externalHandlers.submitDetails();
+      //TO-DO this._externalHandlers.submitDetails();
     }
     if (event.key === 'Escape' || event.key === 'Esc') {
       event.preventDefault();
