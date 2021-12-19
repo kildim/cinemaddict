@@ -1,6 +1,13 @@
 import {formatCommentDataTime, formatDate, formatTime} from '../utils/date-time';
 import {getMockComments} from '../mocks/mocks';
-import AbstractView from './abstract-view';
+import SmartView from './smart-view';
+
+const EMOJIS_PATHS = {
+  'emoji-smile': './images/emoji/smile.png',
+  'emoji-sleeping': './images/emoji/sleeping.png',
+  'emoji-puke': './images/emoji/puke.png',
+  'emoji-angry': './images/emoji/angry.png',
+};
 
 const createGenresListTemplate = (genres) =>
   genres.map((genre) => (
@@ -137,8 +144,9 @@ const createFilmDetailsTemplate = (film) => {
         </ul>
 
         <div class="film-details__new-comment">
-          <div class="film-details__add-emoji-label"></div>
-
+          <div class="film-details__add-emoji-label">
+          </div>
+          <input hidden name="selected-emoji"> 
           <label class="film-details__comment-label">
             <textarea class="film-details__comment-input" placeholder="Select reaction below and write comment here" name="comment"></textarea>
           </label>
@@ -146,22 +154,22 @@ const createFilmDetailsTemplate = (film) => {
           <div class="film-details__emoji-list">
             <input class="film-details__emoji-item visually-hidden" name="comment-emoji" type="radio" id="emoji-smile" value="smile">
             <label class="film-details__emoji-label" for="emoji-smile">
-              <img src="./images/emoji/smile.png" width="30" height="30" alt="emoji">
+              <img src=${EMOJIS_PATHS['emoji-smile']} width="30" height="30" alt="emoji">
             </label>
 
             <input class="film-details__emoji-item visually-hidden" name="comment-emoji" type="radio" id="emoji-sleeping" value="sleeping">
             <label class="film-details__emoji-label" for="emoji-sleeping">
-              <img src="./images/emoji/sleeping.png" width="30" height="30" alt="emoji">
+              <img src=${EMOJIS_PATHS['emoji-sleeping']} width="30" height="30" alt="emoji">
             </label>
 
             <input class="film-details__emoji-item visually-hidden" name="comment-emoji" type="radio" id="emoji-puke" value="puke">
             <label class="film-details__emoji-label" for="emoji-puke">
-              <img src="./images/emoji/puke.png" width="30" height="30" alt="emoji">
+              <img src=${EMOJIS_PATHS['emoji-puke']} width="30" height="30" alt="emoji">
             </label>
 
             <input class="film-details__emoji-item visually-hidden" name="comment-emoji" type="radio" id="emoji-angry" value="angry">
             <label class="film-details__emoji-label" for="emoji-angry">
-              <img src="./images/emoji/angry.png" width="30" height="30" alt="emoji">
+              <img src=${EMOJIS_PATHS['emoji-angry']} width="30" height="30" alt="emoji">
             </label>
           </div>
         </div>
@@ -173,16 +181,21 @@ const createFilmDetailsTemplate = (film) => {
   );
 };
 
-export default class FilmDetails extends AbstractView{
+export default class FilmDetails extends SmartView{
   #film = null;
   #closeButton = null;
+  #emojis = [];
 
   init = (film) => {
     this.removeElement();
     this.#film = film;
     this.#closeButton = this.element.querySelector('.film-details__close-btn');
+    this.#emojis = Array.from(this.element.querySelectorAll('.film-details__emoji-label'));
+
+
     this.#closeButton.addEventListener('click', this.#clickCloseHandler);
-    document.addEventListener('keydown', this.#onEscapeKeyDownHandler);
+    document.addEventListener('keydown', this.#onKeyDownHandler);
+    this.#emojis.forEach((emojiLabel) => emojiLabel.addEventListener('click', this.#clickEmotion));
   }
 
   #clickWatchList = (event) => {
@@ -200,8 +213,26 @@ export default class FilmDetails extends AbstractView{
     this._externalHandlers.clickFavorite(this.#film);
   }
 
+  #clickEmotion = (event) => {
+    const emoji = event.currentTarget.attributes.for.value;
+    const emojisPlace = this.element.querySelector('.film-details__add-emoji-label');
+    const prevEmotion = emojisPlace.firstChild;
+
+    const newEmotion = document.createElement('img');
+    newEmotion.src = EMOJIS_PATHS[emoji];
+    newEmotion.height=55;
+    newEmotion.width=55;
+    newEmotion.alt='emoji';
+
+    if (prevEmotion) {
+      emojisPlace.removeChild(prevEmotion);
+    }
+    emojisPlace.appendChild(newEmotion);
+  }
+
   setExternalHandlers = (externalHandlers) => {
     this._externalHandlers.closeDetails = externalHandlers.closeDetailsHandler();
+    //TO-DO this._externalHandlers.submitDetails = externalHandlers.submitDetailsHandler();
     this._externalHandlers.clickWatchList = externalHandlers.clickWatchListHandler(this.#film);
     this._externalHandlers.clickWatched = externalHandlers.clickWatchedHandler(this.#film);
     this._externalHandlers.clickFavorite = externalHandlers.clickFavoriteHandler(this.#film);
@@ -220,7 +251,11 @@ export default class FilmDetails extends AbstractView{
     this._externalHandlers.closeDetails();
   }
 
-  #onEscapeKeyDownHandler = (event) => {
+  #onKeyDownHandler = (event) => {
+    if (event.code === 'Enter' && (event.ctrlKey || event.metaKey)) {
+      event.preventDefault();
+      //TO-DO this._externalHandlers.submitDetails();
+    }
     if (event.key === 'Escape' || event.key === 'Esc') {
       event.preventDefault();
       this._externalHandlers.closeDetails();
@@ -236,7 +271,7 @@ export default class FilmDetails extends AbstractView{
   }
 
   removeElement() {
-    document.removeEventListener('keydown', this.#onEscapeKeyDownHandler);
+    document.removeEventListener('keydown', this.#onKeyDownHandler);
     super.removeElement();
   }
 }
