@@ -16,6 +16,7 @@ export default class DetailsPresenter {
     this.#detailsHandlers = {...detailsHandlers, closeDetailsHandler: this.closeDetails};
     this.#subscribeOnFileChanges = subscriptionOnFilmChanges.subscribeOnFilmChanges;
     this.#unSubscribeOnFileChanges = subscriptionOnFilmChanges.unSubscribeOnFilmChanges;
+
     this.#subscribeOnFileChanges(this, this.onFilmChanges);
   }
 
@@ -25,9 +26,12 @@ export default class DetailsPresenter {
   }
 
   onFilmChanges = (film) => {
+    let scrollPosition = null;
     if (this.#details && this.#details.id === film.id) {
+      scrollPosition = this.#details.element.scrollTop;
       remove (this.#details);
       this.renderDetails(film);
+      this.#details.element.scrollTop = scrollPosition;
     }
   }
 
