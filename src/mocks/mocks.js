@@ -148,8 +148,6 @@ const getFilmMock = () => ({
   runtime: getRandomInteger(0, 1000),
   genres: getArrayRandomSlice(GENRES),
   description: getRandomDescription(),
-  watchlist: Boolean(getRandomInteger(0, 1)),
-  alreadyWatched: Boolean(getRandomInteger(0, 1)),
   watchingDate: getRandomDate(2000, 2020),
   watchList: Boolean(getRandomInteger(0, 1)),
   watched: Boolean(getRandomInteger(0, 1)),
