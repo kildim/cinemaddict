@@ -7,8 +7,8 @@ export default class ListPresenter {
   #cards = [];
   #container = null;
   #cardHandlers = {};
-  #subscribeOnFileChanges = null;
-  #unSubscribeOnFileChanges = null;
+  // #subscribeOnWatchInfoChanges = null;
+  #unSubscribeOnWatchInfoChanges = null;
 
   constructor(container) {
     this.#container = container;
@@ -18,11 +18,12 @@ export default class ListPresenter {
     this.#cards = [];
   }
 
-  setExternalHandlers(cardHandlers, subscriptionOnFilmChanges) {
+  setExternalHandlers(cardHandlers, watchInfoObserver) {
     this.#cardHandlers = cardHandlers;
-    this.#subscribeOnFileChanges = subscriptionOnFilmChanges.subscribeOnFilmChanges;
-    this.#unSubscribeOnFileChanges = subscriptionOnFilmChanges.unSubscribeOnFilmChanges;
-    this.#subscribeOnFileChanges(this, this.onFilmChanges);
+    // this.#subscribeOnWatchInfoChanges = watchInfoObserver.addObserver;
+    this.#unSubscribeOnWatchInfoChanges = watchInfoObserver.removeObserver;
+    // this.#subscribeOnWatchInfoChanges(this.onFilmChanges);
+    watchInfoObserver.addObserver(this.onFilmChanges);
   }
 
   onFilmChanges = (film) => {
@@ -49,9 +50,5 @@ export default class ListPresenter {
   renderList() {
     removeChildren(this.#container);
     this.#cards.forEach((card) => render(this.#container, card));
-  }
-
-  destruct() {
-    this.#unSubscribeOnFileChanges(this);
   }
 }

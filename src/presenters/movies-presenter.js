@@ -2,11 +2,9 @@ import {render, replace} from '../utils/render';
 import ListsContainer from '../view/lists-container';
 import Sort from '../view/sort';
 import ShowMore from '../view/show-more';
-import {FILTERS, SORT_TYPE} from '../constants';
+import {SORT_TYPE} from '../constants';
 import {LIST_EXTRAS_CHUNK, LIST_FILMS_CHUNK} from '../main';
-import FilmsEmpty from '../view/films-empty';
 import MoviesContainer from '../view/movies-container';
-import {changeFilm} from '../data/data-adapter';
 import ListPresenter from './list-presenter';
 import DetailsPresenter from './details-presenter';
 
@@ -27,7 +25,6 @@ export default class MoviesPresenter {
     this.#container = main;
     this.#filmsModel = filmsModel;
     this.#onFilmChangesSubscribers = new Map();
-    this.#filmsModel.films = this.#filmsModel.films;
     this.#sortedFilms = [...this.#filmsModel.films];
     this.#sortType = SORT_TYPE.default;
     this.#detailsPresenter = new DetailsPresenter(document.body);
@@ -45,10 +42,6 @@ export default class MoviesPresenter {
     this.#onFilmChangesSubscribers.delete(object);
   }
 
-  notifyOnFilmChanges(film) {
-    this.#onFilmChangesSubscribers.forEach((callback) => callback(film));
-  }
-
   subscriptionOnFilmChanges = {
     subscribeOnFilmChanges: this.subscribeOnFilmChanges,
     unSubscribeOnFilmChanges: this.unSubscribeOnFilmChanges
@@ -57,19 +50,16 @@ export default class MoviesPresenter {
   switchWatchListFlag = (film) => () => {
     film.watchList = !film.watchList;
     this.#filmsModel.updateWatchInfo(film);
-    this.notifyOnFilmChanges(film);
   }
 
   switchWatchedFlag = (film) => () => {
     film.watched = !film.watched;
-    changeFilm(film);
-    this.notifyOnFilmChanges(film);
+    this.#filmsModel.updateWatchInfo(film);
   }
 
   switchFavoriteFlag = (film) => () => {
     film.favorite = !film.favorite;
-    changeFilm(film);
-    this.notifyOnFilmChanges(film);
+    this.#filmsModel.updateWatchInfo(film);
   }
 
   renderDetails = (film) => () => {
@@ -121,7 +111,6 @@ export default class MoviesPresenter {
 
       const listFilmsSampling = this.#sortedFilms.slice(this.#listHead, this.#listTail);
       this.#filmsListPresenter.addChunk(listFilmsSampling);
-      this.#filmsListPresenter.renderList();
       const newMenuSort = new Sort(this.#sortType);
       replace(newMenuSort, this.#menuSort);
       this.#menuSort = newMenuSort;
@@ -129,8 +118,8 @@ export default class MoviesPresenter {
     }
   };
 
-  renderFilmsListsContent(listsContainer) {
-
+  renderContent() {
+    const listsContainer = new ListsContainer();
     this.#menuSort = new Sort(this.#sortType);
     render(this.#container, this.#menuSort);
     render(this.#container, listsContainer);
@@ -148,40 +137,24 @@ export default class MoviesPresenter {
     const listMostCommentedSampling = this.#filmsModel.mostCommented.slice(0, LIST_EXTRAS_CHUNK);
 
     this.#filmsListPresenter = new ListPresenter(listFilms.cardsContainer);
-    this.#filmsListPresenter.setExternalHandlers(this.cardHandlers, this.subscriptionOnFilmChanges);
+    this.#filmsListPresenter.setExternalHandlers(this.cardHandlers, this.#filmsModel.watchInfoObserver);
     this.#filmsListPresenter.addChunk(listFilmsSampling);
     this.#filmsListPresenter.renderList();
     this.#menuSort.setExternalHandlers(this.renderSorted);
-    const topRatedList = new ListPresenter(listTopRated.cardsContainer);
-    topRatedList.setExternalHandlers(this.cardHandlers, this.subscriptionOnFilmChanges);
-    topRatedList.addChunk(listTopRatedSampling);
-    topRatedList.renderList();
-    const mostCommentedList = new ListPresenter(listMostCommented.cardsContainer);
-    mostCommentedList.setExternalHandlers(this.cardHandlers, this.subscriptionOnFilmChanges);
-    mostCommentedList.addChunk(listMostCommentedSampling);
-    mostCommentedList.renderList();
 
     if (this.#filmsModel.films.length > this.#listTail) {
       this.#more.setExternalHandlers({clickMore: this.onClickShowMoreHandler(this.#filmsListPresenter)});
       render(listFilms, this.#more);
     }
-  }
 
-  renderEmptyListsContent(listsContainer){
-    const filmsEmpty = new FilmsEmpty();
+    const topRatedList = new ListPresenter(listTopRated.cardsContainer);
+    topRatedList.setExternalHandlers(this.cardHandlers, this.#filmsModel.watchInfoObserver);
+    topRatedList.addChunk(listTopRatedSampling);
+    topRatedList.renderList();
 
-    filmsEmpty.init(FILTERS.allMovies);
-    render(this.#container, listsContainer);
-    render(listsContainer, filmsEmpty);
-  }
-
-  renderContent() {
-    const listsContainer = new ListsContainer();
-
-    if (this.#filmsModel.films.length > 0) {
-      this.renderFilmsListsContent(listsContainer);
-    } else {
-      this.renderEmptyListsContent(listsContainer);
-    }
+    const mostCommentedList = new ListPresenter(listMostCommented.cardsContainer);
+    mostCommentedList.setExternalHandlers(this.cardHandlers, this.#filmsModel.watchInfoObserver);
+    mostCommentedList.addChunk(listMostCommentedSampling);
+    mostCommentedList.renderList();
   }
 }

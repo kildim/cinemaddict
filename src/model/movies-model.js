@@ -3,11 +3,11 @@ import {changeFilm, getFilms} from '../data/data-adapter';
 
 export default class MoviesModel {
   #films = null;
-  #watchInfoObserver = null;
+  watchInfoObserver = null;
 
   constructor() {
     this.#films = this.films;
-    this.#watchInfoObserver = new AbstractObservable();
+    this.watchInfoObserver = new AbstractObservable();
   }
 
   get watchInfo() {
@@ -49,6 +49,6 @@ export default class MoviesModel {
   }
 
   _watchInfoUpdated = (film) => {
-    this.#watchInfoObserver._notify(film);
+    this.watchInfoObserver._notify(film);
   }
 }
