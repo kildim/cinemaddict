@@ -7,7 +7,6 @@ export default class ListPresenter {
   #cards = [];
   #container = null;
   #cardHandlers = {};
-  // #subscribeOnWatchInfoChanges = null;
   #unSubscribeOnWatchInfoChanges = null;
 
   constructor(container) {

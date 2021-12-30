@@ -4,7 +4,6 @@ import FilmDetails from '../view/film-details';
 export default class DetailsPresenter {
   #details = null;
   #detailsHandlers = {};
-  #subscribeOnFileChanges = null;
   #unSubscribeOnFileChanges = null;
   #container = null;
 
@@ -12,12 +11,10 @@ export default class DetailsPresenter {
     this.#container = container;
   }
 
-  init(detailsHandlers, subscriptionOnFilmChanges) {
+  init(detailsHandlers, watchInfoObserver) {
     this.#detailsHandlers = {...detailsHandlers, closeDetailsHandler: this.closeDetails};
-    this.#subscribeOnFileChanges = subscriptionOnFilmChanges.subscribeOnFilmChanges;
-    this.#unSubscribeOnFileChanges = subscriptionOnFilmChanges.unSubscribeOnFilmChanges;
-
-    this.#subscribeOnFileChanges(this, this.onFilmChanges);
+    this.#unSubscribeOnFileChanges = watchInfoObserver.removeObserver;
+    watchInfoObserver.addObserver(this.onFilmChanges);
   }
 
   closeDetails = () => () => {

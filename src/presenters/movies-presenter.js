@@ -62,7 +62,8 @@ export default class MoviesPresenter {
 
   renderDetails = (film) => () => {
     this.#detailsPresenter = new DetailsPresenter(document.body);
-    this.#detailsPresenter.init(this.detailsHandlers, this.subscriptionOnFilmChanges);
+    // this.#detailsPresenter.init(this.detailsHandlers, this.subscriptionOnFilmChanges);
+    this.#detailsPresenter.init(this.detailsHandlers, this.#filmsModel.watchInfoObserver);
     this.#detailsPresenter.renderDetails(film);
   };
 
