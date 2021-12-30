@@ -13,7 +13,6 @@ export default class MoviesPresenter {
   #listHead = null;
   #listTail = null;
   #more = null;
-  #onFilmChangesSubscribers = null;
   #detailsPresenter = null;
   #sortType = null;
   #sortedFilms = null;
@@ -24,25 +23,11 @@ export default class MoviesPresenter {
   constructor(main, filmsModel) {
     this.#container = main;
     this.#filmsModel = filmsModel;
-    this.#onFilmChangesSubscribers = new Map();
     this.#sortedFilms = [...this.#filmsModel.films];
     this.#sortType = SORT_TYPE.default;
     this.#more = new ShowMore();
     this.#listHead = 0;
     this.#listTail = Math.min(this.#filmsModel.films.length, LIST_FILMS_CHUNK);
-  }
-
-  subscribeOnFilmChanges = (object, callback) => {
-    this.#onFilmChangesSubscribers.set(object, callback);
-  }
-
-  unSubscribeOnFilmChanges = (object) => {
-    this.#onFilmChangesSubscribers.delete(object);
-  }
-
-  subscriptionOnFilmChanges = {
-    subscribeOnFilmChanges: this.subscribeOnFilmChanges,
-    unSubscribeOnFilmChanges: this.unSubscribeOnFilmChanges
   }
 
   switchWatchListFlag = (film) => () => {
@@ -62,7 +47,6 @@ export default class MoviesPresenter {
 
   renderDetails = (film) => () => {
     this.#detailsPresenter = new DetailsPresenter(document.body);
-    // this.#detailsPresenter.init(this.detailsHandlers, this.subscriptionOnFilmChanges);
     this.#detailsPresenter.init(this.detailsHandlers, this.#filmsModel.watchInfoObserver);
     this.#detailsPresenter.renderDetails(film);
   };
