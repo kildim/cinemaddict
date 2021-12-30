@@ -1,11 +1,8 @@
 import {render, replace} from '../utils/render';
-// import UserProfile from '../view/user-profile';
-// import MainMenu from '../view/main-menu';
 import ListsContainer from '../view/lists-container';
 import Sort from '../view/sort';
 import ShowMore from '../view/show-more';
 import {FILTERS, SORT_TYPE} from '../constants';
-import FooterStatistics from '../view/footer-statistics';
 import {LIST_EXTRAS_CHUNK, LIST_FILMS_CHUNK} from '../main';
 import FilmsEmpty from '../view/films-empty';
 import MoviesContainer from '../view/movies-container';
@@ -59,7 +56,7 @@ export default class MoviesPresenter {
 
   switchWatchListFlag = (film) => () => {
     film.watchList = !film.watchList;
-    changeFilm(film);
+    this.#filmsModel.updateWatchInfo(film);
     this.notifyOnFilmChanges(film);
   }
 
@@ -147,8 +144,8 @@ export default class MoviesPresenter {
     render(listsContainer, listMostCommented);
 
     const listFilmsSampling = this.#sortedFilms.slice(this.#listHead, this.#listTail);
-    const listTopRatedSampling = this.#filmsModel.films.slice(0, LIST_EXTRAS_CHUNK);
-    const listMostCommentedSampling = this.#filmsModel.films.slice(0, LIST_EXTRAS_CHUNK);
+    const listTopRatedSampling = this.#filmsModel.topRated.slice(0, LIST_EXTRAS_CHUNK);
+    const listMostCommentedSampling = this.#filmsModel.mostCommented.slice(0, LIST_EXTRAS_CHUNK);
 
     this.#filmsListPresenter = new ListPresenter(listFilms.cardsContainer);
     this.#filmsListPresenter.setExternalHandlers(this.cardHandlers, this.subscriptionOnFilmChanges);

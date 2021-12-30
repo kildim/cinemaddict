@@ -20,8 +20,6 @@ export default class AppPresenter {
 
   renderContent() {
     render(this.#header, new UserProfile());
-    // eslint-disable-next-line no-console
-    console.log(this.#moviesModel.watchInfo);
     render(this.#main, new MainMenu(this.#moviesModel.watchInfo));
     const moviesPresenter = new MoviesPresenter(this.#main, this.#moviesModel);
     moviesPresenter.renderContent();

@@ -1,12 +1,13 @@
 import AbstractObservable from './abstract-observable';
-import {getFilms} from '../data/data-adapter';
+import {changeFilm, getFilms} from '../data/data-adapter';
 
-export default class MoviesModel extends AbstractObservable {
+export default class MoviesModel {
   #films = null;
+  #watchInfoObserver = null;
 
   constructor() {
-    super();
     this.#films = this.films;
+    this.#watchInfoObserver = new AbstractObservable();
   }
 
   get watchInfo() {
@@ -31,11 +32,23 @@ export default class MoviesModel extends AbstractObservable {
     return [...this.#films];
   }
 
+  get topRated() {
+    return this.films.sort((filmPred, filmSucc) => filmSucc.totalRating - filmPred.totalRating);
+  }
+
+  get mostCommented() {
+    return this.films.sort((filmPred, filmSucc) => filmSucc.comments.length - filmPred.comments.length);
+  }
+
   set films(films) {
     this.#films = [...films];
   }
 
-  updateFilm() {
+  updateWatchInfo(film) {
+    changeFilm(film, this._watchInfoUpdated);
+  }
 
+  _watchInfoUpdated = (film) => {
+    this.#watchInfoObserver._notify(film);
   }
 }
