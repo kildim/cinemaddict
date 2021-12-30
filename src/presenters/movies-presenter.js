@@ -27,8 +27,6 @@ export default class MoviesPresenter {
     this.#onFilmChangesSubscribers = new Map();
     this.#sortedFilms = [...this.#filmsModel.films];
     this.#sortType = SORT_TYPE.default;
-    this.#detailsPresenter = new DetailsPresenter(document.body);
-    this.#detailsPresenter.init(this.detailsHandlers, this.subscriptionOnFilmChanges);
     this.#more = new ShowMore();
     this.#listHead = 0;
     this.#listTail = Math.min(this.#filmsModel.films.length, LIST_FILMS_CHUNK);
@@ -63,6 +61,8 @@ export default class MoviesPresenter {
   }
 
   renderDetails = (film) => () => {
+    this.#detailsPresenter = new DetailsPresenter(document.body);
+    this.#detailsPresenter.init(this.detailsHandlers, this.subscriptionOnFilmChanges);
     this.#detailsPresenter.renderDetails(film);
   };
 
