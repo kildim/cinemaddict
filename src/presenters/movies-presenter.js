@@ -105,7 +105,10 @@ export default class MoviesPresenter {
 
   renderContent() {
     const listsContainer = new ListsContainer();
+
     this.#menuSort = new Sort(this.#sortType);
+    this.#menuSort.setExternalHandlers(this.renderSorted);
+
     render(this.#container, this.#menuSort);
     render(this.#container, listsContainer);
 
@@ -125,7 +128,6 @@ export default class MoviesPresenter {
     this.#filmsListPresenter.setExternalHandlers(this.cardHandlers, this.#filmsModel.watchInfoObserver);
     this.#filmsListPresenter.addChunk(listFilmsSampling);
     this.#filmsListPresenter.renderList();
-    this.#menuSort.setExternalHandlers(this.renderSorted);
 
     if (this.#filmsModel.films.length > this.#listTail) {
       this.#more.setExternalHandlers({clickMore: this.onClickShowMoreHandler(this.#filmsListPresenter)});

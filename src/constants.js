@@ -3,7 +3,8 @@ export const FILTERS = {
   allMovies: 'All movies',
   watchlist: 'Watchlist',
   history: 'History',
-  favorites: 'Favorites'
+  favorites: 'Favorites',
+  stats: 'Stats',
 };
 
 export const SORT_TYPE = {
