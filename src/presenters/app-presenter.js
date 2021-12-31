@@ -1,4 +1,4 @@
-import {render} from '../utils/render';
+import {render, replace} from '../utils/render';
 import UserProfile from '../view/user-profile';
 import MainMenu from '../view/main-menu';
 import MoviesPresenter from './movies-presenter';
@@ -22,6 +22,8 @@ export default class AppPresenter {
     this.#footer = footer;
     this.#moviesModel = new MoviesModel();
     this.#activeMenu = FILTERS.allMovies;
+
+    this.#moviesModel.watchInfoObserver.addObserver(this.renderMainMenu);
   }
 
   onChangeActiveMenu(newActiveMenu) {
@@ -48,13 +50,22 @@ export default class AppPresenter {
     }
   }
 
+  renderMainMenu = () => {
+    if (this.#mainMenu === null) {
+      this.#mainMenu = new MainMenu(this.#moviesModel.watchInfo, this.#activeMenu);
+      this.#mainMenu.setExternalHandlers(this.onChangeActiveMenu);
+      render(this.#main, this.#mainMenu);
+    } else {
+      const newMenu = new MainMenu(this.#moviesModel.watchInfo, this.#activeMenu);
+      replace(newMenu, this.#mainMenu);
+      this.#mainMenu = newMenu;
+      this.#mainMenu.setExternalHandlers(this.onChangeActiveMenu);
+    }
+  }
+
   renderContent() {
     render(this.#header, new UserProfile());
-
-    this.#mainMenu = new MainMenu(this.#moviesModel.watchInfo, this.#activeMenu);
-    this.#mainMenu.setExternalHandlers(this.onChangeActiveMenu);
-    render(this.#main, this.#mainMenu);
-
+    this.renderMainMenu();
     this.renderFilms();
     render(this.#footer, new FooterStatistics(this.#moviesModel.films.length));
   }
