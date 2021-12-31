@@ -40,6 +40,18 @@ export default class MoviesModel {
     return this.films.sort((filmPred, filmSucc) => filmSucc.comments.length - filmPred.comments.length);
   }
 
+  get history() {
+    return this.films.filter((film) => film.watched);
+  }
+
+  get watchlist() {
+    return this.films.filter((film) => film.watchList);
+  }
+
+  get favorites() {
+    return this.films.filter((film) => film.favorite);
+  }
+
   set films(films) {
     this.#films = [...films];
   }

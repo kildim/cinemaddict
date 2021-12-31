@@ -1,4 +1,4 @@
-import {render, replace} from '../utils/render';
+import {removeChildren, render, replace} from '../utils/render';
 import ListsContainer from '../view/lists-container';
 import Sort from '../view/sort';
 import ShowMore from '../view/show-more';
@@ -19,15 +19,11 @@ export default class MoviesPresenter {
   #filmsListPresenter = null;
   #menuSort = null;
   #filmsModel = null;
+  #films = [];
 
-  constructor(main, filmsModel) {
-    this.#container = main;
+  constructor(container, filmsModel) {
+    this.#container = container;
     this.#filmsModel = filmsModel;
-    this.#sortedFilms = [...this.#filmsModel.films];
-    this.#sortType = SORT_TYPE.default;
-    this.#more = new ShowMore();
-    this.#listHead = 0;
-    this.#listTail = Math.min(this.#filmsModel.films.length, LIST_FILMS_CHUNK);
   }
 
   switchWatchListFlag = (film) => () => {
@@ -80,13 +76,13 @@ export default class MoviesPresenter {
       this.#sortType = sortType;
       switch (this.#sortType) {
         case SORT_TYPE.default:
-          this.#sortedFilms = [...this.#filmsModel.films];
+          this.#sortedFilms = [...this.#films];
           break;
         case  SORT_TYPE.byDate:
-          this.#sortedFilms = [...this.#filmsModel.films].sort((prevCard, succCard) => new Date(prevCard.releaseDate) - new Date(succCard.releaseDate));
+          this.#sortedFilms = [...this.#films].sort((prevCard, succCard) => new Date(prevCard.releaseDate) - new Date(succCard.releaseDate));
           break;
         case  SORT_TYPE.byRating:
-          this.#sortedFilms = [...this.#filmsModel.films].sort((prevCard, succCard) => prevCard.totalRating - succCard.totalRating);
+          this.#sortedFilms = [...this.#films].sort((prevCard, succCard) => prevCard.totalRating - succCard.totalRating);
           break;
       }
 
@@ -103,7 +99,14 @@ export default class MoviesPresenter {
     }
   };
 
-  renderContent() {
+  init(films) {
+    this.#films = films;
+    this.#sortedFilms = [...this.#films];
+    this.#sortType = SORT_TYPE.default;
+    this.#more = new ShowMore();
+    this.#listHead = 0;
+    this.#listTail = Math.min(this.#films.length, LIST_FILMS_CHUNK);
+
     const listsContainer = new ListsContainer();
 
     this.#menuSort = new Sort(this.#sortType);

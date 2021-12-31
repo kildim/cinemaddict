@@ -1,4 +1,4 @@
-import {render, replace} from '../utils/render';
+import {removeChildren, render, replace} from '../utils/render';
 import UserProfile from '../view/user-profile';
 import MainMenu from '../view/main-menu';
 import MoviesPresenter from './movies-presenter';
@@ -15,6 +15,8 @@ export default class AppPresenter {
   #moviesModel = null;
   #activeMenu = null;
   #mainMenu = null;
+  #filteredFilms = null;
+  #moviesPresenter = null;
 
   constructor(header, main, footer) {
     this.#header = header;
@@ -22,13 +24,37 @@ export default class AppPresenter {
     this.#footer = footer;
     this.#moviesModel = new MoviesModel();
     this.#activeMenu = FILTERS.allMovies;
+    this.#filteredFilms = this.#moviesModel.films;
+    this.#moviesPresenter = new MoviesPresenter(this.#main, this.#moviesModel);
 
     this.#moviesModel.watchInfoObserver.addObserver(this.renderMainMenu);
   }
 
-  onChangeActiveMenu(newActiveMenu) {
+  onChangeActiveMenu = (newActiveMenu) => {
+    removeChildren(this.#main);
+    this.#mainMenu = null;
+
+    this.#activeMenu = newActiveMenu;
+    this.renderMainMenu();
+
+    switch (this.#activeMenu) {
+      case FILTERS.allMovies:
+        this.#filteredFilms = this.#moviesModel.films;
+        break;
+      case FILTERS.favorites:
+        this.#filteredFilms = this.#moviesModel.favorites;
+        break;
+      case FILTERS.history:
+        this.#filteredFilms = this.#moviesModel.history;
+        break;
+      case FILTERS.watchlist:
+        this.#filteredFilms = this.#moviesModel.watchlist;
+        break;
+    }
+
+    this.renderFilms(this.#filteredFilms);
     // eslint-disable-next-line no-console
-    console.log(newActiveMenu);
+    // console.log(this.#filteredFilms);
   }
 
   renderEmptyListsContent(){
@@ -41,10 +67,9 @@ export default class AppPresenter {
     render(listsContainer, filmsEmpty);
   }
 
-  renderFilms() {
-    if (this.#moviesModel.films.length > 0) {
-      const moviesPresenter = new MoviesPresenter(this.#main, this.#moviesModel);
-      moviesPresenter.renderContent();
+  renderFilms = (films) => {
+    if (films.length > 0) {
+      this.#moviesPresenter.init(films);
     } else {
       this.renderEmptyListsContent();
     }
@@ -66,7 +91,7 @@ export default class AppPresenter {
   renderContent() {
     render(this.#header, new UserProfile());
     this.renderMainMenu();
-    this.renderFilms();
+    this.renderFilms(this.#moviesModel.films);
     render(this.#footer, new FooterStatistics(this.#moviesModel.films.length));
   }
 }
