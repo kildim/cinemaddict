@@ -56,11 +56,12 @@ export default class MoviesModel {
     this.#films = [...films];
   }
 
-  updateWatchInfo(film) {
-    changeFilm(film, this._watchInfoUpdated);
+  updateFilm(id, payload) {
+    const film = {...this.films.find((movie) => movie.id === id), payload};
+    changeFilm(film, this._filmUpdated);
   }
 
-  _watchInfoUpdated = (film) => {
+  _filmUpdated = (film) => {
     this.watchInfoObserver._notify(film);
   }
 }

@@ -27,18 +27,15 @@ export default class MoviesPresenter {
   }
 
   switchWatchListFlag = (film) => () => {
-    film.watchList = !film.watchList;
-    this.#filmsModel.updateWatchInfo(film);
+    this.#filmsModel.updateFilm(film.id, {watchList: !film.watchList});
   }
 
   switchWatchedFlag = (film) => () => {
-    film.watched = !film.watched;
-    this.#filmsModel.updateWatchInfo(film);
+    this.#filmsModel.updateFilm(film.id, {watched: !film.watched});
   }
 
   switchFavoriteFlag = (film) => () => {
-    film.favorite = !film.favorite;
-    this.#filmsModel.updateWatchInfo(film);
+    this.#filmsModel.updateFilm(film.id, {favorite: !film.favorite});
   }
 
   renderDetails = (film) => () => {
