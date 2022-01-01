@@ -20,6 +20,7 @@ export default class MoviesPresenter {
   #menuSort = null;
   #filmsModel = null;
   #films = [];
+  #listFilms = null;
 
   constructor(container, filmsModel) {
     this.#container = container;
@@ -68,6 +69,13 @@ export default class MoviesPresenter {
     list.addChunk(listFilmsSampling);
   };
 
+  renderShowMore = () => {
+    if (this.#sortedFilms.length > this.#listTail) {
+      this.#more.setExternalHandlers({clickMore: this.onClickShowMoreHandler(this.#filmsListPresenter)});
+      render(this.#listFilms, this.#more);
+    }
+  }
+
   renderSorted = (sortType) => {
     if (this.#sortType !== sortType) {
       this.#sortType = sortType;
@@ -84,11 +92,14 @@ export default class MoviesPresenter {
       }
 
       this.#listHead = 0;
-      this.#listTail = Math.min(this.#filmsModel.films.length, LIST_FILMS_CHUNK);
+      this.#listTail = Math.min(this.#sortedFilms.length, LIST_FILMS_CHUNK);
       this.#filmsListPresenter.init();
 
       const listFilmsSampling = this.#sortedFilms.slice(this.#listHead, this.#listTail);
       this.#filmsListPresenter.addChunk(listFilmsSampling);
+
+      this.renderShowMore();
+
       const newMenuSort = new Sort(this.#sortType);
       replace(newMenuSort, this.#menuSort);
       this.#menuSort = newMenuSort;
@@ -112,11 +123,11 @@ export default class MoviesPresenter {
     render(this.#container, this.#menuSort);
     render(this.#container, listsContainer);
 
-    const listFilms = new MoviesContainer('All movies. Upcoming', false);
+    this.#listFilms = new MoviesContainer('All movies. Upcoming', false);
     const listTopRated = new MoviesContainer('Top rated');
     const listMostCommented = new MoviesContainer('Most commented');
 
-    render(listsContainer, listFilms);
+    render(listsContainer, this.#listFilms);
     render(listsContainer, listTopRated);
     render(listsContainer, listMostCommented);
 
@@ -124,15 +135,12 @@ export default class MoviesPresenter {
     const listTopRatedSampling = this.#filmsModel.topRated.slice(0, LIST_EXTRAS_CHUNK);
     const listMostCommentedSampling = this.#filmsModel.mostCommented.slice(0, LIST_EXTRAS_CHUNK);
 
-    this.#filmsListPresenter = new ListPresenter(listFilms.cardsContainer);
+    this.#filmsListPresenter = new ListPresenter(this.#listFilms.cardsContainer);
     this.#filmsListPresenter.setExternalHandlers(this.cardHandlers, this.#filmsModel.watchInfoObserver);
     this.#filmsListPresenter.addChunk(listFilmsSampling);
     this.#filmsListPresenter.renderList();
 
-    if (this.#sortedFilms.length > this.#listTail) {
-      this.#more.setExternalHandlers({clickMore: this.onClickShowMoreHandler(this.#filmsListPresenter)});
-      render(listFilms, this.#more);
-    }
+    this.renderShowMore();
 
     const topRatedList = new ListPresenter(listTopRated.cardsContainer);
     topRatedList.setExternalHandlers(this.cardHandlers, this.#filmsModel.watchInfoObserver);
