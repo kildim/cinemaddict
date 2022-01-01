@@ -13,7 +13,7 @@ export default class AppPresenter {
   #main = null;
   #footer = null;
   #moviesModel = null;
-  #activeMenu = null;
+  #menuSelection = null;
   #mainMenu = null;
   #filteredFilms = null;
   #moviesPresenter = null;
@@ -23,21 +23,41 @@ export default class AppPresenter {
     this.#main = main;
     this.#footer = footer;
     this.#moviesModel = new MoviesModel();
-    this.#activeMenu = FILTERS.allMovies;
+    this.#menuSelection = FILTERS.allMovies;
     this.#filteredFilms = this.#moviesModel.films;
     this.#moviesPresenter = new MoviesPresenter(this.#main, this.#moviesModel);
 
     this.#moviesModel.watchInfoObserver.addObserver(this.renderMainMenu);
   }
 
-  onChangeActiveMenu = (newActiveMenu) => {
+  renderSpecifiedContent = (mainMenuSelection) => {
     removeChildren(this.#main);
     this.#mainMenu = null;
 
-    this.#activeMenu = newActiveMenu;
+    this.#menuSelection = mainMenuSelection;
     this.renderMainMenu();
 
-    switch (this.#activeMenu) {
+    if (this.#menuSelection === FILTERS.stats) {
+      // eslint-disable-next-line no-console
+      console.log('RENDER STATS');
+    } else {
+      this.renderFilms();
+    }
+
+  }
+
+  renderEmptyListsContent() {
+    const filmsEmpty = new FilmsEmpty();
+
+    filmsEmpty.init(this.#menuSelection);
+    const listsContainer = new ListsContainer();
+
+    render(this.#main, listsContainer);
+    render(listsContainer, filmsEmpty);
+  }
+
+  renderFilms = () => {
+    switch (this.#menuSelection) {
       case FILTERS.allMovies:
         this.#filteredFilms = this.#moviesModel.films;
         break;
@@ -50,26 +70,12 @@ export default class AppPresenter {
       case FILTERS.watchlist:
         this.#filteredFilms = this.#moviesModel.watchlist;
         break;
+      default:
+        throw 'FILMS FILTER NOT SPECIFIED';
     }
 
-    this.renderFilms(this.#filteredFilms);
-    // eslint-disable-next-line no-console
-    // console.log(this.#filteredFilms);
-  }
-
-  renderEmptyListsContent(){
-    const filmsEmpty = new FilmsEmpty();
-
-    filmsEmpty.init(this.#activeMenu);
-    const listsContainer = new ListsContainer();
-
-    render(this.#main, listsContainer);
-    render(listsContainer, filmsEmpty);
-  }
-
-  renderFilms = (films) => {
-    if (films.length > 0) {
-      this.#moviesPresenter.init(films);
+    if (this.#filteredFilms.length > 0) {
+      this.#moviesPresenter.init(this.#filteredFilms);
     } else {
       this.renderEmptyListsContent();
     }
@@ -77,21 +83,20 @@ export default class AppPresenter {
 
   renderMainMenu = () => {
     if (this.#mainMenu === null) {
-      this.#mainMenu = new MainMenu(this.#moviesModel.watchInfo, this.#activeMenu);
-      this.#mainMenu.setExternalHandlers(this.onChangeActiveMenu);
+      this.#mainMenu = new MainMenu(this.#moviesModel.watchInfo, this.#menuSelection);
+      this.#mainMenu.setExternalHandlers(this.renderSpecifiedContent);
       render(this.#main, this.#mainMenu);
     } else {
-      const newMenu = new MainMenu(this.#moviesModel.watchInfo, this.#activeMenu);
+      const newMenu = new MainMenu(this.#moviesModel.watchInfo, this.#menuSelection);
       replace(newMenu, this.#mainMenu);
       this.#mainMenu = newMenu;
-      this.#mainMenu.setExternalHandlers(this.onChangeActiveMenu);
+      this.#mainMenu.setExternalHandlers(this.renderSpecifiedContent);
     }
   }
 
   renderContent() {
     render(this.#header, new UserProfile());
-    this.renderMainMenu();
-    this.renderFilms(this.#moviesModel.films);
+    this.renderSpecifiedContent(FILTERS.allMovies);
     render(this.#footer, new FooterStatistics(this.#moviesModel.films.length));
   }
 }

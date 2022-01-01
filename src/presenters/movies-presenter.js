@@ -1,4 +1,4 @@
-import {removeChildren, render, replace} from '../utils/render';
+import {render, replace} from '../utils/render';
 import ListsContainer from '../view/lists-container';
 import Sort from '../view/sort';
 import ShowMore from '../view/show-more';
@@ -129,7 +129,7 @@ export default class MoviesPresenter {
     this.#filmsListPresenter.addChunk(listFilmsSampling);
     this.#filmsListPresenter.renderList();
 
-    if (this.#filmsModel.films.length > this.#listTail) {
+    if (this.#sortedFilms.length > this.#listTail) {
       this.#more.setExternalHandlers({clickMore: this.onClickShowMoreHandler(this.#filmsListPresenter)});
       render(listFilms, this.#more);
     }
