@@ -57,7 +57,7 @@ export default class MoviesModel {
   }
 
   updateFilm(id, payload) {
-    const film = {...this.films.find((movie) => movie.id === id), payload};
+    const film = {...this.films.find((movie) => movie.id === id), ...payload};
     changeFilm(film, this._filmUpdated);
   }
 
