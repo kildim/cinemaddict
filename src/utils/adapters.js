@@ -1,6 +1,6 @@
 import {formatTime} from './date-time';
 
-export const parseFilmServerFormat = (serverData) => {
+export const parseFromServerFormat = (serverData) => {
   const filmInfo = serverData['film_info'];
   const userDetails = serverData['user_details'];
   return {

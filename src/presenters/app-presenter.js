@@ -2,7 +2,6 @@ import {removeChildren, render, replace} from '../utils/render';
 import UserProfile from '../view/user-profile';
 import MainMenu from '../view/main-menu';
 import MoviesPresenter from './movies-presenter';
-import MoviesModel from '../model/movies-model';
 import FooterStatistics from '../view/footer-statistics';
 import FilmsEmpty from '../view/films-empty';
 import {FILTERS} from '../constants';
@@ -14,20 +13,27 @@ export default class AppPresenter {
   #footer = null;
   #moviesModel = null;
   #menuSelection = null;
+  #isDataLoading = null;
   #mainMenu = null;
   #filteredFilms = null;
   #moviesPresenter = null;
 
-  constructor(header, main, footer) {
-    this.#header = header;
-    this.#main = main;
-    this.#footer = footer;
-    this.#moviesModel = new MoviesModel();
+  constructor(moviesModel) {
+    this.#header = document.querySelector('.header');
+    this.#main = document.querySelector('.main');
+    this.#footer = document.querySelector('.footer');
+    this.#moviesModel = moviesModel;
+    this.#isDataLoading = false;
     this.#menuSelection = FILTERS.allMovies;
-    this.#filteredFilms = this.#moviesModel.films;
     this.#moviesPresenter = new MoviesPresenter(this.#main, this.#moviesModel);
 
-    this.#moviesModel.watchInfoObserver.addObserver(this.renderMainMenu);
+    this.#moviesModel.addFilmsChangesObserver(() => {
+      this.#filteredFilms = this.#moviesModel.movies;
+      // eslint-disable-next-line no-console
+      console.log('FILMS LOADED APP-PRESENTER!');
+      this.renderContent();
+    });
+    this.#moviesModel.addWatchInfoChangesObserver(this.renderMainMenu);
   }
 
   renderSpecifiedContent = (mainMenuSelection) => {
@@ -59,7 +65,7 @@ export default class AppPresenter {
   renderFilms = () => {
     switch (this.#menuSelection) {
       case FILTERS.allMovies:
-        this.#filteredFilms = this.#moviesModel.films;
+        this.#filteredFilms = this.#moviesModel.movies;
         break;
       case FILTERS.favorites:
         this.#filteredFilms = this.#moviesModel.favorites;
@@ -94,9 +100,14 @@ export default class AppPresenter {
     }
   }
 
-  renderContent() {
+  start() {
+    //TODO Продумать логику отображения экрана загрузки https://codepen.io/kumarsidharth/pen/VBBbJW
+    this.#moviesModel.loadMovies();
+  }
+
+  renderContent = () => {
     render(this.#header, new UserProfile());
-    this.renderSpecifiedContent(FILTERS.allMovies);
-    render(this.#footer, new FooterStatistics(this.#moviesModel.films.length));
+    this.renderSpecifiedContent(this.#menuSelection);
+    render(this.#footer, new FooterStatistics(this.#moviesModel.filmsCount));
   }
 }

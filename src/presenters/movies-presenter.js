@@ -3,7 +3,7 @@ import ListsContainer from '../view/lists-container';
 import Sort from '../view/sort';
 import ShowMore from '../view/show-more';
 import {SORT_TYPE} from '../constants';
-import {LIST_EXTRAS_CHUNK, LIST_FILMS_CHUNK} from '../main';
+import {LIST_EXTRAS_CHUNK, LIST_FILMS_CHUNK} from '../constants';
 import MoviesContainer from '../view/movies-container';
 import ListPresenter from './list-presenter';
 import DetailsPresenter from './details-presenter';
@@ -18,30 +18,30 @@ export default class MoviesPresenter {
   #sortedFilms = null;
   #filmsListPresenter = null;
   #menuSort = null;
-  #filmsModel = null;
+  #moviesModel = null;
   #films = [];
   #listFilms = null;
 
-  constructor(container, filmsModel) {
+  constructor(container, moviesModel) {
     this.#container = container;
-    this.#filmsModel = filmsModel;
+    this.#moviesModel = moviesModel;
   }
 
   switchWatchListFlag = (film) => () => {
-    this.#filmsModel.updateFilm(film.id, {watchList: !film.watchList});
+    this.#moviesModel.updateFilm(film.id, {watchList: !film.watchList});
   }
 
   switchWatchedFlag = (film) => () => {
-    this.#filmsModel.updateFilm(film.id, {watched: !film.watched});
+    this.#moviesModel.updateFilm(film.id, {watched: !film.watched});
   }
 
   switchFavoriteFlag = (film) => () => {
-    this.#filmsModel.updateFilm(film.id, {favorite: !film.favorite});
+    this.#moviesModel.updateFilm(film.id, {favorite: !film.favorite});
   }
 
   renderDetails = (film) => () => {
     this.#detailsPresenter = new DetailsPresenter(document.body);
-    this.#detailsPresenter.init(this.detailsHandlers, this.#filmsModel.watchInfoObserver);
+    this.#detailsPresenter.init(this.detailsHandlers, this.#moviesModel);
     this.#detailsPresenter.renderDetails(film);
   };
 
@@ -87,7 +87,7 @@ export default class MoviesPresenter {
           this.#sortedFilms = [...this.#films].sort((prevCard, succCard) => new Date(prevCard.releaseDate) - new Date(succCard.releaseDate));
           break;
         case  SORT_TYPE.byRating:
-          this.#sortedFilms = [...this.#films].sort((prevCard, succCard) => prevCard.totalRating - succCard.totalRating);
+          this.#sortedFilms = [...this.#films].sort((prevCard, succCard) => succCard.totalRating - prevCard.totalRating);
           break;
       }
 
@@ -106,6 +106,10 @@ export default class MoviesPresenter {
       this.#menuSort.setExternalHandlers(this.renderSorted);
     }
   };
+
+  //TODO выделить общий код по инициализации маркеров начала и конца отображаемого списка
+  // , отрисовке меню сортировки и кнопки SHowMore в отдельный метод и вызывать его из init()
+  // и renderSorted()
 
   init(films) {
     this.#films = films;
@@ -132,23 +136,23 @@ export default class MoviesPresenter {
     render(listsContainer, listMostCommented);
 
     const listFilmsSampling = this.#sortedFilms.slice(this.#listHead, this.#listTail);
-    const listTopRatedSampling = this.#filmsModel.topRated.slice(0, LIST_EXTRAS_CHUNK);
-    const listMostCommentedSampling = this.#filmsModel.mostCommented.slice(0, LIST_EXTRAS_CHUNK);
+    const listTopRatedSampling = this.#moviesModel.topRated.slice(0, LIST_EXTRAS_CHUNK);
+    const listMostCommentedSampling = this.#moviesModel.mostCommented.slice(0, LIST_EXTRAS_CHUNK);
 
     this.#filmsListPresenter = new ListPresenter(this.#listFilms.cardsContainer);
-    this.#filmsListPresenter.setExternalHandlers(this.cardHandlers, this.#filmsModel.watchInfoObserver);
+    this.#filmsListPresenter.setExternalHandlers(this.cardHandlers, this.#moviesModel);
     this.#filmsListPresenter.addChunk(listFilmsSampling);
     this.#filmsListPresenter.renderList();
 
     this.renderShowMore();
 
     const topRatedList = new ListPresenter(listTopRated.cardsContainer);
-    topRatedList.setExternalHandlers(this.cardHandlers, this.#filmsModel.watchInfoObserver);
+    topRatedList.setExternalHandlers(this.cardHandlers, this.#moviesModel);
     topRatedList.addChunk(listTopRatedSampling);
     topRatedList.renderList();
 
     const mostCommentedList = new ListPresenter(listMostCommented.cardsContainer);
-    mostCommentedList.setExternalHandlers(this.cardHandlers, this.#filmsModel.watchInfoObserver);
+    mostCommentedList.setExternalHandlers(this.cardHandlers, this.#moviesModel);
     mostCommentedList.addChunk(listMostCommentedSampling);
     mostCommentedList.renderList();
   }

@@ -11,10 +11,10 @@ export default class DetailsPresenter {
     this.#container = container;
   }
 
-  init(detailsHandlers, watchInfoObserver) {
+  init(detailsHandlers, moviesModel) {
     this.#detailsHandlers = {...detailsHandlers, closeDetailsHandler: this.closeDetails};
-    this.#unSubscribeOnFileChanges = watchInfoObserver.removeObserver;
-    watchInfoObserver.addObserver(this.onFilmChanges);
+    this.#unSubscribeOnFileChanges = moviesModel.removeWatchInfoChangesObserver;
+    moviesModel.addWatchInfoChangesObserver(this.onFilmChanges);
   }
 
   closeDetails = () => () => {
