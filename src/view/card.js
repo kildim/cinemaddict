@@ -1,5 +1,6 @@
 // import {formatTime} from '../utils/date-time';
 import AbstractView from './abstract-view';
+import {formatTime} from '../utils/date-time';
 
 const createCardTemplate = (film) => {
   const {title, totalRating, releaseDate, runtime, poster, genres, description, comments, watchList, watched, favorite} = film;
@@ -18,7 +19,7 @@ const createCardTemplate = (film) => {
             <p class="film-card__rating">${totalRating}</p>
             <p class="film-card__info">
               <span class="film-card__year">${releaseYear}</span>
-              <span class="film-card__duration">${runtime}</span>
+              <span class="film-card__duration">${formatTime(runtime)}</span>
               <span class="film-card__genre">${genres[0]}</span>
             </p>
             <img src="${poster}" alt="${title} poster" class="film-card__poster">

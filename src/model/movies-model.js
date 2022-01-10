@@ -1,5 +1,5 @@
 import AbstractObservable from './abstract-observable';
-import {parseFromServerFormat} from '../utils/adapters';
+import {parseFromServerFormat, parseToServerFormat} from '../utils/adapters';
 
 export default class MoviesModel {
   #films = null;
@@ -14,6 +14,14 @@ export default class MoviesModel {
     this.#watchInfoChangesSpotters = new AbstractObservable();
     this.#filmsChangesSpotters = new AbstractObservable();
     this.#watchedFlagChangesSpotters = new AbstractObservable();
+  }
+
+  addWatchedFlagChangesObserver(observer) {
+    this.#watchedFlagChangesSpotters.addObserver(observer);
+  }
+
+  removeWatchedFlagChangesObserver(observer) {
+    this.#watchInfoChangesSpotters.removeObserver(observer);
   }
 
   addWatchInfoChangesObserver(observer) {
@@ -62,9 +70,21 @@ export default class MoviesModel {
     });
   }
 
-  // updateMovie(movie) {
-  //   const movieData = parseToServerFormat(movie);
-  // }
+  replaceFilm(film) {
+    const index = this.#films.findIndex((movie) => movie.id === film.id);
+    this.#films[index] = {...film};
+  }
+
+  changeFilmsWatchedFlag = (film) => {
+    const changedFilm = parseToServerFormat({...film, watched: !film.watched});
+    // eslint-disable-next-line no-console
+    console.log(changedFilm);
+    this.#dataProvider.updateFilm(changedFilm).then((movie) => {
+      const updatedFilm = parseFromServerFormat(movie);
+      this.replaceFilm(updatedFilm);
+      this.#watchedFlagChangesSpotters._notify(updatedFilm);
+    });
+  }
 
   get topRated() {
     return this.#films.sort((filmPred, filmSucc) => filmSucc.totalRating - filmPred.totalRating);

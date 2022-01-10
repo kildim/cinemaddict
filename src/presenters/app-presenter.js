@@ -1,4 +1,4 @@
-import {removeChildren, render, replace} from '../utils/render';
+import {remove, removeChildren, render, replace} from '../utils/render';
 import UserProfile from '../view/user-profile';
 import MainMenu from '../view/main-menu';
 import MoviesPresenter from './movies-presenter';
@@ -34,6 +34,7 @@ export default class AppPresenter {
       this.renderContent();
     });
     this.#moviesModel.addWatchInfoChangesObserver(this.renderMainMenu);
+    this.#moviesModel.addWatchedFlagChangesObserver(this.renderProfile);
   }
 
   renderSpecifiedContent = (mainMenuSelection) => {
@@ -125,7 +126,7 @@ export default class AppPresenter {
   renderProfile = () => {
     const newProfile = new UserProfile(this.userRank);
     if (this.#profile === null) {
-      render(this.#header, new UserProfile(this.userRank));
+      render(this.#header, newProfile);
     } else {
       replace(newProfile, this.#profile);
     }

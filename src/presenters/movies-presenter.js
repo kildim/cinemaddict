@@ -32,7 +32,7 @@ export default class MoviesPresenter {
   }
 
   switchWatchedFlag = (film) => () => {
-    this.#moviesModel.updateFilm(film.id, {watched: !film.watched});
+    this.#moviesModel.changeFilmsWatchedFlag(film);
   }
 
   switchFavoriteFlag = (film) => () => {
@@ -106,10 +106,6 @@ export default class MoviesPresenter {
       this.#menuSort.setExternalHandlers(this.renderSorted);
     }
   };
-
-  //TODO выделить общий код по инициализации маркеров начала и конца отображаемого списка
-  // , отрисовке меню сортировки и кнопки SHowMore в отдельный метод и вызывать его из init()
-  // и renderSorted()
 
   init(films) {
     this.#films = films;

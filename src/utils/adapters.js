@@ -14,7 +14,7 @@ export const parseFromServerFormat = (serverData) => {
     writers: filmInfo['writers'].join(', ') || '',
     actors: filmInfo['actors'].join(', ') || '',
     releaseDate: new Date(filmInfo['release']['date']) || null,
-    runtime: formatTime(filmInfo['runtime']) || '',
+    runtime: filmInfo['runtime'] || null,
     releaseCountry: filmInfo['release']['release_country'] || '',
     genres: filmInfo['genre'] || [],
     description: filmInfo['description'] || '',
@@ -26,8 +26,37 @@ export const parseFromServerFormat = (serverData) => {
   };
 };
 
-// export parseToServerFormat(movie) {
-//   return {
-//     "id":
-//   }
-// }
+export const parseToServerFormat = (movie) => ({
+  'id': movie.id,
+  // TODO fix the 'comments' stub
+  'comments': [],
+  'film_info':
+    {
+      'title': movie.title,
+      'alternative_title': movie.alternativeTitle,
+      'total_rating': movie.totalRating,
+      'poster': movie.poster,
+      'age_rating': movie.ageRating,
+      'director': movie.director,
+      // TODO fix the 'writers' stub
+      'writers': [],
+      // TODO fix the 'actors' stub
+      'actors': [],
+      'release':
+        {
+          'date': movie.releaseDate.toISOString(),
+          'release_country': movie.releaseCountry,
+        },
+      'runtime': movie.runtime,
+      // TODO fix the 'genre' stub
+      'genre': [],
+      'description': movie.description,
+    },
+  'user_details':
+    {
+      'watchlist': movie.watchList,
+      'already_watched': movie.watched,
+      'watching_date': movie.watchingDate.toISOString(),
+      'favorite': movie.favorite,
+    }
+});
