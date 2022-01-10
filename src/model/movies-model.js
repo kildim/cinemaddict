@@ -6,12 +6,14 @@ export default class MoviesModel {
   #dataProvider = null;
   #watchInfoChangesSpotters = null;
   #filmsChangesSpotters = null;
+  #watchedFlagChangesSpotters = null;
 
   constructor(dataProvider) {
     this.#films = [];
     this.#dataProvider = dataProvider;
     this.#watchInfoChangesSpotters = new AbstractObservable();
     this.#filmsChangesSpotters = new AbstractObservable();
+    this.#watchedFlagChangesSpotters = new AbstractObservable();
   }
 
   addWatchInfoChangesObserver(observer) {
@@ -53,23 +55,16 @@ export default class MoviesModel {
     return [...this.#films];
   }
 
-  // loadMovies = async () => {
-  //   try {
-  //     const films = await this.#dataProvider.loadFilms();
-  //     // eslint-disable-next-line no-console
-  //     console.log(films);
-  //     this.#filmsChangesSpotters._notify();
-  //   } catch (error) {
-  //     this.#films = [];
-  //   }
-  // }
-
   loadMovies() {
     this.#dataProvider.loadFilms().then((films) => {
       this.#films = films.map((film) => parseFromServerFormat(film));
       this.#filmsChangesSpotters._notify();
     });
   }
+
+  // updateMovie(movie) {
+  //   const movieData = parseToServerFormat(movie);
+  // }
 
   get topRated() {
     return this.#films.sort((filmPred, filmSucc) => filmSucc.totalRating - filmPred.totalRating);

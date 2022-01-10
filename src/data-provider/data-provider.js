@@ -31,7 +31,7 @@ export default class DataProvider extends AbstractProvider{
 
   updateFilm = async (film) => {
     const response = await this.#load({
-      url: `films/${film.id}`,
+      url: `movies/${film.id}`,
       method: Method.PUT,
       body: JSON.stringify(film),
       headers: new Headers({'Content-Type': 'application/json'}),

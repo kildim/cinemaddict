@@ -4,6 +4,7 @@ export const parseFromServerFormat = (serverData) => {
   const filmInfo = serverData['film_info'];
   const userDetails = serverData['user_details'];
   return {
+    id: serverData['id'],
     poster: filmInfo['poster'] || '',
     ageRating: filmInfo['age_rating'] || '',
     title: filmInfo['title'] || '',
@@ -12,14 +13,21 @@ export const parseFromServerFormat = (serverData) => {
     director: filmInfo['director'] || '',
     writers: filmInfo['writers'].join(', ') || '',
     actors: filmInfo['actors'].join(', ') || '',
-    releaseDate: new Date(filmInfo['release']['date']) || '',
+    releaseDate: new Date(filmInfo['release']['date']) || null,
     runtime: formatTime(filmInfo['runtime']) || '',
     releaseCountry: filmInfo['release']['release_country'] || '',
     genres: filmInfo['genre'] || [],
-    description: filmInfo['description'] || [],
+    description: filmInfo['description'] || '',
     watchList: userDetails['watchlist'] || false,
     watched: userDetails['already_watched'] || false,
     favorite: userDetails['favorite'] || false,
-    comments: serverData['comments'],
+    watchingDate: new Date(userDetails['watching_date']) || null,
+    comments: serverData['comments'] || [],
   };
 };
+
+// export parseToServerFormat(movie) {
+//   return {
+//     "id":
+//   }
+// }
