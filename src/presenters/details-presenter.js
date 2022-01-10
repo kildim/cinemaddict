@@ -39,8 +39,4 @@ export default class DetailsPresenter {
     this.#details.setExternalHandlers(this.#detailsHandlers);
     render(this.#container, this.#details);
   }
-
-  destruct() {
-    this.#unSubscribeOnFileChanges(this);
-  }
 }

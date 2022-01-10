@@ -1,5 +1,4 @@
 import {formatCommentDataTime, formatDate, formatTime} from '../utils/date-time';
-import {getMockComments} from '../mocks/mocks';
 import SmartView from './smart-view';
 
 const EMOJIS_PATHS = {
@@ -58,9 +57,8 @@ const createFilmDetailsTemplate = (film) => {
     watchList,
     watched,
     favorite,
+    comments
   } = film;
-
-  const comments = getMockComments();
 
   return (
     `
@@ -232,7 +230,7 @@ export default class FilmDetails extends SmartView{
 
   setExternalHandlers = (externalHandlers) => {
     this._externalHandlers.closeDetails = externalHandlers.closeDetailsHandler();
-    //TO-DO this._externalHandlers.submitDetails = externalHandlers.submitDetailsHandler();
+    //TODO this._externalHandlers.submitDetails = externalHandlers.submitDetailsHandler();
     this._externalHandlers.clickWatchList = externalHandlers.clickWatchListHandler(this.#film);
     this._externalHandlers.clickWatched = externalHandlers.clickWatchedHandler(this.#film);
     this._externalHandlers.clickFavorite = externalHandlers.clickFavoriteHandler(this.#film);

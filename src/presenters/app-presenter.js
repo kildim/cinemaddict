@@ -6,11 +6,13 @@ import FooterStatistics from '../view/footer-statistics';
 import FilmsEmpty from '../view/films-empty';
 import {FILTERS} from '../constants';
 import ListsContainer from '../view/lists-container';
+import {Loader} from '../view/loader';
 
 export default class AppPresenter {
   #header = null;
   #main = null;
   #footer = null;
+  #profile = null;
   #moviesModel = null;
   #menuSelection = null;
   #isDataLoading = null;
@@ -29,14 +31,13 @@ export default class AppPresenter {
 
     this.#moviesModel.addFilmsChangesObserver(() => {
       this.#filteredFilms = this.#moviesModel.movies;
-      // eslint-disable-next-line no-console
-      console.log('FILMS LOADED APP-PRESENTER!');
       this.renderContent();
     });
     this.#moviesModel.addWatchInfoChangesObserver(this.renderMainMenu);
   }
 
   renderSpecifiedContent = (mainMenuSelection) => {
+    this.#isDataLoading = false;
     removeChildren(this.#main);
     this.#mainMenu = null;
 
@@ -87,6 +88,10 @@ export default class AppPresenter {
     }
   }
 
+  renderLoader = () => {
+    render(this.#main, new Loader());
+  }
+
   renderMainMenu = () => {
     if (this.#mainMenu === null) {
       this.#mainMenu = new MainMenu(this.#moviesModel.watchInfo, this.#menuSelection);
@@ -100,13 +105,41 @@ export default class AppPresenter {
     }
   }
 
+  get userRank() {
+    let rank = '';
+    const watchedCount = this.#moviesModel.history.length;
+    if (watchedCount > 20) {
+      rank = 'movie buff';
+    } else {
+      if (watchedCount > 10) {
+        rank = 'fan';
+      } else {
+        if (watchedCount > 0) {
+          rank = 'novice';
+        }
+      }
+    }
+    return(rank);
+  }
+
+  renderProfile = () => {
+    const newProfile = new UserProfile(this.userRank);
+    if (this.#profile === null) {
+      render(this.#header, new UserProfile(this.userRank));
+    } else {
+      replace(newProfile, this.#profile);
+    }
+    this.#profile = newProfile;
+  }
+
   start() {
-    //TODO Продумать логику отображения экрана загрузки https://codepen.io/kumarsidharth/pen/VBBbJW
+    this.#isDataLoading = true;
+    this.renderLoader();
     this.#moviesModel.loadMovies();
   }
 
   renderContent = () => {
-    render(this.#header, new UserProfile());
+    this.renderProfile();
     this.renderSpecifiedContent(this.#menuSelection);
     render(this.#footer, new FooterStatistics(this.#moviesModel.filmsCount));
   }
