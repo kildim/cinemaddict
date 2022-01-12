@@ -7,38 +7,36 @@ export default class ListPresenter {
   #cards = [];
   #container = null;
   #cardHandlers = {};
-  #unSubscribeOnWatchInfoChanges = null;
 
-  constructor(container) {
+  constructor(listPresenterProps) {
+    const {container, cardHandlers} = {...listPresenterProps};
+
     this.#container = container;
-  }
-
-  init() {
-    this.#cards = [];
-  }
-
-  setExternalHandlers(cardHandlers, moviesModel) {
     this.#cardHandlers = cardHandlers;
-    this.#unSubscribeOnWatchInfoChanges = moviesModel.removeWatchInfoChangesObserver;
-    moviesModel.addWatchedFlagChangesObserver(this.onFilmChanges);
   }
 
-  onFilmChanges = (film) => {
-    const cardIndex = this.#cards.findIndex((card) => card.id === film.id);
-    if (cardIndex > NOT_FOUND) {
-      const oldCard = this.#cards[cardIndex];
-      const newCard = new Card(film);
-      newCard.setExternalHandlers(this.#cardHandlers);
-      this.#cards[cardIndex] = newCard;
-      replace(newCard, oldCard);
-      oldCard.removeElement();
-    }
-  }
+
+  // onFilmChanges = (film) => {
+  //   const cardIndex = this.#cards.findIndex((card) => card.id === film.id);
+  //   if (cardIndex > NOT_FOUND) {
+  //     const oldCard = this.#cards[cardIndex];
+  //     const newCard = new Card(film);
+  //     newCard.setExternalHandlers(this.#cardHandlers);
+  //     this.#cards[cardIndex] = newCard;
+  //     replace(newCard, oldCard);
+  //     oldCard.removeElement();
+  //   }
+  // }
 
   addChunk(chunk) {
     chunk.forEach((film) => {
-      const card = new Card(film);
-      card.setExternalHandlers(this.#cardHandlers);
+
+      const CARD_PROPS ={
+        film: film,
+        externalHandlers: this.#cardHandlers,
+      };
+      const card = new Card(CARD_PROPS);
+
       this.#cards.push(card);
     });
     this.renderList();

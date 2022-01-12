@@ -7,6 +7,5 @@ const dataProvider = new DataProvider(BASE_URL, AUTHORIZATION);
 const moviesModel = new MoviesModel(dataProvider);
 const appPresenter = new AppPresenter(moviesModel);
 
+appPresenter.init();
 moviesModel.loadMovies();
-appPresenter.renderContent();
-// appPresenter.start();

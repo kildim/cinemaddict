@@ -38,9 +38,25 @@ const createCardTemplate = (film) => {
 export default class Card extends AbstractView {
   #film = null;
 
-  constructor(film) {
+  constructor(cardProps) {
+    const {film, externalHandlers} = {...cardProps};
     super();
     this.#film = film;
+
+    this._externalHandlers.clickCard = externalHandlers.clickCardHandler(this.#film);
+    this._externalHandlers.clickWatchList = externalHandlers.clickWatchListHandler(this.#film);
+    this._externalHandlers.clickWatched = externalHandlers.clickWatchedHandler(this.#film);
+    this._externalHandlers.clickFavorite = externalHandlers.clickFavoriteHandler(this.#film);
+
+    const closeButton = this.element.querySelector('.film-card__link');
+    const watchListButton = this.element.querySelector('.film-card__controls-item--add-to-watchlist');
+    const watchedButton = this.element.querySelector('.film-card__controls-item--mark-as-watched');
+    const favoriteButton = this.element.querySelector('.film-card__controls-item--favorite');
+
+    closeButton.addEventListener('click', this.#clickCardHandler);
+    watchListButton.addEventListener('click', this.#clickWatchList);
+    watchedButton.addEventListener('click', this.#clickWatched);
+    favoriteButton.addEventListener('click', this.#clickFavorite);
   }
 
   #clickCardHandler = (event) => {
@@ -61,23 +77,6 @@ export default class Card extends AbstractView {
   #clickFavorite = (event) => {
     event.preventDefault();
     this._externalHandlers.clickFavorite(this.#film);
-  }
-
-  setExternalHandlers = (externalHandlers) => {
-    this._externalHandlers.clickCard = externalHandlers.clickCardHandler(this.#film);
-    this._externalHandlers.clickWatchList = externalHandlers.clickWatchListHandler(this.#film);
-    this._externalHandlers.clickWatched = externalHandlers.clickWatchedHandler(this.#film);
-    this._externalHandlers.clickFavorite = externalHandlers.clickFavoriteHandler(this.#film);
-
-    const closeButton = this.element.querySelector('.film-card__link');
-    const watchListButton = this.element.querySelector('.film-card__controls-item--add-to-watchlist');
-    const watchedButton = this.element.querySelector('.film-card__controls-item--mark-as-watched');
-    const favoriteButton = this.element.querySelector('.film-card__controls-item--favorite');
-
-    closeButton.addEventListener('click', this.#clickCardHandler);
-    watchListButton.addEventListener('click', this.#clickWatchList);
-    watchedButton.addEventListener('click', this.#clickWatched);
-    favoriteButton.addEventListener('click', this.#clickFavorite);
   }
 
   get id() {

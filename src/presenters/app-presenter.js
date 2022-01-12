@@ -4,9 +4,10 @@ import MainMenu from '../view/main-menu';
 import MoviesPresenter from './movies-presenter';
 import FooterStatistics from '../view/footer-statistics';
 import FilmsEmpty from '../view/films-empty';
-import {FILTERS, SORT_TYPE} from '../constants';
+import {FILTERS} from '../constants';
 import ListsContainer from '../view/lists-container';
 import {Loader} from '../view/loader';
+import ContentWrapper from '../view/contentWrapper';
 
 export default class AppPresenter {
   #header = null;
@@ -18,29 +19,62 @@ export default class AppPresenter {
   #menuSelection = null;
   #isDataLoading = null;
   #mainMenu = null;
-  #loader = null;
   #filteredFilms = null;
   #moviesPresenter = null;
+  #contentWrapper = null;
 
   constructor(moviesModel) {
     this.#header = document.querySelector('.header');
     this.#main = document.querySelector('.main');
     this.#footer = document.querySelector('.footer');
     this.#moviesModel = moviesModel;
-    this.#isDataLoading = true;
     this.#menuSelection = FILTERS.allMovies;
 
-    // this.#moviesPresenter = new MoviesPresenter(this.#main, this.#moviesModel);
-    const MOVIES_PRESENTER_PROPS = {
-      container: this.#main,
-      cardHandlers: {}
-    };
-    this.#moviesPresenter = new MoviesPresenter(MOVIES_PRESENTER_PROPS);
 
-    this.#moviesModel.addFilmsChangesObserver(this.onFilmsLoaded);
+    this.#moviesPresenter = new MoviesPresenter();
 
-    // this.#moviesModel.addWatchInfoChangesObserver(this.renderMainMenu);
+    this.#moviesModel.addFilmsLoadedObserver(this.onFilmsLoaded);
     this.#moviesModel.addWatchedFlagChangesObserver(this.onWatchedFlagChanges);
+  }
+
+  init() {
+    this.renderMainMenu();
+    this.renderContentWrapper();
+    this.renderFooterStats();
+
+    const MOVIES_PRESENTER_PROPS = {
+      container: this.#contentWrapper,
+      cardHandlers: {
+        clickCardHandler: this.renderDetails,
+        clickWatchListHandler: this.switchWatchListFlag,
+        clickWatchedHandler: this.switchWatchedFlag,
+        clickFavoriteHandler: this.switchFavoriteFlag
+      },
+    };
+    this.#moviesPresenter.init(MOVIES_PRESENTER_PROPS);
+
+    this.#isDataLoading = true;
+    this.renderLoader();
+  }
+
+  renderDetails = (film) => () => {
+    // eslint-disable-next-line no-console
+    console.log('renderDetails');
+  }
+
+  switchWatchListFlag = (film) => () => {
+    // eslint-disable-next-line no-console
+    console.log('switchWatchListFlag');
+  }
+
+  switchWatchedFlag = (film) => () => {
+    // eslint-disable-next-line no-console
+    console.log('switchWatchedFlag');
+  }
+
+  switchFavoriteFlag = (film) => () => {
+    // eslint-disable-next-line no-console
+    console.log('switchFavoriteFlag');
   }
 
   renderAllMovies = () => {
@@ -85,11 +119,8 @@ export default class AppPresenter {
 
   onFilmsLoaded = () => {
     this.#isDataLoading = false;
-    if (this.#loader !== null) {
-      this.#loader.removeElement();
-      this.#loader = null;
-    }
-    this.renderContent();
+    this.#contentWrapper.clear();
+    this.renderInitContent();
   }
 
   onWatchedFlagChanges = () => {
@@ -98,73 +129,62 @@ export default class AppPresenter {
     // this.renderMainMenu();
   }
 
-  renderMainMenuSelectedContent = (mainMenuSelection) => {
-    this.#isDataLoading = false;
-    removeChildren(this.#main);
-    this.#mainMenu = null;
+  // renderMainMenuSelectedContent = (mainMenuSelection) => {
+  //   this.#isDataLoading = false;
+  //   removeChildren(this.#main);
+  //   this.#mainMenu = null;
+  //
+  //   this.#menuSelection = mainMenuSelection;
+  //   this.renderMainMenu();
+  //
+  //   if (this.#menuSelection === FILTERS.stats) {
+  //     // eslint-disable-next-line no-console
+  //     console.log('RENDER STATS');
+  //   } else {
+  //     this.renderFilms();
+  //   }
+  //
+  // }
 
-    this.#menuSelection = mainMenuSelection;
-    this.renderMainMenu();
+  // renderEmptyListsContent() {
+  //   const filmsEmpty = new FilmsEmpty();
+  //
+  //   filmsEmpty.init(this.#menuSelection);
+  //   const listsContainer = new ListsContainer();
+  //
+  //   render(this.#main, listsContainer);
+  //   render(listsContainer, filmsEmpty);
+  // }
 
-    if (this.#menuSelection === FILTERS.stats) {
-      // eslint-disable-next-line no-console
-      console.log('RENDER STATS');
-    } else {
-      this.renderFilms();
-    }
-
-  }
-
-  renderEmptyListsContent() {
-    const filmsEmpty = new FilmsEmpty();
-
-    filmsEmpty.init(this.#menuSelection);
-    const listsContainer = new ListsContainer();
-
-    render(this.#main, listsContainer);
-    render(listsContainer, filmsEmpty);
-  }
-
-  renderFilms = () => {
-    switch (this.#menuSelection) {
-      case FILTERS.allMovies:
-        this.#filteredFilms = this.#moviesModel.movies;
-        break;
-      case FILTERS.favorites:
-        this.#filteredFilms = this.#moviesModel.favorites;
-        break;
-      case FILTERS.history:
-        this.#filteredFilms = this.#moviesModel.history;
-        break;
-      case FILTERS.watchlist:
-        this.#filteredFilms = this.#moviesModel.watchlist;
-        break;
-      default:
-        throw 'FILMS FILTER NOT SPECIFIED';
-    }
-
-    if (this.#filteredFilms.length > 0) {
-      // eslint-disable-next-line no-console
-      console.log(this.#filteredFilms);
-      this.#moviesPresenter.init(this.#filteredFilms);
-    } else {
-      this.renderEmptyListsContent();
-    }
-  }
-
-  renderLoader = () => {
-    render(this.#main, new Loader());
-  }
+  // renderFilms = () => {
+  //   switch (this.#menuSelection) {
+  //     case FILTERS.allMovies:
+  //       this.#filteredFilms = this.#moviesModel.movies;
+  //       break;
+  //     case FILTERS.favorites:
+  //       this.#filteredFilms = this.#moviesModel.favorites;
+  //       break;
+  //     case FILTERS.history:
+  //       this.#filteredFilms = this.#moviesModel.history;
+  //       break;
+  //     case FILTERS.watchlist:
+  //       this.#filteredFilms = this.#moviesModel.watchlist;
+  //       break;
+  //     default:
+  //       throw 'FILMS FILTER NOT SPECIFIED';
+  //   }
+  //
+  //   if (this.#filteredFilms.length > 0) {
+  //     // eslint-disable-next-line no-console
+  //     console.log(this.#filteredFilms);
+  //     this.#moviesPresenter.init(this.#filteredFilms);
+  //   } else {
+  //     this.renderEmptyListsContent();
+  //   }
+  // }
 
   renderLoader = () => {
-    if (this.#loader === null) {
-      this.#loader = new Loader();
-      render(this.#main, this.#loader);
-    } else {
-      const newLoader = new Loader();
-      replace(newLoader, this.#loader);
-      this.#loader = newLoader;
-    }
+    render(this.#contentWrapper, new Loader());
   }
 
   renderMainMenu = () => {
@@ -204,11 +224,12 @@ export default class AppPresenter {
         }
       }
     }
-    return(rank);
+    return (rank);
   }
 
   renderProfile = () => {
     const newProfile = new UserProfile(this.userRank);
+
     if (this.#profile === null) {
       render(this.#header, newProfile);
     } else {
@@ -219,6 +240,7 @@ export default class AppPresenter {
 
   renderFooterStats = () => {
     const newFooterStats = new FooterStatistics(this.#moviesModel.filmsCount);
+
     if (this.#footerStats === null) {
       render(this.#footer, newFooterStats);
     } else {
@@ -227,20 +249,28 @@ export default class AppPresenter {
     this.#footerStats = newFooterStats;
   }
 
-  renderContent = () => {
-    if (this.#isDataLoading) {
-      this.renderMainMenu();
-      this.renderLoader();
-      this.renderFooterStats();
+  renderContentWrapper = () => {
+    const newContentWrapper = new ContentWrapper();
+
+    if (this.#contentWrapper === null) {
+      render(this.#main, newContentWrapper);
     } else {
-      switch (this.#menuSelection) {
-        case FILTERS.allMovies:
-          this.renderProfile();
-          this.renderMainMenu();
-          this.#moviesPresenter.renderContent();
-          this.renderFooterStats();
-          break;
-      }
+      replace(newContentWrapper, this.#contentWrapper);
     }
+    this.#contentWrapper = newContentWrapper;
+  }
+
+  renderInitContent = () => {
+    this.renderProfile();
+    this.renderMainMenu();
+
+    const MOVIES_PRESENTER_INIT_CONTENT = {
+      movies: this.#moviesModel.movies,
+      topRated: this.#moviesModel.topRated,
+      mostCommented: this.#moviesModel.mostCommented,
+    };
+    this.#moviesPresenter.renderInitContent(MOVIES_PRESENTER_INIT_CONTENT);
+
+    this.renderFooterStats();
   }
 }

@@ -25,11 +25,6 @@ const createMainMenuTemplate = (watchInfo, activeMenu) => {
   ) ;
 };
 
-// const genProceedMenuHandler = (activeMenu, handler) => (event) => {
-//   event.preventDefault();
-//   handler(activeMenu);
-// };
-
 export default class MainMenu extends AbstractView{
   #watchInfo = null;
   #activeMenu = null;

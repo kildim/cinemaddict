@@ -5,14 +5,14 @@ export default class MoviesModel {
   #films = null;
   #dataProvider = null;
   #watchInfoChangesSpotters = null;
-  #filmsChangesSpotters = null;
+  #filmsLoadedSpotters = null;
   #watchedFlagChangesSpotters = null;
 
   constructor(dataProvider) {
     this.#dataProvider = dataProvider;
     this.#films = [];
     this.#watchInfoChangesSpotters = new AbstractObservable();
-    this.#filmsChangesSpotters = new AbstractObservable();
+    this.#filmsLoadedSpotters = new AbstractObservable();
     this.#watchedFlagChangesSpotters = new AbstractObservable();
   }
 
@@ -24,20 +24,20 @@ export default class MoviesModel {
     this.#watchInfoChangesSpotters.removeObserver(observer);
   }
 
-  addWatchInfoChangesObserver(observer) {
-    this.#watchInfoChangesSpotters.addObserver(observer);
+  // addWatchInfoChangesObserver(observer) {
+  //   this.#watchInfoChangesSpotters.addObserver(observer);
+  // }
+  //
+  // removeWatchInfoChangesObserver(observer) {
+  //   this.#watchInfoChangesSpotters.removeObserver(observer);
+  // }
+
+  addFilmsLoadedObserver(observer) {
+    this.#filmsLoadedSpotters.addObserver(observer);
   }
 
-  removeWatchInfoChangesObserver(observer) {
-    this.#watchInfoChangesSpotters.removeObserver(observer);
-  }
-
-  addFilmsChangesObserver(observer) {
-    this.#filmsChangesSpotters.addObserver(observer);
-  }
-
-  removeFilmsChangesObserver(observer) {
-    this.#filmsChangesSpotters.removeObserver(observer);
+  removeFilmsLoadedObserver(observer) {
+    this.#filmsLoadedSpotters.removeObserver(observer);
   }
 
   get watchInfo() {
@@ -66,7 +66,7 @@ export default class MoviesModel {
   loadMovies() {
     this.#dataProvider.loadFilms().then((films) => {
       this.#films = films.map((film) => parseFromServerFormat(film));
-      this.#filmsChangesSpotters._notify();
+      this.#filmsLoadedSpotters._notify();
     });
   }
 
