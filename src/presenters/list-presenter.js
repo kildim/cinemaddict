@@ -20,7 +20,7 @@ export default class ListPresenter {
   setExternalHandlers(cardHandlers, moviesModel) {
     this.#cardHandlers = cardHandlers;
     this.#unSubscribeOnWatchInfoChanges = moviesModel.removeWatchInfoChangesObserver;
-    moviesModel.addWatchInfoChangesObserver(this.onFilmChanges);
+    moviesModel.addWatchedFlagChangesObserver(this.onFilmChanges);
   }
 
   onFilmChanges = (film) => {

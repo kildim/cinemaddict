@@ -1122,10 +1122,10 @@ button {
 
 .animate {
   display:flex;
-  justify-content: center;
-  align-items: center;
-  height:100%;
-  margin: auto;
+  justify-content: left;
+  margin-top: 10vh;
+  align-items: start;
+  height:20vh;
   font-family: Helvetica, sans-serif, Arial;
   animation: load 1.2s infinite 0s ease-in-out;
   animation-direction: alternate;

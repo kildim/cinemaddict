@@ -9,8 +9,8 @@ export default class MoviesModel {
   #watchedFlagChangesSpotters = null;
 
   constructor(dataProvider) {
-    this.#films = [];
     this.#dataProvider = dataProvider;
+    this.#films = [];
     this.#watchInfoChangesSpotters = new AbstractObservable();
     this.#filmsChangesSpotters = new AbstractObservable();
     this.#watchedFlagChangesSpotters = new AbstractObservable();
@@ -60,7 +60,7 @@ export default class MoviesModel {
   }
 
   get movies() {
-    return [...this.#films];
+    return this.#films;
   }
 
   loadMovies() {
@@ -77,8 +77,6 @@ export default class MoviesModel {
 
   changeFilmsWatchedFlag = (film) => {
     const changedFilm = parseToServerFormat({...film, watched: !film.watched});
-    // eslint-disable-next-line no-console
-    console.log(changedFilm);
     this.#dataProvider.updateFilm(changedFilm).then((movie) => {
       const updatedFilm = parseFromServerFormat(movie);
       this.replaceFilm(updatedFilm);
@@ -105,17 +103,4 @@ export default class MoviesModel {
   get favorites() {
     return this.#films.filter((film) => film.favorite);
   }
-
-  // set films(films) {
-  //   this.#films = [...films];
-  // }
-  //
-  // updateFilm(id, payload) {
-  //   const film = {...this.films.find((movie) => movie.id === id), ...payload};
-  //   updateFilm(film, this._filmUpdated);
-  // }
-  //
-  // _filmUpdated = (film) => {
-  //   this.watchInfoChangesObserver._notify(film);
-  // }
 }

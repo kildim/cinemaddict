@@ -25,29 +25,59 @@ const createMainMenuTemplate = (watchInfo, activeMenu) => {
   ) ;
 };
 
-const genProceedMenuHandler = (activeMenu, handler) => (event) => {
-  event.preventDefault();
-  handler(activeMenu);
-};
+// const genProceedMenuHandler = (activeMenu, handler) => (event) => {
+//   event.preventDefault();
+//   handler(activeMenu);
+// };
 
 export default class MainMenu extends AbstractView{
   #watchInfo = null;
   #activeMenu = null;
 
-  constructor(watchInfo, activeMenu) {
+  constructor(mainMenuProps) {
+    const {watchInfo, activeMenu, mainMenuHandlers} = {...mainMenuProps};
     super();
     this.#watchInfo = watchInfo;
     this.#activeMenu = activeMenu;
-  }
 
-  setExternalHandlers = (externalHandler) => {
+    this._externalHandlers.clickAllMovies = mainMenuHandlers.clickAllMoviesHandler;
+    this._externalHandlers.clickWatchList = mainMenuHandlers.clickWatchListHandler;
+    this._externalHandlers.clickHistory = mainMenuHandlers.clickHistoryHandler;
+    this._externalHandlers.clickFavorites = mainMenuHandlers.clickFavoritesHandler;
+    this._externalHandlers.clickStats = mainMenuHandlers.clickStatsHandler;
+
     const [allMovies, watchlist, history, favorites, stats] = this.element.querySelectorAll('a');
 
-    allMovies.addEventListener('click', genProceedMenuHandler(FILTERS.allMovies, externalHandler));
-    watchlist.addEventListener('click', genProceedMenuHandler(FILTERS.watchlist, externalHandler));
-    history.addEventListener('click', genProceedMenuHandler(FILTERS.history, externalHandler));
-    favorites.addEventListener('click', genProceedMenuHandler(FILTERS.favorites, externalHandler));
-    stats.addEventListener('click', genProceedMenuHandler(FILTERS.stats, externalHandler));
+    allMovies.addEventListener('click', this.#clickAllMovies);
+    watchlist.addEventListener('click', this.#clickWatchList);
+    history.addEventListener('click', this.#clickHistory);
+    favorites.addEventListener('click', this.#clickFavorites);
+    stats.addEventListener('click', this.#clickStats);
+  }
+
+  #clickAllMovies = (event) => {
+    event.preventDefault();
+    this._externalHandlers.clickAllMovies();
+  }
+
+  #clickWatchList = (event) => {
+    event.preventDefault();
+    this._externalHandlers.clickWatchList();
+  }
+
+  #clickHistory = (event) => {
+    event.preventDefault();
+    this._externalHandlers.clickHistory();
+  }
+
+  #clickFavorites = (event) => {
+    event.preventDefault();
+    this._externalHandlers.clickFavorites();
+  }
+
+  #clickStats = (event) => {
+    event.preventDefault();
+    this._externalHandlers.clickStats();
   }
 
   get template() {

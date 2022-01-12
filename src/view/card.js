@@ -1,4 +1,3 @@
-// import {formatTime} from '../utils/date-time';
 import AbstractView from './abstract-view';
 import {formatTime} from '../utils/date-time';
 

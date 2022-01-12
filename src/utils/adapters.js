@@ -1,18 +1,18 @@
-import {formatTime} from './date-time';
-
 export const parseFromServerFormat = (serverData) => {
   const filmInfo = serverData['film_info'];
   const userDetails = serverData['user_details'];
   return {
     id: serverData['id'],
     poster: filmInfo['poster'] || '',
-    ageRating: filmInfo['age_rating'] || '',
+    ageRating: filmInfo['age_rating'] || 0,
     title: filmInfo['title'] || '',
     alternativeTitle: filmInfo['alternative_title'] || '',
     totalRating: filmInfo['total_rating'] || '',
     director: filmInfo['director'] || '',
-    writers: filmInfo['writers'].join(', ') || '',
-    actors: filmInfo['actors'].join(', ') || '',
+    // writers: filmInfo['writers'].join(', ') || '',
+    writers: filmInfo['writers'] || [],
+    // actors: filmInfo['actors'].join(', ') || '',
+    actors: filmInfo['actors'] || [],
     releaseDate: new Date(filmInfo['release']['date']) || null,
     runtime: filmInfo['runtime'] || null,
     releaseCountry: filmInfo['release']['release_country'] || '',
@@ -28,8 +28,7 @@ export const parseFromServerFormat = (serverData) => {
 
 export const parseToServerFormat = (movie) => ({
   'id': movie.id,
-  // TODO fix the 'comments' stub
-  'comments': [],
+  'comments': movie.comments,
   'film_info':
     {
       'title': movie.title,
@@ -38,18 +37,15 @@ export const parseToServerFormat = (movie) => ({
       'poster': movie.poster,
       'age_rating': movie.ageRating,
       'director': movie.director,
-      // TODO fix the 'writers' stub
-      'writers': [],
-      // TODO fix the 'actors' stub
-      'actors': [],
+      'writers': movie.writers,
+      'actors': movie.actors,
       'release':
         {
           'date': movie.releaseDate.toISOString(),
           'release_country': movie.releaseCountry,
         },
       'runtime': movie.runtime,
-      // TODO fix the 'genre' stub
-      'genre': [],
+      'genre': movie.genres,
       'description': movie.description,
     },
   'user_details':
