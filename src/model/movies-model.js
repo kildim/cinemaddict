@@ -103,4 +103,21 @@ export default class MoviesModel {
   get favorites() {
     return this.#films.filter((film) => film.favorite);
   }
+
+  get userRank() {
+    let rank = '';
+    const watchedCount = this.history.length;
+    if (watchedCount > 20) {
+      rank = 'movie buff';
+    } else {
+      if (watchedCount > 10) {
+        rank = 'fan';
+      } else {
+        if (watchedCount > 0) {
+          rank = 'novice';
+        }
+      }
+    }
+    return (rank);
+  }
 }

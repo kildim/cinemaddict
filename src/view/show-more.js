@@ -6,16 +6,24 @@ const createShowMoreTemplate = () => `
 
 export default class ShowMore extends AbstractView{
 
+  constructor(showMoreProps) {
+    const {showMoreHandlers} = {...showMoreProps};
+    super();
+    this._externalHandlers.clickMore = showMoreHandlers.clickMore;
+
+    this.element.addEventListener('click', this.#clickMoreHandler);
+  }
+
   #clickMoreHandler = (event) => {
     event.preventDefault();
     this._externalHandlers.clickMore();
   }
 
-  setExternalHandlers = ({clickMore = null}) => {
-    this._externalHandlers.clickMore = clickMore;
-
-    this.element.addEventListener('click', this.#clickMoreHandler);
-  }
+  // setExternalHandlers = ({clickMore = null}) => {
+  //   this._externalHandlers.clickMore = clickMore;
+  //
+  //   this.element.addEventListener('click', this.#clickMoreHandler);
+  // }
 
   get template() {
     return createShowMoreTemplate();

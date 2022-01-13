@@ -4,6 +4,7 @@ import {render, replace} from '../utils/render';
 import ListsContainer from '../view/lists-container';
 import MoviesContainer from '../view/movies-container';
 import ListPresenter from './list-presenter';
+import ShowMore from '../view/show-more';
 
 export default class MoviesPresenter {
   #cardHandlers = null;
@@ -86,6 +87,23 @@ export default class MoviesPresenter {
     this.#listsContainer = newListContainer;
   }
 
+  renderShowMore = () => {
+    if (this.#sortedFilms.length > this.#listTail) {
+      render(this.#listFilms, this.#showMore);
+    }
+  }
+
+  onClickShowMoreHandler = (list) => () => {
+    this.#listHead = this.#listTail;
+    this.#listTail += LIST_FILMS_CHUNK;
+    if (this.#listTail > this.#sortedFilms.length) {
+      this.#listTail = this.#sortedFilms.length;
+      this.#showMore.removeElement();
+    }
+    const listFilmsSampling = this.#sortedFilms.slice(this.#listHead, this.#listTail);
+    list.addChunk(listFilmsSampling);
+  };
+
   renderInitContent(initContent) {
     const {movies, topRated, mostCommented} = {...initContent};
 
@@ -115,5 +133,13 @@ export default class MoviesPresenter {
     this.#filmsListPresenter = new ListPresenter(FILMS_LIST_PRESENTER_PROPS);
     this.#filmsListPresenter.addChunk(listFilmsSampling);
     this.#filmsListPresenter.renderList();
+
+    const SHOW_MORE_PROPS = {
+      showMoreHandlers: {
+        clickMore: this.onClickShowMoreHandler(this.#filmsListPresenter),
+      }
+    };
+    this.#showMore = new ShowMore(SHOW_MORE_PROPS);
+    this.renderShowMore();
   }
 }

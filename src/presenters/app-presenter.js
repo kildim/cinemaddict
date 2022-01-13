@@ -1,11 +1,11 @@
-import {removeChildren, render, replace} from '../utils/render';
+import {render, replace} from '../utils/render';
 import UserProfile from '../view/user-profile';
 import MainMenu from '../view/main-menu';
 import MoviesPresenter from './movies-presenter';
 import FooterStatistics from '../view/footer-statistics';
-import FilmsEmpty from '../view/films-empty';
+// import FilmsEmpty from '../view/films-empty';
 import {FILTERS} from '../constants';
-import ListsContainer from '../view/lists-container';
+// import ListsContainer from '../view/lists-container';
 import {Loader} from '../view/loader';
 import ContentWrapper from '../view/contentWrapper';
 
@@ -124,9 +124,8 @@ export default class AppPresenter {
   }
 
   onWatchedFlagChanges = () => {
-    this.renderContent();
-    // this.renderProfile();
-    // this.renderMainMenu();
+    // eslint-disable-next-line no-console
+    console.log('onWatchedFlagChanges');
   }
 
   // renderMainMenuSelectedContent = (mainMenuSelection) => {
@@ -210,25 +209,8 @@ export default class AppPresenter {
     }
   }
 
-  get userRank() {
-    let rank = '';
-    const watchedCount = this.#moviesModel.history.length;
-    if (watchedCount > 20) {
-      rank = 'movie buff';
-    } else {
-      if (watchedCount > 10) {
-        rank = 'fan';
-      } else {
-        if (watchedCount > 0) {
-          rank = 'novice';
-        }
-      }
-    }
-    return (rank);
-  }
-
   renderProfile = () => {
-    const newProfile = new UserProfile(this.userRank);
+    const newProfile = new UserProfile(this.#moviesModel.userRank);
 
     if (this.#profile === null) {
       render(this.#header, newProfile);
@@ -264,12 +246,12 @@ export default class AppPresenter {
     this.renderProfile();
     this.renderMainMenu();
 
-    const MOVIES_PRESENTER_INIT_CONTENT = {
+    const MOVIES_PRESENTER_INIT_CONTENT_PROPS = {
       movies: this.#moviesModel.movies,
       topRated: this.#moviesModel.topRated,
       mostCommented: this.#moviesModel.mostCommented,
     };
-    this.#moviesPresenter.renderInitContent(MOVIES_PRESENTER_INIT_CONTENT);
+    this.#moviesPresenter.renderInitContent(MOVIES_PRESENTER_INIT_CONTENT_PROPS);
 
     this.renderFooterStats();
   }
