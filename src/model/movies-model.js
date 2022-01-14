@@ -59,8 +59,8 @@ export default class MoviesModel {
     return this.#films.length;
   }
 
-  get movies() {
-    return this.#films;
+  get films() {
+    return [...this.#films];
   }
 
   loadMovies() {
@@ -85,11 +85,13 @@ export default class MoviesModel {
   }
 
   get topRated() {
-    return this.#films.sort((filmPred, filmSucc) => filmSucc.totalRating - filmPred.totalRating);
+    const films = [...this.#films];
+    return films.sort((filmPred, filmSucc) => filmSucc.totalRating - filmPred.totalRating);
   }
 
   get mostCommented() {
-    return this.#films.sort((filmPred, filmSucc) => filmSucc.comments.length - filmPred.comments.length);
+    const films = [...this.#films];
+    return films.sort((filmPred, filmSucc) => filmSucc.comments.length - filmPred.comments.length);
   }
 
   get history() {

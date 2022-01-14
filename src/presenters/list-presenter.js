@@ -15,6 +15,9 @@ export default class ListPresenter {
     this.#cardHandlers = cardHandlers;
   }
 
+  init() {
+    this.#cards = [];
+  }
 
   // onFilmChanges = (film) => {
   //   const cardIndex = this.#cards.findIndex((card) => card.id === film.id);

@@ -3,9 +3,7 @@ import UserProfile from '../view/user-profile';
 import MainMenu from '../view/main-menu';
 import MoviesPresenter from './movies-presenter';
 import FooterStatistics from '../view/footer-statistics';
-// import FilmsEmpty from '../view/films-empty';
 import {FILTERS} from '../constants';
-// import ListsContainer from '../view/lists-container';
 import {Loader} from '../view/loader';
 import ContentWrapper from '../view/contentWrapper';
 
@@ -19,7 +17,6 @@ export default class AppPresenter {
   #menuSelection = null;
   #isDataLoading = null;
   #mainMenu = null;
-  #filteredFilms = null;
   #moviesPresenter = null;
   #contentWrapper = null;
 
@@ -78,41 +75,30 @@ export default class AppPresenter {
   }
 
   renderAllMovies = () => {
-    // eslint-disable-next-line no-console
-    console.log('renderAllMovies');
-
     this.#menuSelection = FILTERS.allMovies;
+    this.#moviesPresenter.renderFilmsList(this.#moviesModel.films);
     this.renderMainMenu();
   }
 
   renderWatchList = () => {
-    // eslint-disable-next-line no-console
-    console.log('renderWatchList');
-
     this.#menuSelection = FILTERS.watchlist;
+    this.#moviesPresenter.renderFilmsList(this.#moviesModel.watchlist);
     this.renderMainMenu();
   }
 
   renderHistory = () => {
-    // eslint-disable-next-line no-console
-    console.log('renderHistory');
-
     this.#menuSelection = FILTERS.history;
+    this.#moviesPresenter.renderFilmsList(this.#moviesModel.history);
     this.renderMainMenu();
   }
 
   renderFavorites = () => {
-    // eslint-disable-next-line no-console
-    console.log('renderFavorites');
-
     this.#menuSelection = FILTERS.favorites;
+    this.#moviesPresenter.renderFilmsList(this.#moviesModel.favorites);
     this.renderMainMenu();
   }
 
   renderStats = () => {
-    // eslint-disable-next-line no-console
-    console.log('renderStats');
-
     this.#menuSelection = FILTERS.stats;
     this.renderMainMenu();
   }
@@ -128,31 +114,12 @@ export default class AppPresenter {
     console.log('onWatchedFlagChanges');
   }
 
-  // renderMainMenuSelectedContent = (mainMenuSelection) => {
-  //   this.#isDataLoading = false;
-  //   removeChildren(this.#main);
-  //   this.#mainMenu = null;
-  //
-  //   this.#menuSelection = mainMenuSelection;
-  //   this.renderMainMenu();
-  //
-  //   if (this.#menuSelection === FILTERS.stats) {
-  //     // eslint-disable-next-line no-console
-  //     console.log('RENDER STATS');
-  //   } else {
-  //     this.renderFilms();
-  //   }
-  //
-  // }
-
   // renderEmptyListsContent() {
   //   const filmsEmpty = new FilmsEmpty();
   //
   //   filmsEmpty.init(this.#menuSelection);
-  //   const listsContainer = new ListsContainer();
   //
-  //   render(this.#main, listsContainer);
-  //   render(listsContainer, filmsEmpty);
+  //   render(this.#contentWrapper, filmsEmpty);
   // }
 
   // renderFilms = () => {
@@ -246,12 +213,10 @@ export default class AppPresenter {
     this.renderProfile();
     this.renderMainMenu();
 
-    const MOVIES_PRESENTER_INIT_CONTENT_PROPS = {
-      movies: this.#moviesModel.movies,
-      topRated: this.#moviesModel.topRated,
-      mostCommented: this.#moviesModel.mostCommented,
-    };
-    this.#moviesPresenter.renderInitContent(MOVIES_PRESENTER_INIT_CONTENT_PROPS);
+    this.#moviesPresenter.renderInitContent();
+    this.#moviesPresenter.renderFilmsList(this.#moviesModel.films);
+    this.#moviesPresenter.renderTopRatedFilms(this.#moviesModel.topRated);
+    this.#moviesPresenter.renderMostCommentedFilms(this.#moviesModel.mostCommented);
 
     this.renderFooterStats();
   }
