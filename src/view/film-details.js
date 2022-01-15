@@ -54,7 +54,7 @@ const createFilmDetailsTemplate = (film) => {
     genres,
     ageRating,
     description,
-    watchList,
+    watchlist,
     watched,
     favorite,
     comments
@@ -127,7 +127,7 @@ const createFilmDetailsTemplate = (film) => {
       </div>
 
       <section class="film-details__controls">
-        <button type="button" class="film-details__control-button ${getRelevantActiveClass(watchList)} film-details__control-button--watchlist" id="watchlist" name="watchlist">Add to watchlist</button>
+        <button type="button" class="film-details__control-button ${getRelevantActiveClass(watchlist)} film-details__control-button--watchlist" id="watchlist" name="watchlist">Add to watchlist</button>
         <button type="button" class="film-details__control-button ${getRelevantActiveClass(watched)} film-details__control-button--watched" id="watched" name="watched">Already watched</button>
         <button type="button" class="film-details__control-button ${getRelevantActiveClass(favorite)} film-details__control-button--favorite" id="favorite" name="favorite">Add to favorites</button>
       </section>
@@ -235,11 +235,11 @@ export default class FilmDetails extends SmartView{
     this._externalHandlers.clickWatched = externalHandlers.clickWatchedHandler(this.#film);
     this._externalHandlers.clickFavorite = externalHandlers.clickFavoriteHandler(this.#film);
 
-    const watchListButton = this.element.querySelector('.film-details__control-button--watchlist');
+    const watchlistButton = this.element.querySelector('.film-details__control-button--watchlist');
     const watchedButton = this.element.querySelector('.film-details__control-button--watched');
     const favoriteButton = this.element.querySelector('.film-details__control-button--favorite');
 
-    watchListButton.addEventListener('click', this.#clickWatchList);
+    watchlistButton.addEventListener('click', this.#clickWatchList);
     watchedButton.addEventListener('click', this.#clickWatched);
     favoriteButton.addEventListener('click', this.#clickFavorite);
   }

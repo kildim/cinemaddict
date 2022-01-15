@@ -18,7 +18,7 @@ export const parseFromServerFormat = (serverData) => {
     releaseCountry: filmInfo['release']['release_country'] || '',
     genres: filmInfo['genre'] || [],
     description: filmInfo['description'] || '',
-    watchList: userDetails['watchlist'] || false,
+    watchlist: userDetails['watchlist'] || false,
     watched: userDetails['already_watched'] || false,
     favorite: userDetails['favorite'] || false,
     watchingDate: new Date(userDetails['watching_date']) || null,
@@ -50,7 +50,7 @@ export const parseToServerFormat = (movie) => ({
     },
   'user_details':
     {
-      'watchlist': movie.watchList,
+      'watchlist': movie.watchlist,
       'already_watched': movie.watched,
       'watching_date': movie.watchingDate.toISOString(),
       'favorite': movie.favorite,

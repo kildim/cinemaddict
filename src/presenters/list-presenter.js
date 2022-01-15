@@ -19,17 +19,20 @@ export default class ListPresenter {
     this.#cards = [];
   }
 
-  // onFilmChanges = (film) => {
-  //   const cardIndex = this.#cards.findIndex((card) => card.id === film.id);
-  //   if (cardIndex > NOT_FOUND) {
-  //     const oldCard = this.#cards[cardIndex];
-  //     const newCard = new Card(film);
-  //     newCard.setExternalHandlers(this.#cardHandlers);
-  //     this.#cards[cardIndex] = newCard;
-  //     replace(newCard, oldCard);
-  //     oldCard.removeElement();
-  //   }
-  // }
+  updateCard(film) {
+    const cardIndex = this.#cards.findIndex((card) => card.id === film.id);
+    if (cardIndex > NOT_FOUND) {
+      const oldCard = this.#cards[cardIndex];
+      const CARD_PROPS ={
+        film: film,
+        externalHandlers: this.#cardHandlers,
+      };
+      const newCard = new Card(CARD_PROPS);
+      this.#cards[cardIndex] = newCard;
+      replace(newCard, oldCard);
+      oldCard.removeElement();
+    }
+  }
 
   addChunk(chunk) {
     chunk.forEach((film) => {
@@ -45,7 +48,7 @@ export default class ListPresenter {
     this.renderList();
   }
 
-  renderList() {
+  renderList = () => {
     removeChildren(this.#container);
     this.#cards.forEach((card) => render(this.#container, card));
   }

@@ -32,6 +32,8 @@ export default class AppPresenter {
 
     this.#moviesModel.addFilmsLoadedObserver(this.onFilmsLoaded);
     this.#moviesModel.addWatchedFlagChangesObserver(this.onWatchedFlagChanges);
+    this.#moviesModel.addWatchListFlagChangesObserver(this.onWatchListFlagChanges);
+    this.#moviesModel.addFavoriteFlagChangesObserver(this.onFavoriteFlagChanges);
   }
 
   init() {
@@ -60,18 +62,15 @@ export default class AppPresenter {
   }
 
   switchWatchListFlag = (film) => () => {
-    // eslint-disable-next-line no-console
-    console.log('switchWatchListFlag');
+    this.#moviesModel.changeWatchedListFlag(film);
   }
 
   switchWatchedFlag = (film) => () => {
-    // eslint-disable-next-line no-console
-    console.log('switchWatchedFlag');
+    this.#moviesModel.changeFilmsWatchedFlag(film);
   }
 
   switchFavoriteFlag = (film) => () => {
-    // eslint-disable-next-line no-console
-    console.log('switchFavoriteFlag');
+    this.#moviesModel.changeFavoriteFlag(film);
   }
 
   renderAllMovies = () => {
@@ -109,11 +108,33 @@ export default class AppPresenter {
     this.renderInitContent();
   }
 
-  onWatchedFlagChanges = () => {
-    // eslint-disable-next-line no-console
-    console.log('onWatchedFlagChanges');
+  onWatchedFlagChanges = (film) => {
+    this.renderMainMenu();
+    if (this.#menuSelection !== FILTERS.history) {
+      this.#moviesPresenter.updateCard(film);
+    } else {
+      this.#moviesPresenter.removeCardFromFilmsList(film);
+    }
   }
 
+  onWatchListFlagChanges = (film) => {
+    this.renderMainMenu();
+    if (this.#menuSelection === FILTERS.allMovies) {
+      this.#moviesPresenter.updateCard(film);
+    } else {
+      this.#moviesPresenter.removeCardFromFilmsList(film);
+    }
+  }
+
+  onFavoriteFlagChanges = (film) => {
+    this.renderMainMenu();
+    if (this.#menuSelection === FILTERS.allMovies) {
+      this.#moviesPresenter.updateCard(film);
+    } else {
+      this.#moviesPresenter.removeCardFromFilmsList(film);
+
+    }
+  }
   // renderEmptyListsContent() {
   //   const filmsEmpty = new FilmsEmpty();
   //

@@ -2,7 +2,7 @@ import AbstractView from './abstract-view';
 import {formatTime} from '../utils/date-time';
 
 const createCardTemplate = (film) => {
-  const {title, totalRating, releaseDate, runtime, poster, genres, description, comments, watchList, watched, favorite} = film;
+  const {title, totalRating, releaseDate, runtime, poster, genres, description, comments, watchlist, watched, favorite} = film;
   const releaseYear = releaseDate.getFullYear();
   const MAX_DESCRIPTION_LENGTH = 139;
 
@@ -26,7 +26,7 @@ const createCardTemplate = (film) => {
             <span class="film-card__comments">${comments.length} comments</span>
           </a>
           <div class="film-card__controls">
-            <button class="film-card__controls-item film-card__controls-item--add-to-watchlist ${getRelevantActiveClass(watchList)}" type="button">Add to watchlist</button>
+            <button class="film-card__controls-item film-card__controls-item--add-to-watchlist ${getRelevantActiveClass(watchlist)}" type="button">Add to watchlist</button>
             <button class="film-card__controls-item film-card__controls-item--mark-as-watched ${getRelevantActiveClass(watched)}" type="button">Mark as watched</button>
             <button class="film-card__controls-item film-card__controls-item--favorite ${getRelevantActiveClass(favorite)}" type="button">Mark as favorite</button>
           </div>
@@ -49,12 +49,12 @@ export default class Card extends AbstractView {
     this._externalHandlers.clickFavorite = externalHandlers.clickFavoriteHandler(this.#film);
 
     const closeButton = this.element.querySelector('.film-card__link');
-    const watchListButton = this.element.querySelector('.film-card__controls-item--add-to-watchlist');
+    const watchlistButton = this.element.querySelector('.film-card__controls-item--add-to-watchlist');
     const watchedButton = this.element.querySelector('.film-card__controls-item--mark-as-watched');
     const favoriteButton = this.element.querySelector('.film-card__controls-item--favorite');
 
     closeButton.addEventListener('click', this.#clickCardHandler);
-    watchListButton.addEventListener('click', this.#clickWatchList);
+    watchlistButton.addEventListener('click', this.#clickWatchList);
     watchedButton.addEventListener('click', this.#clickWatched);
     favoriteButton.addEventListener('click', this.#clickFavorite);
   }
@@ -91,7 +91,7 @@ export default class Card extends AbstractView {
     return this.#film.totalRating;
   }
 
-  get watchList() {
+  get watchlist() {
     return this.#film.watchlist;
   }
 

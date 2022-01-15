@@ -35,6 +35,20 @@ export default class MoviesPresenter {
     this.#cardHandlers = cardHandlers;
   }
 
+  updateCard(film) {
+    this.#filmsListPresenter.updateCard(film);
+    this.#topRatedListPresenter.updateCard(film);
+    this.#mostCommentedListPresenter.updateCard(film);
+  }
+
+  removeCardFromFilmsList(film) {
+    const cardIndex = this.#films.findIndex((card) => card.id === film.id);
+    this.#films.splice(cardIndex, 1);
+    this.#sortedFilms.splice(cardIndex, 1);
+
+    this.renderSorted();
+  }
+
   renderSorted = () => {
     this.#listHead = 0;
     this.#listTail = Math.min(this.#sortedFilms.length, LIST_FILMS_CHUNK);
@@ -43,7 +57,14 @@ export default class MoviesPresenter {
     const listFilmsSampling = this.#sortedFilms.slice(this.#listHead, this.#listTail);
     this.#filmsListPresenter.addChunk(listFilmsSampling);
 
-    this.renderShowMore();
+    if (this.#sortedFilms.length > LIST_FILMS_CHUNK) {
+      this.renderShowMore();
+    } else {
+      if (this.#showMore !== null) {
+        this.#showMore.removeElement();
+        this.#showMore = null;
+      }
+    }
   };
 
   renderByDefault = () => {

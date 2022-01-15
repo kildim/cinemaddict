@@ -7,13 +7,16 @@ export default class MoviesModel {
   #watchInfoChangesSpotters = null;
   #filmsLoadedSpotters = null;
   #watchedFlagChangesSpotters = null;
+  #watchlistFlagChangesSpotters = null;
+  #favoriteFlagChangesSpotters = null;
 
   constructor(dataProvider) {
     this.#dataProvider = dataProvider;
     this.#films = [];
-    this.#watchInfoChangesSpotters = new AbstractObservable();
     this.#filmsLoadedSpotters = new AbstractObservable();
     this.#watchedFlagChangesSpotters = new AbstractObservable();
+    this.#watchlistFlagChangesSpotters = new AbstractObservable();
+    this.#favoriteFlagChangesSpotters = new AbstractObservable();
   }
 
   addWatchedFlagChangesObserver(observer) {
@@ -21,16 +24,24 @@ export default class MoviesModel {
   }
 
   removeWatchedFlagChangesObserver(observer) {
-    this.#watchInfoChangesSpotters.removeObserver(observer);
+    this.#watchedFlagChangesSpotters.removeObserver(observer);
   }
 
-  // addWatchInfoChangesObserver(observer) {
-  //   this.#watchInfoChangesSpotters.addObserver(observer);
-  // }
-  //
-  // removeWatchInfoChangesObserver(observer) {
-  //   this.#watchInfoChangesSpotters.removeObserver(observer);
-  // }
+  addWatchListFlagChangesObserver(observer) {
+    this.#watchlistFlagChangesSpotters.addObserver(observer);
+  }
+
+  removeWatchListFlagChangesObserver(observer) {
+    this.#watchlistFlagChangesSpotters.removeObserver(observer);
+  }
+
+  addFavoriteFlagChangesObserver(observer) {
+    this.#favoriteFlagChangesSpotters.addObserver(observer);
+  }
+
+  removeFavoriteFlagChangesObserver(observer) {
+    this.#favoriteFlagChangesSpotters.removeObserver(observer);
+  }
 
   addFilmsLoadedObserver(observer) {
     this.#filmsLoadedSpotters.addObserver(observer);
@@ -42,12 +53,12 @@ export default class MoviesModel {
 
   get watchInfo() {
     const watchInfo = {
-      watchList: 0,
+      watchlist: 0,
       history: 0,
       favorites: 0,
     };
     this.#films.forEach((film) => {
-      if (film.watchList) {watchInfo.watchList++;}
+      if (film.watchlist) {watchInfo.watchlist++;}
       if (film.watched) {watchInfo.history++;}
       if (film.favorite) {watchInfo.favorites++;}
     });
@@ -84,6 +95,24 @@ export default class MoviesModel {
     });
   }
 
+  changeWatchedListFlag = (film) => {
+    const changedFilm = parseToServerFormat({...film, watchlist: !film.watchlist});
+    this.#dataProvider.updateFilm(changedFilm).then((movie) => {
+      const updatedFilm = parseFromServerFormat(movie);
+      this.replaceFilm(updatedFilm);
+      this.#watchlistFlagChangesSpotters._notify(updatedFilm);
+    });
+  }
+
+  changeFavoriteFlag = (film) => {
+    const changedFilm = parseToServerFormat({...film, favorite: !film.favorite});
+    this.#dataProvider.updateFilm(changedFilm).then((movie) => {
+      const updatedFilm = parseFromServerFormat(movie);
+      this.replaceFilm(updatedFilm);
+      this.#favoriteFlagChangesSpotters._notify(updatedFilm);
+    });
+  }
+
   get topRated() {
     const films = [...this.#films];
     return films.sort((filmPred, filmSucc) => filmSucc.totalRating - filmPred.totalRating);
@@ -99,7 +128,7 @@ export default class MoviesModel {
   }
 
   get watchlist() {
-    return this.#films.filter((film) => film.watchList);
+    return this.#films.filter((film) => film.watchlist);
   }
 
   get favorites() {

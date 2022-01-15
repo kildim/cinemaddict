@@ -28,7 +28,7 @@ export default class MoviesPresenter {
   }
 
   switchWatchListFlag = (film) => () => {
-    this.#moviesModel.updateFilm(film.id, {watchList: !film.watchList});
+    this.#moviesModel.updateFilm(film.id, {watchlist: !film.watchlist});
   }
 
   switchWatchedFlag = (film) => () => {
