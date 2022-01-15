@@ -28,7 +28,7 @@ export default class AppPresenter {
     this.#menuSelection = FILTERS.allMovies;
 
 
-    this.#moviesPresenter = new MoviesPresenter();
+    this.#moviesPresenter = new MoviesPresenter(this.#moviesModel);
 
     this.#moviesModel.addFilmsLoadedObserver(this.onFilmsLoaded);
     this.#moviesModel.addWatchedFlagChangesObserver(this.onWatchedFlagChanges);
@@ -75,25 +75,25 @@ export default class AppPresenter {
 
   renderAllMovies = () => {
     this.#menuSelection = FILTERS.allMovies;
-    this.#moviesPresenter.renderFilmsList(this.#moviesModel.films);
+    this.#moviesPresenter.renderFilmsList(this.#menuSelection);
     this.renderMainMenu();
   }
 
   renderWatchList = () => {
     this.#menuSelection = FILTERS.watchlist;
-    this.#moviesPresenter.renderFilmsList(this.#moviesModel.watchlist);
+    this.#moviesPresenter.renderFilmsList(this.#menuSelection);
     this.renderMainMenu();
   }
 
   renderHistory = () => {
     this.#menuSelection = FILTERS.history;
-    this.#moviesPresenter.renderFilmsList(this.#moviesModel.history);
+    this.#moviesPresenter.renderFilmsList(this.#menuSelection);
     this.renderMainMenu();
   }
 
   renderFavorites = () => {
     this.#menuSelection = FILTERS.favorites;
-    this.#moviesPresenter.renderFilmsList(this.#moviesModel.favorites);
+    this.#moviesPresenter.renderFilmsList(this.#menuSelection);
     this.renderMainMenu();
   }
 
@@ -110,6 +110,7 @@ export default class AppPresenter {
 
   onWatchedFlagChanges = (film) => {
     this.renderMainMenu();
+    this.renderProfile();
     if (this.#menuSelection !== FILTERS.history) {
       this.#moviesPresenter.updateCard(film);
     } else {
@@ -132,43 +133,8 @@ export default class AppPresenter {
       this.#moviesPresenter.updateCard(film);
     } else {
       this.#moviesPresenter.removeCardFromFilmsList(film);
-
     }
   }
-  // renderEmptyListsContent() {
-  //   const filmsEmpty = new FilmsEmpty();
-  //
-  //   filmsEmpty.init(this.#menuSelection);
-  //
-  //   render(this.#contentWrapper, filmsEmpty);
-  // }
-
-  // renderFilms = () => {
-  //   switch (this.#menuSelection) {
-  //     case FILTERS.allMovies:
-  //       this.#filteredFilms = this.#moviesModel.movies;
-  //       break;
-  //     case FILTERS.favorites:
-  //       this.#filteredFilms = this.#moviesModel.favorites;
-  //       break;
-  //     case FILTERS.history:
-  //       this.#filteredFilms = this.#moviesModel.history;
-  //       break;
-  //     case FILTERS.watchlist:
-  //       this.#filteredFilms = this.#moviesModel.watchlist;
-  //       break;
-  //     default:
-  //       throw 'FILMS FILTER NOT SPECIFIED';
-  //   }
-  //
-  //   if (this.#filteredFilms.length > 0) {
-  //     // eslint-disable-next-line no-console
-  //     console.log(this.#filteredFilms);
-  //     this.#moviesPresenter.init(this.#filteredFilms);
-  //   } else {
-  //     this.renderEmptyListsContent();
-  //   }
-  // }
 
   renderLoader = () => {
     render(this.#contentWrapper, new Loader());
@@ -235,9 +201,6 @@ export default class AppPresenter {
     this.renderMainMenu();
 
     this.#moviesPresenter.renderInitContent();
-    this.#moviesPresenter.renderFilmsList(this.#moviesModel.films);
-    this.#moviesPresenter.renderTopRatedFilms(this.#moviesModel.topRated);
-    this.#moviesPresenter.renderMostCommentedFilms(this.#moviesModel.mostCommented);
 
     this.renderFooterStats();
   }

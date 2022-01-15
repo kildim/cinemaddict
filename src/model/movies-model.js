@@ -4,7 +4,6 @@ import {parseFromServerFormat, parseToServerFormat} from '../utils/adapters';
 export default class MoviesModel {
   #films = null;
   #dataProvider = null;
-  #watchInfoChangesSpotters = null;
   #filmsLoadedSpotters = null;
   #watchedFlagChangesSpotters = null;
   #watchlistFlagChangesSpotters = null;

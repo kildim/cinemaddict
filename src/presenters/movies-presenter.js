@@ -1,14 +1,17 @@
-import {LIST_EXTRAS_CHUNK, LIST_FILMS_CHUNK, SORT_TYPE} from '../constants';
+import {FILTERS, LIST_EXTRAS_CHUNK, LIST_FILMS_CHUNK, SORT_TYPE} from '../constants';
 import MenuSort from '../view/menu-sort';
-import {render, replace} from '../utils/render';
+import {remove, removeChildren, render, replace} from '../utils/render';
 import ListsContainer from '../view/lists-container';
 import MoviesContainer from '../view/movies-container';
 import ListPresenter from './list-presenter';
 import ShowMore from '../view/show-more';
+import ListContainerCaption from '../view/list-container-caption';
+import DatabaseIsEmpty from '../view/database-is-empty';
 
 export default class MoviesPresenter {
   #cardHandlers = null;
   #menuSort = null;
+  #filteredSelection = null;
   #sortSelection = null;
   #container = null;
   #listsContainer = null;
@@ -23,9 +26,11 @@ export default class MoviesPresenter {
   #filmsListPresenter = null;
   #topRatedListPresenter = null;
   #mostCommentedListPresenter = null;
+  #moviesModel = null;
 
-  constructor() {
+  constructor(moviesModel) {
     this.#sortSelection = SORT_TYPE.default;
+    this.#moviesModel = moviesModel;
   }
 
   init(moviesPresenterProps) {
@@ -49,7 +54,38 @@ export default class MoviesPresenter {
     this.renderSorted();
   }
 
+  generateEmptyTitleMessage = (filter) => {
+    let message;
+    switch (filter) {
+      case FILTERS.allMovies:
+        message = 'There are no movies in our database';
+        break;
+      case FILTERS.watchlist:
+        message = 'There are no movies to watch now';
+        break;
+      case FILTERS.history:
+        message = 'There are no watched movies now';
+        break;
+      case FILTERS.favorites:
+        message = 'There are no favorite movies now';
+        break;
+    }
+    return message;
+  }
+
+  checkTitle = (listLength) => {
+    const listContainerCaption = (listLength < 1) ?
+      new ListContainerCaption(this.generateEmptyTitleMessage(this.#filteredSelection), true) :
+      new ListContainerCaption('All movies. Upcoming');
+
+    const title = this.#listFilms.titleElement;
+    replace(listContainerCaption, title);
+  }
+
   renderSorted = () => {
+
+    this.checkTitle(this.#films.length);
+
     this.#listHead = 0;
     this.#listTail = Math.min(this.#sortedFilms.length, LIST_FILMS_CHUNK);
     this.#filmsListPresenter.init();
@@ -150,47 +186,68 @@ export default class MoviesPresenter {
     list.addChunk(listFilmsSampling);
   };
 
-  renderFilmsList(filteredMovies) {
-    this.#films = filteredMovies;
-    this.#sortedFilms = [...this.#films];
-
-    const FILMS_LIST_PRESENTER_PROPS = {
-      container: this.#listFilms.cardsContainer,
-      cardHandlers: this.#cardHandlers,
-    };
-    this.#filmsListPresenter = new ListPresenter(FILMS_LIST_PRESENTER_PROPS);
+  renderFilmsList(filterValue) {
+    this.#filteredSelection = filterValue;
+    switch (this.#filteredSelection) {
+      case FILTERS.allMovies:
+        this.#films = this.#moviesModel.films;
+        break;
+      case FILTERS.watchlist:
+        this.#films = this.#moviesModel.watchlist;
+        break;
+      case FILTERS.history:
+        this.#films = this.#moviesModel.history;
+        break;
+      case FILTERS.favorites:
+        this.#films = this.#moviesModel.favorites;
+        break;
+    }
 
     this.renderByDefault();
   }
 
-  renderTopRatedFilms(topRatedMovies) {
+  renderTopRatedFilms() {
     const FILMS_LIST_PRESENTER_PROPS = {
       container: this.#listTopRated.cardsContainer,
       cardHandlers: this.#cardHandlers,
     };
     this.#topRatedListPresenter = new ListPresenter(FILMS_LIST_PRESENTER_PROPS);
-    this.#topRatedListPresenter.addChunk(topRatedMovies.slice(0, LIST_EXTRAS_CHUNK));
+    this.#topRatedListPresenter.addChunk([...this.#moviesModel.topRated].slice(0, LIST_EXTRAS_CHUNK));
   }
 
-  renderMostCommentedFilms(topRatedMovies) {
+  renderMostCommentedFilms() {
     const FILMS_LIST_PRESENTER_PROPS = {
       container: this.#listMostCommented.cardsContainer,
       cardHandlers: this.#cardHandlers,
     };
     this.#mostCommentedListPresenter = new ListPresenter(FILMS_LIST_PRESENTER_PROPS);
-    this.#mostCommentedListPresenter.addChunk(topRatedMovies.slice(0, LIST_EXTRAS_CHUNK));
+    this.#mostCommentedListPresenter.addChunk([...this.#moviesModel.mostCommented].slice(0, LIST_EXTRAS_CHUNK));
   }
 
   renderInitContent() {
-    this.renderMenuSort();
-    this.renderListsContainer();
+    if (this.#moviesModel.films < 1) {
+      render(this.#container, new DatabaseIsEmpty());
+    } else {
+      this.renderMenuSort();
+      this.renderListsContainer();
 
-    this.#listFilms = new MoviesContainer('All movies. Upcoming', false);
-    this.#listTopRated = new MoviesContainer('Top rated');
-    this.#listMostCommented = new MoviesContainer('Most commented');
+      this.#listFilms = new MoviesContainer('All movies. Upcoming', false);
+      this.#listTopRated = new MoviesContainer('Top rated');
+      this.#listMostCommented = new MoviesContainer('Most commented');
 
-    render(this.#listsContainer, this.#listFilms);
-    render(this.#listsContainer, this.#listTopRated);
-    render(this.#listsContainer, this.#listMostCommented);
+      render(this.#listsContainer, this.#listFilms);
+      render(this.#listsContainer, this.#listTopRated);
+      render(this.#listsContainer, this.#listMostCommented);
+
+      const FILMS_LIST_PRESENTER_PROPS = {
+        container: this.#listFilms.cardsContainer,
+        cardHandlers: this.#cardHandlers,
+      };
+      this.#filmsListPresenter = new ListPresenter(FILMS_LIST_PRESENTER_PROPS);
+
+      this.renderFilmsList(FILTERS.allMovies);
+      this.renderTopRatedFilms();
+      this.renderMostCommentedFilms();
+    }
   }
 }
