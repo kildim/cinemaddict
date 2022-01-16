@@ -15,10 +15,6 @@ export default class ListPresenter {
     this.#cardHandlers = cardHandlers;
   }
 
-  init() {
-    this.#cards = [];
-  }
-
   updateCard(film) {
     const cardIndex = this.#cards.findIndex((card) => card.id === film.id);
     if (cardIndex > NOT_FOUND) {

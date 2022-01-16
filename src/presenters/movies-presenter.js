@@ -74,21 +74,40 @@ export default class MoviesPresenter {
   }
 
   checkTitle = (listLength) => {
-    const listContainerCaption = (listLength < 1) ?
-      new ListContainerCaption(this.generateEmptyTitleMessage(this.#filteredSelection), true) :
-      new ListContainerCaption('All movies. Upcoming');
+    const listContainerCaption = (listLength > 0) ?
+      new ListContainerCaption('All movies. Upcoming') :
+      new ListContainerCaption(this.generateEmptyTitleMessage(this.#filteredSelection), true);
 
     const title = this.#listFilms.titleElement;
     replace(listContainerCaption, title);
   }
 
+  removeMenuSort = () => {
+    this.#menuSort.element.remove();
+    this.#menuSort = null;
+  }
+
+  checkMenuSortVisibility = () => {
+    if (this.#sortedFilms.length > 1) {
+      this.renderMenuSort();
+    } else {
+      if (this.#menuSort !== null)
+      {this.removeMenuSort();}
+    }
+  }
+
   renderSorted = () => {
 
+    this.checkMenuSortVisibility();
     this.checkTitle(this.#films.length);
+    const FILMS_LIST_PRESENTER_PROPS = {
+      container: this.#listFilms.cardsContainer,
+      cardHandlers: this.#cardHandlers,
+    };
+    this.#filmsListPresenter = new ListPresenter(FILMS_LIST_PRESENTER_PROPS);
 
     this.#listHead = 0;
     this.#listTail = Math.min(this.#sortedFilms.length, LIST_FILMS_CHUNK);
-    this.#filmsListPresenter.init();
 
     const listFilmsSampling = this.#sortedFilms.slice(this.#listHead, this.#listTail);
     this.#filmsListPresenter.addChunk(listFilmsSampling);
@@ -104,27 +123,27 @@ export default class MoviesPresenter {
   };
 
   renderByDefault = () => {
+    this.#sortSelection = SORT_TYPE.default;
+    // this.renderMenuSort();
+
     this.#sortedFilms = [...this.#films];
     this.renderSorted();
-
-    this.#sortSelection = SORT_TYPE.default;
-    this.renderMenuSort();
   }
 
   renderByDate = () => {
+    this.#sortSelection = SORT_TYPE.byDate;
+    // this.renderMenuSort();
+
     this.#sortedFilms = [...this.#films].sort((prevCard, succCard) => new Date(succCard.releaseDate) - new Date(prevCard.releaseDate));
     this.renderSorted();
-
-    this.#sortSelection = SORT_TYPE.byDate;
-    this.renderMenuSort();
   }
 
   renderByRating = () => {
+    this.#sortSelection = SORT_TYPE.byRating;
+    // this.renderMenuSort();
+
     this.#sortedFilms = [...this.#films].sort((prevCard, succCard) => succCard.totalRating - prevCard.totalRating);
     this.renderSorted();
-
-    this.#sortSelection = SORT_TYPE.byRating;
-    this.renderMenuSort();
   }
 
   renderMenuSort = () => {
@@ -139,7 +158,7 @@ export default class MoviesPresenter {
     const newMenuSort = new MenuSort(MENU_SORT_PROPS);
 
     if (this.#menuSort === null) {
-      render(this.#container, newMenuSort);
+      render(this.#container, newMenuSort, 'afterbegin');
     } else {
       replace(newMenuSort, this.#menuSort);
     }
@@ -238,12 +257,6 @@ export default class MoviesPresenter {
       render(this.#listsContainer, this.#listFilms);
       render(this.#listsContainer, this.#listTopRated);
       render(this.#listsContainer, this.#listMostCommented);
-
-      const FILMS_LIST_PRESENTER_PROPS = {
-        container: this.#listFilms.cardsContainer,
-        cardHandlers: this.#cardHandlers,
-      };
-      this.#filmsListPresenter = new ListPresenter(FILMS_LIST_PRESENTER_PROPS);
 
       this.renderFilmsList(FILTERS.allMovies);
       this.renderTopRatedFilms();

@@ -11,16 +11,11 @@ const createSortTemplate = (sortType) => `
   </ul>
 `;
 
-// const genProceedSortHandler = (sortType, handler) => (event) => {
-//   event.preventDefault();
-//   handler(sortType);
-// };
-
 export default class MenuSort extends AbstractView{
   #sortType = null;
 
   constructor(menuSortProps) {
-    const {sortSelection, menuSortHandlers} = {...menuSortProps}
+    const {sortSelection, menuSortHandlers} = {...menuSortProps};
     super();
     this.#sortType = sortSelection;
 
@@ -29,14 +24,6 @@ export default class MenuSort extends AbstractView{
     byDate.addEventListener('click', menuSortHandlers.clickByDateHandler);
     byRating.addEventListener('click', menuSortHandlers.clickByRatingHandler);
   }
-
-  // setExternalHandlers = (externalHandler) => {
-  //   const [byDefault, byDate, byRating] = this.element.querySelectorAll('.sort__button');
-  //
-  //   byDefault.addEventListener('click', genProceedSortHandler(SORT_TYPE.default, externalHandler));
-  //   byDate.addEventListener('click', genProceedSortHandler(SORT_TYPE.byDate, externalHandler));
-  //   byRating.addEventListener('click', genProceedSortHandler(SORT_TYPE.byRating, externalHandler));
-  // }
 
   get template() {
     return createSortTemplate(this.#sortType);
