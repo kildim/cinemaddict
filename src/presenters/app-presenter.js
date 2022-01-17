@@ -37,9 +37,11 @@ export default class AppPresenter {
     const DETAIL_PRESENTER_PROPS = {
       container: this.#detailsWrapper,
       detailsHandlers: {
-
+        clickWatchListHandler: this.switchWatchListFlag,
+        clickWatchedHandler: this.switchWatchedFlag,
+        clickFavoriteHandler: this.switchFavoriteFlag
       }
-    }
+    };
     this.#detailsPresenter = new DetailsPresenter(DETAIL_PRESENTER_PROPS);
 
     this.#moviesModel.addFilmsLoadedObserver(this.onFilmsLoaded);
@@ -68,6 +70,9 @@ export default class AppPresenter {
       container: this.#detailsWrapper,
       detailsHandlers: {
         closeDetailsHandler: this.onCloseDetailsAction,
+        clickWatchListHandler: this.switchWatchListFlag,
+        clickWatchedHandler: this.switchWatchedFlag,
+        clickFavoriteHandler: this.switchFavoriteFlag,
       }
     };
     this.#detailsPresenter = new DetailsPresenter(DETAILS_PRESENTER_PROPS);
@@ -80,9 +85,11 @@ export default class AppPresenter {
     this.#detailsPresenter.renderDetails(film);
   }
 
+  updateDetails = (film) => {
+    this.#detailsPresenter.updateDetails(film);
+  }
+
   onCloseDetailsAction = () => {
-    // eslint-disable-next-line no-console
-    console.log('onCloseDetailsAction');
     this.#detailsPresenter.removeDetails();
   }
 
@@ -134,6 +141,7 @@ export default class AppPresenter {
   }
 
   onWatchedFlagChanges = (film) => {
+    this.updateDetails(film);
     this.renderMainMenu();
     this.renderProfile();
     if (this.#menuSelection !== FILTERS.history) {
@@ -144,21 +152,25 @@ export default class AppPresenter {
   }
 
   onWatchListFlagChanges = (film) => {
+    this.updateDetails(film);
     this.renderMainMenu();
     if (this.#menuSelection === FILTERS.allMovies) {
       this.#moviesPresenter.updateCard(film);
     } else {
       this.#moviesPresenter.removeCardFromFilmsList(film);
     }
+    this.renderDetails(film);
   }
 
   onFavoriteFlagChanges = (film) => {
+    this.updateDetails(film);
     this.renderMainMenu();
     if (this.#menuSelection === FILTERS.allMovies) {
       this.#moviesPresenter.updateCard(film);
     } else {
       this.#moviesPresenter.removeCardFromFilmsList(film);
     }
+    this.renderDetails(film);
   }
 
   renderLoader = () => {

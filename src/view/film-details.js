@@ -189,10 +189,9 @@ export default class FilmDetails extends SmartView{
     this.#emojis = Array.from(this.element.querySelectorAll('.film-details__emoji-label'));
 
     this._externalHandlers.closeDetails = externalHandlers.closeDetailsHandler;
-    //TODO this._externalHandlers.submitDetails = externalHandlers.submitDetailsHandler();
-    // this._externalHandlers.clickWatchList = externalHandlers.clickWatchListHandler(this.#film);
-    // this._externalHandlers.clickWatched = externalHandlers.clickWatchedHandler(this.#film);
-    // this._externalHandlers.clickFavorite = externalHandlers.clickFavoriteHandler(this.#film);
+    this._externalHandlers.clickWatchList = externalHandlers.clickWatchListHandler(this.#film);
+    this._externalHandlers.clickWatched = externalHandlers.clickWatchedHandler(this.#film);
+    this._externalHandlers.clickFavorite = externalHandlers.clickFavoriteHandler(this.#film);
 
     const watchlistButton = this.element.querySelector('.film-details__control-button--watchlist');
     const watchedButton = this.element.querySelector('.film-details__control-button--watched');
@@ -205,6 +204,10 @@ export default class FilmDetails extends SmartView{
     this.#closeButton.addEventListener('click', this.#clickCloseHandler);
     document.addEventListener('keydown', this.#onKeyDownHandler);
     this.#emojis.forEach((emojiLabel) => emojiLabel.addEventListener('click', this.#clickEmotion));
+  }
+
+  get filmID() {
+    return this.#film.id;
   }
 
   #clickWatchList = (event) => {

@@ -1,5 +1,5 @@
 import FilmDetails from '../view/film-details';
-import {removeChildren, render} from '../utils/render';
+import {removeChildren, render, replace} from '../utils/render';
 
 export default class DetailsPresenter {
   #container = null;
@@ -12,9 +12,21 @@ export default class DetailsPresenter {
     this.#detailsHandlers = detailsHandlers;
   }
 
-  renderDetails(film) {
-    this.#details = new FilmDetails(film, this.#detailsHandlers);
-    render(this.#container, this.#details);
+  renderDetails = (film) => {
+    const newFilmDetails = new FilmDetails(film, this.#detailsHandlers);
+    if (this.#details === null) {
+      render(this.#container, newFilmDetails);
+
+    } else {
+      replace(newFilmDetails, this.#details);
+    }
+    this.#details = newFilmDetails;
+  }
+
+  updateDetails(film) {
+    if (this.#details !== null && this.#details.filmID === film.id) {
+      this.renderDetails(film);
+    }
   }
 
   removeDetails() {
