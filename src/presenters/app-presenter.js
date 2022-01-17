@@ -5,7 +5,8 @@ import MoviesPresenter from './movies-presenter';
 import FooterStatistics from '../view/footer-statistics';
 import {FILTERS} from '../constants';
 import {Loader} from '../view/loader';
-import ContentWrapper from '../view/contentWrapper';
+import ContentWrapper from '../view/content-wrapper';
+import DetailsPresenter from './details-presenter';
 
 export default class AppPresenter {
   #header = null;
@@ -19,16 +20,27 @@ export default class AppPresenter {
   #mainMenu = null;
   #moviesPresenter = null;
   #contentWrapper = null;
+  #detailsWrapper = null;
+  #detailsPresenter = null;
 
   constructor(moviesModel) {
     this.#header = document.querySelector('.header');
     this.#main = document.querySelector('.main');
     this.#footer = document.querySelector('.footer');
+    this.#detailsWrapper = document.querySelector('.film-details');
     this.#moviesModel = moviesModel;
     this.#menuSelection = FILTERS.allMovies;
 
 
     this.#moviesPresenter = new MoviesPresenter(this.#moviesModel);
+
+    const DETAIL_PRESENTER_PROPS = {
+      container: this.#detailsWrapper,
+      detailsHandlers: {
+
+      }
+    }
+    this.#detailsPresenter = new DetailsPresenter(DETAIL_PRESENTER_PROPS);
 
     this.#moviesModel.addFilmsLoadedObserver(this.onFilmsLoaded);
     this.#moviesModel.addWatchedFlagChangesObserver(this.onWatchedFlagChanges);
@@ -52,13 +64,26 @@ export default class AppPresenter {
     };
     this.#moviesPresenter.init(MOVIES_PRESENTER_PROPS);
 
+    const DETAILS_PRESENTER_PROPS = {
+      container: this.#detailsWrapper,
+      detailsHandlers: {
+        closeDetailsHandler: this.onCloseDetailsAction,
+      }
+    };
+    this.#detailsPresenter = new DetailsPresenter(DETAILS_PRESENTER_PROPS);
+
     this.#isDataLoading = true;
     this.renderLoader();
   }
 
   renderDetails = (film) => () => {
+    this.#detailsPresenter.renderDetails(film);
+  }
+
+  onCloseDetailsAction = () => {
     // eslint-disable-next-line no-console
-    console.log('renderDetails');
+    console.log('onCloseDetailsAction');
+    this.#detailsPresenter.removeDetails();
   }
 
   switchWatchListFlag = (film) => () => {
@@ -152,7 +177,6 @@ export default class AppPresenter {
         clickStatsHandler: this.renderStats,
       }
     };
-
     if (this.#mainMenu === null) {
       this.#mainMenu = new MainMenu(MAIN_MENU_PROPS);
       render(this.#main, this.#mainMenu);

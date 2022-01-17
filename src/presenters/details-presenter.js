@@ -1,42 +1,26 @@
-import {remove, render} from '../utils/render';
 import FilmDetails from '../view/film-details';
+import {removeChildren, render} from '../utils/render';
 
 export default class DetailsPresenter {
+  #container = null;
   #details = null;
   #detailsHandlers = {};
-  #unSubscribeOnFileChanges = null;
-  #container = null;
 
-  constructor(container) {
+  constructor(props) {
+    const {container, detailsHandlers} = {...props};
     this.#container = container;
-  }
-
-  init(detailsHandlers, moviesModel) {
-    this.#detailsHandlers = {...detailsHandlers, closeDetailsHandler: this.closeDetails};
-    this.#unSubscribeOnFileChanges = moviesModel.removeWatchInfoChangesObserver;
-    moviesModel.addWatchInfoChangesObserver(this.onFilmChanges);
-  }
-
-  closeDetails = () => () => {
-    this.#details.removeElement();
-    this.#details = null;
-  }
-
-  onFilmChanges = (film) => {
-    let scrollPosition = null;
-    if (this.#details && this.#details.id === film.id) {
-      scrollPosition = this.#details.element.scrollTop;
-      remove (this.#details);
-      this.renderDetails(film);
-      this.#details.element.scrollTop = scrollPosition;
-    }
+    this.#detailsHandlers = detailsHandlers;
   }
 
   renderDetails(film) {
-    if (this.#details) {this.#details.removeElement();}
-    this.#details = new FilmDetails();
-    this.#details.init(film);
-    this.#details.setExternalHandlers(this.#detailsHandlers);
+    this.#details = new FilmDetails(film, this.#detailsHandlers);
     render(this.#container, this.#details);
+  }
+
+  removeDetails() {
+    if (this.#details !== null) {
+      removeChildren(this.#container);
+    }
+    this.#details = null;
   }
 }

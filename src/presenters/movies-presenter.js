@@ -1,6 +1,6 @@
 import {FILTERS, LIST_EXTRAS_CHUNK, LIST_FILMS_CHUNK, SORT_TYPE} from '../constants';
 import MenuSort from '../view/menu-sort';
-import {remove, removeChildren, render, replace} from '../utils/render';
+import {render, replace} from '../utils/render';
 import ListsContainer from '../view/lists-container';
 import MoviesContainer from '../view/movies-container';
 import ListPresenter from './list-presenter';
@@ -124,24 +124,18 @@ export default class MoviesPresenter {
 
   renderByDefault = () => {
     this.#sortSelection = SORT_TYPE.default;
-    // this.renderMenuSort();
-
     this.#sortedFilms = [...this.#films];
     this.renderSorted();
   }
 
   renderByDate = () => {
     this.#sortSelection = SORT_TYPE.byDate;
-    // this.renderMenuSort();
-
     this.#sortedFilms = [...this.#films].sort((prevCard, succCard) => new Date(succCard.releaseDate) - new Date(prevCard.releaseDate));
     this.renderSorted();
   }
 
   renderByRating = () => {
     this.#sortSelection = SORT_TYPE.byRating;
-    // this.renderMenuSort();
-
     this.#sortedFilms = [...this.#films].sort((prevCard, succCard) => succCard.totalRating - prevCard.totalRating);
     this.renderSorted();
   }
