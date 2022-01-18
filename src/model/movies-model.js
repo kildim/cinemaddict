@@ -81,8 +81,8 @@ export default class MoviesModel {
   }
 
   addComment(params) {
-    const {filmId, comment, addCommentCB} = {...params};
-    this.#dataProvider.addComment({filmId, comment}).then(() => addCommentCB());
+    const {filmId, comment, addCommentCB, addCommentFailCB} = {...params};
+    this.#dataProvider.addComment({filmId, comment}).then(() => addCommentCB()).catch((error) => addCommentFailCB(error));
   }
 
   deleteComment(params) {

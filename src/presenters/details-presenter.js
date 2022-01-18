@@ -56,6 +56,18 @@ export default class DetailsPresenter {
     }
   }
 
+  shake = () => {
+    this.#details.shake();
+  }
+
+  blockCommentControls = () => {
+    this.#commentsList.editCommentControls.forEach((control) => {control.setAttribute('disabled', 'disabled');});
+  };
+
+  unblockCommentControls = () => {
+    this.#commentsList.editCommentControls.forEach((control) => {control.removeAttribute('disabled');});
+  }
+
   removeDetails() {
     if (this.#details !== null) {
       removeChildren(this.#container);

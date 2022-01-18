@@ -82,27 +82,6 @@ export default class DataProvider extends AbstractProvider{
     }
   }
 
-  // #post = async ({
-  //   url,
-  //   method = Method.POST,
-  //   body,
-  //   headers = new Headers(),
-  // }) => {
-  //   headers.append('Authorization', this.#authorization);
-  //
-  //   const response = await fetch(
-  //     `${this.#endPoint}/${url}`,
-  //     {method, body, headers},
-  //   );
-  //
-  //   try {
-  //     DataProvider.checkStatus(response);
-  //     return response;
-  //   } catch (err) {
-  //     DataProvider.catchError(err);
-  //   }
-  // }
-
   #load = async ({
     url,
     method = Method.GET,

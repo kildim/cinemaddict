@@ -1,5 +1,6 @@
 import AbstractView from './abstract-view';
 import {formatCommentDataTime} from '../utils/date-time';
+import he from 'he';
 
 const getEmotionPath = (emotion) =>  `./images/emoji/${emotion}.png`;
 const EMOJIS_PATHS = {
@@ -23,7 +24,7 @@ const createCommentsList = (comments) =>
         <img src="${getEmotionPath(comment.emotion)}" width="55" height="55" alt="emoji-smile">
       </span>
       <div>
-        <p class="film-details__comment-text">${comment.comment}</p>
+        <p class="film-details__comment-text">${he.encode(comment.comment)}</p>
         <p class="film-details__comment-info">
           <span class="film-details__comment-author">${comment.author}</span>
           <span class="film-details__comment-day">${formatCommentDataTime(comment.date)}</span>
@@ -81,6 +82,7 @@ export default class CommentsList extends AbstractView {
   #emojis = null;
   #emojisPlace = null;
   #commentText = null;
+  #editCommentControls = null;
 
   constructor(props) {
     const {comments, commentListHandlers} = {...props};
@@ -89,6 +91,8 @@ export default class CommentsList extends AbstractView {
     this.#emojis = Array.from(this.element.querySelectorAll('.film-details__emoji-label'));
     this.#emojisPlace = this.element.querySelector('.film-details__add-emoji-label');
     this.#commentText = this.element.querySelector('.film-details__comment-input');
+    this.#editCommentControls = [...Array.from(this.element.querySelectorAll('.film-details__emoji-item')),
+      this.element.querySelector('.film-details__comment-input')];
     const deleteButtons = this.element.querySelectorAll('.film-details__comment-delete');
     this._externalHandlers.deleteComment = commentListHandlers.clickDeleteHandler;
     this._externalHandlers.submitComment = commentListHandlers.clickSubmitCommentHandler;
@@ -126,6 +130,10 @@ export default class CommentsList extends AbstractView {
 
   get template() {
     return createCommentsListTemplate(this.#comments);
+  }
+
+  get editCommentControls() {
+    return this.#editCommentControls;
   }
 
   #onKeyDownHandler = (event) => {

@@ -86,20 +86,28 @@ export default class AppPresenter {
   }
 
   addComment = (comment) => {
+    this.#detailsPresenter.blockCommentControls();
     const ADD_COMMENT_PARAMS = {
       filmId: this.#detailsPresenter.filmId,
       comment: comment,
       addCommentCB: this.onCommentAdded,
+      addCommentFailCB: this.onCommentAddFail,
     };
     this.#moviesModel.addComment(ADD_COMMENT_PARAMS);
   }
 
   onCommentAdded = () => {
+    this.#detailsPresenter.unblockCommentControls();
     const LOAD_COMMENTS_PARAMS = {
       filmId: this.#detailsPresenter.filmId,
       loadCommentsCB: this.onCommentsLoaded,
     };
     this.#moviesModel.loadComments(LOAD_COMMENTS_PARAMS);
+  }
+
+  onCommentAddFail = () => {
+    this.#detailsPresenter.shake();
+    this.#detailsPresenter.unblockCommentControls();
   }
 
   deleteComment = (commentId) => {
