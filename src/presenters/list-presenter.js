@@ -1,5 +1,5 @@
 import Card from '../view/card';
-import {render, replace} from '../utils/render';
+import {remove, render, replace} from '../utils/render';
 import {removeChildren} from '../utils/render';
 const NOT_FOUND = -1;
 
@@ -44,8 +44,14 @@ export default class ListPresenter {
     this.renderList();
   }
 
+  clearList = () => {
+    while (this.#container.firstChild) {
+      this.#container.removeChild(this.#container.firstChild);
+    }
+  }
+
   renderList = () => {
-    removeChildren(this.#container);
+    this.clearList();
     this.#cards.forEach((card) => render(this.#container, card));
   }
 }
