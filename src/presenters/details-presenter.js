@@ -24,6 +24,7 @@ export default class DetailsPresenter {
       render(this.#container, newFilmDetails);
 
     } else {
+      this.#details.removeElement();
       replace(newFilmDetails, this.#details);
     }
     this.#details = newFilmDetails;

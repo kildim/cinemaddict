@@ -81,8 +81,9 @@ export default class CommentsList extends AbstractView {
   #comments = null;
   #emojis = null;
   #emojisPlace = null;
-  #commentText = null;
+  // #commentText = null;
   #editCommentControls = null;
+  #onKeydownListener = null;
 
   constructor(props) {
     const {comments, commentListHandlers} = {...props};
@@ -90,7 +91,7 @@ export default class CommentsList extends AbstractView {
     this.#comments = comments;
     this.#emojis = Array.from(this.element.querySelectorAll('.film-details__emoji-label'));
     this.#emojisPlace = this.element.querySelector('.film-details__add-emoji-label');
-    this.#commentText = this.element.querySelector('.film-details__comment-input');
+    // this.#commentText = this.element.querySelector('.film-details__comment-input');
     this.#editCommentControls = [...Array.from(this.element.querySelectorAll('.film-details__emoji-item')),
       this.element.querySelector('.film-details__comment-input')];
     const deleteButtons = this.element.querySelectorAll('.film-details__comment-delete');
@@ -100,7 +101,7 @@ export default class CommentsList extends AbstractView {
     this.#emojis.forEach((emojiLabel) => emojiLabel.addEventListener('click', this.#clickEmotion));
     deleteButtons.forEach((deleteButton) => deleteButton.addEventListener('click', this.#clickDeleteComment));
 
-    document.addEventListener('keydown', this.#onKeyDownHandler);
+    this.#onKeydownListener = document.addEventListener('keydown', this.#onKeyDownHandler);
   }
 
   #clickDeleteComment = (event) => {
@@ -139,13 +140,18 @@ export default class CommentsList extends AbstractView {
   #onKeyDownHandler = (event) => {
     if (event.code === 'Enter' && (event.ctrlKey || event.metaKey)) {
       event.preventDefault();
-      //TODO this._externalHandlers.submitDetails();
+      const emojisContainer = this.element.querySelector('.film-details__add-emoji-label');
+      const commentText = this.element.querySelector('.film-details__comment-input');
       const newComment = {
-        'comment': this.#commentText.value,
-        'emotion': this.#emojisPlace.dataset.emotion,
+        comment: commentText.value,
+        emotion: emojisContainer.dataset.emotion,
       };
-
       this._externalHandlers.submitComment(newComment);
     }
+  }
+
+  removeElement() {
+    document.removeEventListener('keydown', this.#onKeydownListener);
+    super.removeElement();
   }
 }

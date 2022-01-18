@@ -97,7 +97,6 @@ export default class AppPresenter {
   }
 
   onCommentAdded = () => {
-    this.#detailsPresenter.unblockCommentControls();
     const LOAD_COMMENTS_PARAMS = {
       filmId: this.#detailsPresenter.filmId,
       loadCommentsCB: this.onCommentsLoaded,
