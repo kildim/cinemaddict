@@ -14,6 +14,7 @@ import AbstractProvider from './abstract-provider';
 const Method = {
   GET: 'GET',
   PUT: 'PUT',
+  DELETE: 'DELETE',
 };
 
 export default class DataProvider extends AbstractProvider{
@@ -42,8 +43,30 @@ export default class DataProvider extends AbstractProvider{
     return parsedResponse;
   }
 
-  loadComments = async (filmId) => this.#load({url: `comments\\${filmId}`})
+  deleteComment = async (commentId) => this.#delete({url: `comments/${commentId}`})
+
+  loadComments = async (filmId) => this.#load({url: `comments/${filmId}`})
     .then(DataProvider.parseResponse)
+
+  #delete = async ({
+    url,
+    method = Method.DELETE,
+    body = null,
+    headers = new Headers(),
+  }) => {
+    headers.append('Authorization', this.#authorization);
+
+    const response = await fetch(
+      `${this.#endPoint}/${url}`,
+      {method, body, headers},    );
+
+    try {
+      DataProvider.checkStatus(response);
+      return response;
+    } catch (err) {
+      DataProvider.catchError(err);
+    }
+  }
 
   #load = async ({
     url,

@@ -21,7 +21,7 @@ const createCommentsList = (comments) =>
         <p class="film-details__comment-info">
           <span class="film-details__comment-author">${comment.author}</span>
           <span class="film-details__comment-day">${formatCommentDataTime(comment.date)}</span>
-          <button class="film-details__comment-delete">Delete</button>
+          <button class="film-details__comment-delete" data-comment-id="${comment.id}">Delete</button>
         </p>
       </div>
     </li>
@@ -74,12 +74,22 @@ export default class CommentsList extends AbstractView {
   #comments = null;
   #emojis = null;
 
-  constructor(comments) {
+  constructor(props) {
+    const {comments, commentListHandlers} = {...props};
     super();
     this.#comments = comments;
     this.#emojis = Array.from(this.element.querySelectorAll('.film-details__emoji-label'));
+    const deleteButtons = this.element.querySelectorAll('.film-details__comment-delete');
+    this._externalHandlers.deleteComment = commentListHandlers.clickDeleteHandler;
 
     this.#emojis.forEach((emojiLabel) => emojiLabel.addEventListener('click', this.#clickEmotion));
+    deleteButtons.forEach((deleteButton) => deleteButton.addEventListener('click', this.#clickDeleteComment));
+  }
+
+  #clickDeleteComment = (event) => {
+    event.preventDefault();
+    event.target.textContent = 'Deleting...';
+    this._externalHandlers.deleteComment(event.target.dataset.commentId);
   }
 
   #clickEmotion = (event) => {

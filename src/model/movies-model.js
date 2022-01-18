@@ -80,8 +80,11 @@ export default class MoviesModel {
     });
   }
 
-  //TODO реализовать parseCommentFromServerFormat,
-  //TODO реализовать this.#dataProvider.loadComments(filmId),
+  deleteComment(params) {
+    const {commentId, deleteCommentCB} = { ...params}
+    this.#dataProvider.deleteComment(commentId).then(() => deleteCommentCB());
+  }
+
   loadComments(params) {
     const {filmId, loadCommentsCB} = {...params};
     this.#dataProvider.loadComments(filmId).then((comments) => loadCommentsCB(comments));

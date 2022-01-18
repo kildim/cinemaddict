@@ -8,12 +8,14 @@ export default class DetailsPresenter {
   #details = null;
   #commentsList = null;
   #detailsHandlers = {};
+  #commentListHandlers = {};
   isCommentsLoading = null;
 
   constructor(props) {
-    const {container, detailsHandlers} = {...props};
+    const {container, detailsHandlers, commentListHandlers} = {...props};
     this.#container = container;
     this.#detailsHandlers = detailsHandlers;
+    this.#commentListHandlers = commentListHandlers;
   }
 
   renderDetails = (film) => {
@@ -33,13 +35,22 @@ export default class DetailsPresenter {
   renderComments = (comments) => {
     if (this.#details) {
       removeChildren(this.#details.commentsContainer);
-      this.#commentsList = new CommentsList(comments);
+
+      const COMMENTS_LIST_PROPS = {
+        comments: comments,
+        commentListHandlers: this.#commentListHandlers,
+      };
+      this.#commentsList = new CommentsList(COMMENTS_LIST_PROPS);
       render(this.#details.commentsContainer, this.#commentsList);
     }
   }
 
+  get filmId() {
+    return this.#details !== null ? this.#details.filmId : null;
+  }
+
   updateDetails(film) {
-    if (this.#details !== null && this.#details.filmId === film.id) {
+    if (this.#details !== null && this.filmId === film.id) {
       this.renderDetails(film);
       render(this.#details.commentsContainer, this.#commentsList);
     }

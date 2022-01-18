@@ -73,7 +73,10 @@ export default class AppPresenter {
         clickWatchListHandler: this.switchWatchListFlag,
         clickWatchedHandler: this.switchWatchedFlag,
         clickFavoriteHandler: this.switchFavoriteFlag,
-      }
+      },
+      commentListHandlers: {
+        clickDeleteHandler: this.deleteComment,
+      },
     };
     this.#detailsPresenter = new DetailsPresenter(DETAILS_PRESENTER_PROPS);
 
@@ -81,11 +84,30 @@ export default class AppPresenter {
     this.renderLoader();
   }
 
+  deleteComment = (commentId) => {
+
+    const DELETE_COMMENTS_PARAMS = {
+      commentId: commentId,
+      deleteCommentCB: this.onCommentDeleted,
+    };
+    this.#moviesModel.deleteComment(DELETE_COMMENTS_PARAMS);
+  }
+
   onRenderDetails = (film) => () => {
     this.#detailsPresenter.isCommentsLoading = true;
     this.#detailsPresenter.renderDetails(film);
+
     const LOAD_COMMENTS_PARAMS = {
       filmId: film.id,
+      loadCommentsCB: this.onCommentsLoaded,
+    };
+    this.#moviesModel.loadComments(LOAD_COMMENTS_PARAMS);
+  }
+
+  onCommentDeleted = () => {
+
+    const LOAD_COMMENTS_PARAMS = {
+      filmId: this.#detailsPresenter.filmId,
       loadCommentsCB: this.onCommentsLoaded,
     };
     this.#moviesModel.loadComments(LOAD_COMMENTS_PARAMS);
