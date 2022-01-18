@@ -80,8 +80,13 @@ export default class MoviesModel {
     });
   }
 
+  addComment(params) {
+    const {filmId, comment, addCommentCB} = {...params};
+    this.#dataProvider.addComment({filmId, comment}).then(() => addCommentCB());
+  }
+
   deleteComment(params) {
-    const {commentId, deleteCommentCB} = { ...params}
+    const {commentId, deleteCommentCB} = { ...params};
     this.#dataProvider.deleteComment(commentId).then(() => deleteCommentCB());
   }
 

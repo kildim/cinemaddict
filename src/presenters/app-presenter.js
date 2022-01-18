@@ -76,12 +76,30 @@ export default class AppPresenter {
       },
       commentListHandlers: {
         clickDeleteHandler: this.deleteComment,
+        clickSubmitCommentHandler: this.addComment,
       },
     };
     this.#detailsPresenter = new DetailsPresenter(DETAILS_PRESENTER_PROPS);
 
     this.#isDataLoading = true;
     this.renderLoader();
+  }
+
+  addComment = (comment) => {
+    const ADD_COMMENT_PARAMS = {
+      filmId: this.#detailsPresenter.filmId,
+      comment: comment,
+      addCommentCB: this.onCommentAdded,
+    };
+    this.#moviesModel.addComment(ADD_COMMENT_PARAMS);
+  }
+
+  onCommentAdded = () => {
+    const LOAD_COMMENTS_PARAMS = {
+      filmId: this.#detailsPresenter.filmId,
+      loadCommentsCB: this.onCommentsLoaded,
+    };
+    this.#moviesModel.loadComments(LOAD_COMMENTS_PARAMS);
   }
 
   deleteComment = (commentId) => {

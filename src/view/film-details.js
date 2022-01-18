@@ -43,7 +43,7 @@ const createFilmDetailsTemplate = (film) => {
         <div class="film-details__poster">
           <img class="film-details__poster-img" src="${poster}" alt="${title} poster">
 
-          <p class="film-details__age">${ageRating}</p>
+          <p class="film-details__age">${ageRating}+</p>
         </div>
 
         <div class="film-details__info">
@@ -170,10 +170,6 @@ export default class FilmDetails extends SmartView{
   }
 
   #onKeyDownHandler = (event) => {
-    if (event.code === 'Enter' && (event.ctrlKey || event.metaKey)) {
-      event.preventDefault();
-      //TODO this._externalHandlers.submitDetails();
-    }
     if (event.key === 'Escape' || event.key === 'Esc') {
       event.preventDefault();
       this._externalHandlers.closeDetails();

@@ -8,6 +8,12 @@ const EMOJIS_PATHS = {
   'emoji-puke': './images/emoji/puke.png',
   'emoji-angry': './images/emoji/angry.png',
 };
+const EMOJIS_NAME = {
+  'emoji-smile': 'smile',
+  'emoji-sleeping': 'sleeping',
+  'emoji-puke': 'puke',
+  'emoji-angry': 'angry',
+};
 
 const createCommentsList = (comments) =>
   comments.map((comment) =>
@@ -73,29 +79,36 @@ const createCommentsListTemplate = (comments) => (
 export default class CommentsList extends AbstractView {
   #comments = null;
   #emojis = null;
+  #emojisPlace = null;
+  #commentText = null;
 
   constructor(props) {
     const {comments, commentListHandlers} = {...props};
     super();
     this.#comments = comments;
     this.#emojis = Array.from(this.element.querySelectorAll('.film-details__emoji-label'));
+    this.#emojisPlace = this.element.querySelector('.film-details__add-emoji-label');
+    this.#commentText = this.element.querySelector('.film-details__comment-input');
     const deleteButtons = this.element.querySelectorAll('.film-details__comment-delete');
     this._externalHandlers.deleteComment = commentListHandlers.clickDeleteHandler;
+    this._externalHandlers.submitComment = commentListHandlers.clickSubmitCommentHandler;
 
     this.#emojis.forEach((emojiLabel) => emojiLabel.addEventListener('click', this.#clickEmotion));
     deleteButtons.forEach((deleteButton) => deleteButton.addEventListener('click', this.#clickDeleteComment));
+
+    document.addEventListener('keydown', this.#onKeyDownHandler);
   }
 
   #clickDeleteComment = (event) => {
     event.preventDefault();
     event.target.textContent = 'Deleting...';
+    event.target.setAttribute('disabled', 'disabled');
     this._externalHandlers.deleteComment(event.target.dataset.commentId);
   }
 
   #clickEmotion = (event) => {
     const emoji = event.currentTarget.attributes.for.value;
-    const emojisPlace = this.element.querySelector('.film-details__add-emoji-label');
-    const prevEmotion = emojisPlace.firstChild;
+    const prevEmotion = this.#emojisPlace.firstChild;
 
     const newEmotion = document.createElement('img');
     newEmotion.src = EMOJIS_PATHS[emoji];
@@ -104,12 +117,27 @@ export default class CommentsList extends AbstractView {
     newEmotion.alt='emoji';
 
     if (prevEmotion) {
-      emojisPlace.removeChild(prevEmotion);
+      this.#emojisPlace.removeChild(prevEmotion);
     }
-    emojisPlace.appendChild(newEmotion);
+    this.#emojisPlace.appendChild(newEmotion);
+
+    this.#emojisPlace.setAttribute('data-emotion', EMOJIS_NAME[emoji]);
   }
 
   get template() {
     return createCommentsListTemplate(this.#comments);
+  }
+
+  #onKeyDownHandler = (event) => {
+    if (event.code === 'Enter' && (event.ctrlKey || event.metaKey)) {
+      event.preventDefault();
+      //TODO this._externalHandlers.submitDetails();
+      const newComment = {
+        'comment': this.#commentText.value,
+        'emotion': this.#emojisPlace.dataset.emotion,
+      };
+
+      this._externalHandlers.submitComment(newComment);
+    }
   }
 }

@@ -15,6 +15,7 @@ const Method = {
   GET: 'GET',
   PUT: 'PUT',
   DELETE: 'DELETE',
+  POST: 'POST',
 };
 
 export default class DataProvider extends AbstractProvider{
@@ -25,6 +26,19 @@ export default class DataProvider extends AbstractProvider{
     super();
     this.#endPoint = baseUrl;
     this.#authorization = authorization;
+  }
+
+  addComment = async  ({filmId, comment}) => {
+    const response = await this.#load({
+      url: `comments/${filmId}`,
+      method: Method.POST,
+      body: JSON.stringify(comment),
+      headers: new Headers({'Content-Type': 'application/json'}),
+    });
+
+    const parsedResponse = await DataProvider.parseResponse(response);
+
+    return parsedResponse;
   }
 
   loadFilms = async () => await this.#load({url: 'movies'})
@@ -67,6 +81,27 @@ export default class DataProvider extends AbstractProvider{
       DataProvider.catchError(err);
     }
   }
+
+  // #post = async ({
+  //   url,
+  //   method = Method.POST,
+  //   body,
+  //   headers = new Headers(),
+  // }) => {
+  //   headers.append('Authorization', this.#authorization);
+  //
+  //   const response = await fetch(
+  //     `${this.#endPoint}/${url}`,
+  //     {method, body, headers},
+  //   );
+  //
+  //   try {
+  //     DataProvider.checkStatus(response);
+  //     return response;
+  //   } catch (err) {
+  //     DataProvider.catchError(err);
+  //   }
+  // }
 
   #load = async ({
     url,
