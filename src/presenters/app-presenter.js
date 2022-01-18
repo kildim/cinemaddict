@@ -58,7 +58,7 @@ export default class AppPresenter {
     const MOVIES_PRESENTER_PROPS = {
       container: this.#contentWrapper,
       cardHandlers: {
-        clickCardHandler: this.renderDetails,
+        clickCardHandler: this.onRenderDetails,
         clickWatchListHandler: this.switchWatchListFlag,
         clickWatchedHandler: this.switchWatchedFlag,
         clickFavoriteHandler: this.switchFavoriteFlag
@@ -81,8 +81,19 @@ export default class AppPresenter {
     this.renderLoader();
   }
 
-  renderDetails = (film) => () => {
+  onRenderDetails = (film) => () => {
+    this.#detailsPresenter.isCommentsLoading = true;
     this.#detailsPresenter.renderDetails(film);
+    const LOAD_COMMENTS_PARAMS = {
+      filmId: film.id,
+      loadCommentsCB: this.onCommentsLoaded,
+    };
+    this.#moviesModel.loadComments(LOAD_COMMENTS_PARAMS);
+  }
+
+  onCommentsLoaded = (comments) => {
+    this.#detailsPresenter.isCommentsLoading = false;
+    this.#detailsPresenter.renderComments(comments);
   }
 
   updateDetails = (film) => {
@@ -159,7 +170,6 @@ export default class AppPresenter {
     } else {
       this.#moviesPresenter.removeCardFromFilmsList(film);
     }
-    this.renderDetails(film);
   }
 
   onFavoriteFlagChanges = (film) => {
@@ -170,7 +180,6 @@ export default class AppPresenter {
     } else {
       this.#moviesPresenter.removeCardFromFilmsList(film);
     }
-    this.renderDetails(film);
   }
 
   renderLoader = () => {

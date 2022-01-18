@@ -1,10 +1,14 @@
 import FilmDetails from '../view/film-details';
 import {removeChildren, render, replace} from '../utils/render';
+import {Loader} from '../view/loader';
+import CommentsList from '../view/comments-list';
 
 export default class DetailsPresenter {
   #container = null;
   #details = null;
+  #commentsList = null;
   #detailsHandlers = {};
+  isCommentsLoading = null;
 
   constructor(props) {
     const {container, detailsHandlers} = {...props};
@@ -21,11 +25,23 @@ export default class DetailsPresenter {
       replace(newFilmDetails, this.#details);
     }
     this.#details = newFilmDetails;
+    if (this.isCommentsLoading) {
+      render(this.#details.commentsContainer, new Loader());
+    }
+  }
+
+  renderComments = (comments) => {
+    if (this.#details) {
+      removeChildren(this.#details.commentsContainer);
+      this.#commentsList = new CommentsList(comments);
+      render(this.#details.commentsContainer, this.#commentsList);
+    }
   }
 
   updateDetails(film) {
-    if (this.#details !== null && this.#details.filmID === film.id) {
+    if (this.#details !== null && this.#details.filmId === film.id) {
       this.renderDetails(film);
+      render(this.#details.commentsContainer, this.#commentsList);
     }
   }
 

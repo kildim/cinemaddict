@@ -42,6 +42,9 @@ export default class DataProvider extends AbstractProvider{
     return parsedResponse;
   }
 
+  loadComments = async (filmId) => this.#load({url: `comments\\${filmId}`})
+    .then(DataProvider.parseResponse)
+
   #load = async ({
     url,
     method = Method.GET,

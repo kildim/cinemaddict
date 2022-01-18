@@ -80,6 +80,13 @@ export default class MoviesModel {
     });
   }
 
+  //TODO реализовать parseCommentFromServerFormat,
+  //TODO реализовать this.#dataProvider.loadComments(filmId),
+  loadComments(params) {
+    const {filmId, loadCommentsCB} = {...params};
+    this.#dataProvider.loadComments(filmId).then((comments) => loadCommentsCB(comments));
+  }
+
   replaceFilm(film) {
     const index = this.#films.findIndex((movie) => movie.id === film.id);
     this.#films[index] = {...film};
