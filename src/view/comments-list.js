@@ -89,7 +89,6 @@ export default class CommentsList extends AbstractView {
     this.#comments = comments;
     this.#emojis = Array.from(this.element.querySelectorAll('.film-details__emoji-label'));
     this.#emojisPlace = this.element.querySelector('.film-details__add-emoji-label');
-    // this.#commentText = this.element.querySelector('.film-details__comment-input');
     this.#editCommentControls = [...Array.from(this.element.querySelectorAll('.film-details__emoji-item')),
       this.element.querySelector('.film-details__comment-input')];
     const deleteButtons = this.element.querySelectorAll('.film-details__comment-delete');
