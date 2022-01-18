@@ -81,9 +81,7 @@ export default class CommentsList extends AbstractView {
   #comments = null;
   #emojis = null;
   #emojisPlace = null;
-  // #commentText = null;
   #editCommentControls = null;
-  #onKeydownListener = null;
 
   constructor(props) {
     const {comments, commentListHandlers} = {...props};
@@ -101,7 +99,7 @@ export default class CommentsList extends AbstractView {
     this.#emojis.forEach((emojiLabel) => emojiLabel.addEventListener('click', this.#clickEmotion));
     deleteButtons.forEach((deleteButton) => deleteButton.addEventListener('click', this.#clickDeleteComment));
 
-    this.#onKeydownListener = document.addEventListener('keydown', this.#onKeyDownHandler);
+    document.addEventListener('keydown', this.#onKeyDownHandler);
   }
 
   #clickDeleteComment = (event) => {
@@ -151,7 +149,7 @@ export default class CommentsList extends AbstractView {
   }
 
   removeElement() {
-    document.removeEventListener('keydown', this.#onKeydownListener);
+    document.removeEventListener('keydown', this.#onKeyDownHandler);
     super.removeElement();
   }
 }

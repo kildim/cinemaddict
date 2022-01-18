@@ -71,7 +71,8 @@ export default class DetailsPresenter {
 
   removeDetails() {
     if (this.#details !== null) {
-      removeChildren(this.#container);
+      this.#commentsList.removeElement();
+      this.#details.removeElement();
     }
     this.#details = null;
   }
