@@ -37,11 +37,10 @@ export default class DetailsPresenter {
     if (this.#details) {
       removeChildren(this.#details.commentsContainer);
 
-      const COMMENTS_LIST_PROPS = {
+      this.#commentsList = new CommentsList({
         comments: comments,
         commentListHandlers: this.#commentListHandlers,
-      };
-      this.#commentsList = new CommentsList(COMMENTS_LIST_PROPS);
+      });
       render(this.#details.commentsContainer, this.#commentsList);
     }
   }
@@ -62,7 +61,7 @@ export default class DetailsPresenter {
   }
 
   blockCommentControls = () => {
-    this.#commentsList.editCommentControls.forEach((control) => {control.setAttribute('disabled', 'disabled');});
+    this.#commentsList.editCommentControls.forEach((control) => {control.setAttribute('disabled', 'true');});
   };
 
   unblockCommentControls = () => {

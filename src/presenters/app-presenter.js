@@ -7,6 +7,7 @@ import {FILTERS} from '../constants';
 import {Loader} from '../view/loader';
 import ContentWrapper from '../view/content-wrapper';
 import DetailsPresenter from './details-presenter';
+import {OBSERVER_TYPE} from '../model/movies-model';
 
 export default class AppPresenter {
   #header = null;
@@ -44,10 +45,22 @@ export default class AppPresenter {
     };
     this.#detailsPresenter = new DetailsPresenter(DETAIL_PRESENTER_PROPS);
 
-    this.#moviesModel.addFilmsLoadedObserver(this.onFilmsLoaded);
-    this.#moviesModel.addWatchedFlagChangesObserver(this.onWatchedFlagChanges);
-    this.#moviesModel.addWatchListFlagChangesObserver(this.onWatchListFlagChanges);
-    this.#moviesModel.addFavoriteFlagChangesObserver(this.onFavoriteFlagChanges);
+    this.#moviesModel.addObserver({
+      observerType: OBSERVER_TYPE.filmsLoaded,
+      observer: this.onFilmsLoaded
+    });
+    this.#moviesModel.addObserver({
+      observerType: OBSERVER_TYPE.watchedFlagChanges,
+      observer: this.onWatchedFlagChanges
+    });
+    this.#moviesModel.addObserver({
+      observerType: OBSERVER_TYPE.watchlistFlagChanges,
+      observer: this.onWatchListFlagChanges
+    });
+    this.#moviesModel.addObserver({
+      observerType: OBSERVER_TYPE.favoriteFlagChanges,
+      observer: this.onFavoriteFlagChanges
+    });
   }
 
   init() {
@@ -55,7 +68,7 @@ export default class AppPresenter {
     this.renderContentWrapper();
     this.renderFooterStats();
 
-    const MOVIES_PRESENTER_PROPS = {
+    this.#moviesPresenter.init({
       container: this.#contentWrapper,
       cardHandlers: {
         clickCardHandler: this.onRenderDetails,
@@ -63,10 +76,9 @@ export default class AppPresenter {
         clickWatchedHandler: this.switchWatchedFlag,
         clickFavoriteHandler: this.switchFavoriteFlag
       },
-    };
-    this.#moviesPresenter.init(MOVIES_PRESENTER_PROPS);
+    });
 
-    const DETAILS_PRESENTER_PROPS = {
+    this.#detailsPresenter = new DetailsPresenter({
       container: this.#detailsWrapper,
       detailsHandlers: {
         closeDetailsHandler: this.onCloseDetailsAction,
@@ -78,8 +90,7 @@ export default class AppPresenter {
         clickDeleteHandler: this.deleteComment,
         clickSubmitCommentHandler: this.addComment,
       },
-    };
-    this.#detailsPresenter = new DetailsPresenter(DETAILS_PRESENTER_PROPS);
+    });
 
     this.#isDataLoading = true;
     this.renderLoader();
@@ -97,11 +108,10 @@ export default class AppPresenter {
   }
 
   onCommentAdded = () => {
-    const LOAD_COMMENTS_PARAMS = {
+    this.#moviesModel.loadComments({
       filmId: this.#detailsPresenter.filmId,
       loadCommentsCB: this.onCommentsLoaded,
-    };
-    this.#moviesModel.loadComments(LOAD_COMMENTS_PARAMS);
+    });
   }
 
   onCommentAddFail = () => {
@@ -110,32 +120,28 @@ export default class AppPresenter {
   }
 
   deleteComment = (commentId) => {
-
-    const DELETE_COMMENTS_PARAMS = {
+    this.#moviesModel.deleteComment({
       commentId: commentId,
       deleteCommentCB: this.onCommentDeleted,
-    };
-    this.#moviesModel.deleteComment(DELETE_COMMENTS_PARAMS);
+    });
   }
 
   onRenderDetails = (film) => () => {
     this.#detailsPresenter.isCommentsLoading = true;
     this.#detailsPresenter.renderDetails(film);
 
-    const LOAD_COMMENTS_PARAMS = {
+    this.#moviesModel.loadComments({
       filmId: film.id,
       loadCommentsCB: this.onCommentsLoaded,
-    };
-    this.#moviesModel.loadComments(LOAD_COMMENTS_PARAMS);
+    });
   }
 
   onCommentDeleted = () => {
 
-    const LOAD_COMMENTS_PARAMS = {
+    this.#moviesModel.loadComments({
       filmId: this.#detailsPresenter.filmId,
       loadCommentsCB: this.onCommentsLoaded,
-    };
-    this.#moviesModel.loadComments(LOAD_COMMENTS_PARAMS);
+    });
   }
 
   onCommentsLoaded = (comments) => {

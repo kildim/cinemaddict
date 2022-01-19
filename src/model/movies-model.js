@@ -1,54 +1,79 @@
 import AbstractObservable from './abstract-observable';
 import {parseFromServerFormat, parseToServerFormat} from '../utils/adapters';
 
+export const OBSERVER_TYPE = {
+  filmsLoaded: 'filmsLoaded',
+  watchedFlagChanges: 'watchedFlagChanges',
+  watchlistFlagChanges: 'watchlistFlagChanges',
+  favoriteFlagChanges: 'favoriteFlagChanges',
+};
+
 export default class MoviesModel {
   #films = null;
   #dataProvider = null;
-  #filmsLoadedSpotters = null;
+  // #filmsLoadedSpotters = null;
   #watchedFlagChangesSpotters = null;
   #watchlistFlagChangesSpotters = null;
   #favoriteFlagChangesSpotters = null;
+  #spotters = {};
 
   constructor(dataProvider) {
     this.#dataProvider = dataProvider;
     this.#films = [];
-    this.#filmsLoadedSpotters = new AbstractObservable();
-    this.#watchedFlagChangesSpotters = new AbstractObservable();
-    this.#watchlistFlagChangesSpotters = new AbstractObservable();
-    this.#favoriteFlagChangesSpotters = new AbstractObservable();
+    // this.#filmsLoadedSpotters = new AbstractObservable();
+    // this.#watchedFlagChangesSpotters = new AbstractObservable();
+    // this.#watchlistFlagChangesSpotters = new AbstractObservable();
+    // this.#favoriteFlagChangesSpotters = new AbstractObservable();
+
+    this.#spotters = {
+      [OBSERVER_TYPE.filmsLoaded]: new AbstractObservable(),
+      [OBSERVER_TYPE.watchedFlagChanges]: new AbstractObservable(),
+      [OBSERVER_TYPE.watchlistFlagChanges]: new AbstractObservable(),
+      [OBSERVER_TYPE.favoriteFlagChanges]: new AbstractObservable(),
+    };
   }
 
-  addWatchedFlagChangesObserver(observer) {
-    this.#watchedFlagChangesSpotters.addObserver(observer);
+  addObserver(params) {
+    const {observerType, observer} = {...params};
+    this.#spotters[observerType].addObserver(observer);
   }
 
-  removeWatchedFlagChangesObserver(observer) {
-    this.#watchedFlagChangesSpotters.removeObserver(observer);
+  removeObserver(params) {
+    const {spotterType, observer} = {...params};
+    this.spotters[spotterType].removeObserver(observer);
   }
 
-  addWatchListFlagChangesObserver(observer) {
-    this.#watchlistFlagChangesSpotters.addObserver(observer);
-  }
+  // addWatchedFlagChangesObserver(observer) {
+  //   this.#watchedFlagChangesSpotters.addObserver(observer);
+  // }
+  //
+  // removeWatchedFlagChangesObserver(observer) {
+  //   this.#watchedFlagChangesSpotters.removeObserver(observer);
+  // }
+  //
+  // addWatchListFlagChangesObserver(observer) {
+  //   this.#watchlistFlagChangesSpotters.addObserver(observer);
+  // }
+  //
+  // removeWatchListFlagChangesObserver(observer) {
+  //   this.#watchlistFlagChangesSpotters.removeObserver(observer);
+  // }
+  //
+  // addFavoriteFlagChangesObserver(observer) {
+  //   this.#favoriteFlagChangesSpotters.addObserver(observer);
+  // }
+  //
+  // removeFavoriteFlagChangesObserver(observer) {
+  //   this.#favoriteFlagChangesSpotters.removeObserver(observer);
+  // }
 
-  removeWatchListFlagChangesObserver(observer) {
-    this.#watchlistFlagChangesSpotters.removeObserver(observer);
-  }
+  // addFilmsLoadedObserver(observer) {
+  //   this.#filmsLoadedSpotters.addObserver(observer);
+  // }
 
-  addFavoriteFlagChangesObserver(observer) {
-    this.#favoriteFlagChangesSpotters.addObserver(observer);
-  }
-
-  removeFavoriteFlagChangesObserver(observer) {
-    this.#favoriteFlagChangesSpotters.removeObserver(observer);
-  }
-
-  addFilmsLoadedObserver(observer) {
-    this.#filmsLoadedSpotters.addObserver(observer);
-  }
-
-  removeFilmsLoadedObserver(observer) {
-    this.#filmsLoadedSpotters.removeObserver(observer);
-  }
+  // removeFilmsLoadedObserver(observer) {
+  //   this.#filmsLoadedSpotters.removeObserver(observer);
+  // }
 
   get watchInfo() {
     const watchInfo = {
@@ -76,7 +101,7 @@ export default class MoviesModel {
   loadMovies() {
     this.#dataProvider.loadFilms().then((films) => {
       this.#films = films.map((film) => parseFromServerFormat(film));
-      this.#filmsLoadedSpotters._notify();
+      this.#spotters[OBSERVER_TYPE.filmsLoaded]._notify();
     });
   }
 
@@ -105,7 +130,7 @@ export default class MoviesModel {
     this.#dataProvider.updateFilm(changedFilm).then((movie) => {
       const updatedFilm = parseFromServerFormat(movie);
       this.replaceFilm(updatedFilm);
-      this.#watchedFlagChangesSpotters._notify(updatedFilm);
+      this.#spotters[OBSERVER_TYPE.watchedFlagChanges]._notify(updatedFilm);
     });
   }
 
@@ -114,7 +139,7 @@ export default class MoviesModel {
     this.#dataProvider.updateFilm(changedFilm).then((movie) => {
       const updatedFilm = parseFromServerFormat(movie);
       this.replaceFilm(updatedFilm);
-      this.#watchlistFlagChangesSpotters._notify(updatedFilm);
+      this.#spotters[OBSERVER_TYPE.watchlistFlagChanges]._notify(updatedFilm);
     });
   }
 
@@ -123,7 +148,7 @@ export default class MoviesModel {
     this.#dataProvider.updateFilm(changedFilm).then((movie) => {
       const updatedFilm = parseFromServerFormat(movie);
       this.replaceFilm(updatedFilm);
-      this.#favoriteFlagChangesSpotters._notify(updatedFilm);
+      this.#spotters[OBSERVER_TYPE.favoriteFlagChanges]._notify(updatedFilm);
     });
   }
 
