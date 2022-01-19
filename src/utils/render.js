@@ -52,6 +52,7 @@ export const remove = (component) => {
 
 export const removeChildren = (component) => {
   while (component.firstChild) {
-    component.removeChild(component.firstChild);
+    removeChildren(component.firstChild);
+    remove(component.firstChild);
   }
 };

@@ -1,103 +1,191 @@
+import {FILTERS, LIST_EXTRAS_CHUNK, LIST_FILMS_CHUNK, SORT_TYPE} from '../constants';
+import MenuSort from '../view/menu-sort';
 import {render, replace} from '../utils/render';
-import UserProfile from '../view/user-profile';
-import MainMenu from '../view/main-menu';
 import ListsContainer from '../view/lists-container';
-import Sort from '../view/sort';
-import ShowMore from '../view/show-more';
-import {FILTERS, SORT_TYPE} from '../constants';
-import FooterStatistics from '../view/footer-statistics';
-import {LIST_EXTRAS_CHUNK, LIST_FILMS_CHUNK} from '../main';
-import FilmsEmpty from '../view/films-empty';
 import MoviesContainer from '../view/movies-container';
-import {changeFilm} from '../data/data-adapter';
 import ListPresenter from './list-presenter';
-import DetailsPresenter from './details-presenter';
+import ShowMore from '../view/show-more';
+import ListContainerCaption from '../view/list-container-caption';
+import DatabaseIsEmpty from '../view/database-is-empty';
 
 export default class MoviesPresenter {
-  #films = null;
-  #watchInfo = null;
-  #header = null;
-  #main = null;
-  #footer = null
+  #cardHandlers = null;
+  #menuSort = null;
+  #filteredSelection = null;
+  #sortSelection = null;
+  #container = null;
+  #listsContainer = null;
+  #films = [];
+  #sortedFilms = null;
+  #showMore = null;
   #listHead = null;
   #listTail = null;
-  #more = null;
-  #onFilmChangesSubscribers = null;
-  #detailsPresenter = null;
-  #sortType = null;
-  #sortedFilms = null;
+  #listFilms = null;
+  #listTopRated = null;
+  #listMostCommented = null;
   #filmsListPresenter = null;
-  #menuSort = null;
+  #topRatedListPresenter = null;
+  #mostCommentedListPresenter = null;
+  #moviesModel = null;
 
-  constructor(header, main, footer) {
-    this.#header = header;
-    this.#main = main;
-    this.#footer = footer;
-    this.#onFilmChangesSubscribers = new Map();
+  constructor(moviesModel) {
+    this.#sortSelection = SORT_TYPE.default;
+    this.#moviesModel = moviesModel;
   }
 
-  init (films, watchInfo) {
-    this.#films = films;
-    this.#sortedFilms = [...this.#films];
-    this.#sortType = SORT_TYPE.default;
-    this.#watchInfo = watchInfo;
-    this.#detailsPresenter = new DetailsPresenter(document.body);
-    this.#detailsPresenter.init(this.detailsHandlers, this.subscriptionOnFilmChanges);
-    this.#more = new ShowMore();
+  init(moviesPresenterProps) {
+    const {container, cardHandlers} = {...moviesPresenterProps};
+
+    this.#container = container;
+    this.#cardHandlers = cardHandlers;
+  }
+
+  updateCard(film) {
+    this.#filmsListPresenter.updateCard(film);
+    this.#topRatedListPresenter.updateCard(film);
+    this.#mostCommentedListPresenter.updateCard(film);
+  }
+
+  removeCardFromFilmsList(film) {
+    const cardIndex = this.#films.findIndex((card) => card.id === film.id);
+    this.#films.splice(cardIndex, 1);
+    this.#sortedFilms.splice(cardIndex, 1);
+
+    this.renderSorted();
+  }
+
+  generateEmptyTitleMessage = (filter) => {
+    let message;
+    switch (filter) {
+      case FILTERS.allMovies:
+        message = 'There are no movies in our database';
+        break;
+      case FILTERS.watchlist:
+        message = 'There are no movies to watch now';
+        break;
+      case FILTERS.history:
+        message = 'There are no watched movies now';
+        break;
+      case FILTERS.favorites:
+        message = 'There are no favorite movies now';
+        break;
+    }
+    return message;
+  }
+
+  checkTitle = (listLength) => {
+    const listContainerCaption = (listLength > 0) ?
+      new ListContainerCaption('All movies. Upcoming') :
+      new ListContainerCaption(this.generateEmptyTitleMessage(this.#filteredSelection), true);
+
+    const title = this.#listFilms.titleElement;
+    replace(listContainerCaption, title);
+  }
+
+  removeMenuSort = () => {
+    this.#menuSort.element.remove();
+    this.#menuSort = null;
+  }
+
+  checkMenuSortVisibility = () => {
+    if (this.#sortedFilms.length > 1) {
+      this.renderMenuSort();
+    } else {
+      if (this.#menuSort !== null)
+      {this.removeMenuSort();}
+    }
+  }
+
+  renderSorted = () => {
+
+    this.checkMenuSortVisibility();
+    this.checkTitle(this.#films.length);
+    const FILMS_LIST_PRESENTER_PROPS = {
+      container: this.#listFilms.cardsContainer,
+      cardHandlers: this.#cardHandlers,
+    };
+    this.#filmsListPresenter = new ListPresenter(FILMS_LIST_PRESENTER_PROPS);
+
     this.#listHead = 0;
-    this.#listTail = Math.min(this.#films.length, LIST_FILMS_CHUNK);
-  }
+    this.#listTail = Math.min(this.#sortedFilms.length, LIST_FILMS_CHUNK);
 
-  subscribeOnFilmChanges = (object, callback) => {
-    this.#onFilmChangesSubscribers.set(object, callback);
-  }
+    const listFilmsSampling = this.#sortedFilms.slice(this.#listHead, this.#listTail);
+    this.#filmsListPresenter.addChunk(listFilmsSampling);
 
-  unSubscribeOnFilmChanges = (object) => {
-    this.#onFilmChangesSubscribers.delete(object);
-  }
-
-  notifyOnFilmChanges(film) {
-    this.#onFilmChangesSubscribers.forEach((callback) => callback(film));
-  }
-
-  subscriptionOnFilmChanges = {
-    subscribeOnFilmChanges: this.subscribeOnFilmChanges,
-    unSubscribeOnFilmChanges: this.unSubscribeOnFilmChanges
-  }
-
-  switchWatchListFlag = (film) => () => {
-    film.watchList = !film.watchList;
-    changeFilm(film);
-    this.notifyOnFilmChanges(film);
-  }
-
-  switchWatchedFlag = (film) => () => {
-    film.watched = !film.watched;
-    changeFilm(film);
-    this.notifyOnFilmChanges(film);
-  }
-
-  switchFavoriteFlag = (film) => () => {
-    film.favorite = !film.favorite;
-    changeFilm(film);
-    this.notifyOnFilmChanges(film);
-  }
-
-  renderDetails = (film) => () => {
-    this.#detailsPresenter.renderDetails(film);
+    if (this.#sortedFilms.length > LIST_FILMS_CHUNK) {
+      this.renderShowMore();
+    } else {
+      if (this.#showMore !== null) {
+        this.#showMore.removeElement();
+        this.#showMore = null;
+      }
+    }
   };
 
-  cardHandlers = {
-    clickCardHandler: this.renderDetails,
-    clickWatchListHandler: this.switchWatchListFlag,
-    clickWatchedHandler: this.switchWatchedFlag,
-    clickFavoriteHandler: this.switchFavoriteFlag
-  };
+  renderByDefault = () => {
+    this.#sortSelection = SORT_TYPE.default;
+    this.#sortedFilms = [...this.#films];
+    this.renderSorted();
+  }
 
-  detailsHandlers = {
-    clickWatchListHandler: this.switchWatchListFlag,
-    clickWatchedHandler: this.switchWatchedFlag,
-    clickFavoriteHandler: this.switchFavoriteFlag
+  renderByDate = () => {
+    this.#sortSelection = SORT_TYPE.byDate;
+    this.#sortedFilms = [...this.#films].sort((prevCard, succCard) => new Date(succCard.releaseDate) - new Date(prevCard.releaseDate));
+    this.renderSorted();
+  }
+
+  renderByRating = () => {
+    this.#sortSelection = SORT_TYPE.byRating;
+    this.#sortedFilms = [...this.#films].sort((prevCard, succCard) => succCard.totalRating - prevCard.totalRating);
+    this.renderSorted();
+  }
+
+  renderMenuSort = () => {
+    const MENU_SORT_PROPS = {
+      sortSelection: this.#sortSelection,
+      menuSortHandlers: {
+        clickByDefaultHandler: this.renderByDefault,
+        clickByDateHandler: this.renderByDate,
+        clickByRatingHandler: this.renderByRating,
+      }
+    };
+    const newMenuSort = new MenuSort(MENU_SORT_PROPS);
+
+    if (this.#menuSort === null) {
+      render(this.#container, newMenuSort, 'afterbegin');
+    } else {
+      replace(newMenuSort, this.#menuSort);
+    }
+    this.#menuSort = newMenuSort;
+  }
+
+  renderListsContainer = () => {
+    const newListContainer = new ListsContainer();
+
+    if (this.#listsContainer === null) {
+      render(this.#container, newListContainer);
+    } else {
+      replace(newListContainer, this.#listsContainer);
+    }
+    this.#listsContainer = newListContainer;
+  }
+
+  renderShowMore = () => {
+    if (this.#sortedFilms.length > this.#listTail) {
+      const SHOW_MORE_PROPS = {
+        showMoreHandlers: {
+          clickMore: this.onClickShowMoreHandler(this.#filmsListPresenter),
+        }
+      };
+      const newShowMore = new ShowMore(SHOW_MORE_PROPS);
+
+      if (this.#showMore === null) {
+        render(this.#listFilms, newShowMore);
+      } else {
+        replace(newShowMore, this.#showMore);
+      }
+      this.#showMore = newShowMore;
+    }
   }
 
   onClickShowMoreHandler = (list) => () => {
@@ -105,99 +193,68 @@ export default class MoviesPresenter {
     this.#listTail += LIST_FILMS_CHUNK;
     if (this.#listTail > this.#sortedFilms.length) {
       this.#listTail = this.#sortedFilms.length;
-      this.#more.removeElement();
+      this.#showMore.removeElement();
     }
     const listFilmsSampling = this.#sortedFilms.slice(this.#listHead, this.#listTail);
     list.addChunk(listFilmsSampling);
   };
 
-  changeSort = (sortType) => {
-    if (this.#sortType !== sortType) {
-      this.#sortType = sortType;
-      switch (this.#sortType) {
-        case SORT_TYPE.default:
-          this.#sortedFilms = [...this.#films];
-          break;
-        case  SORT_TYPE.byDate:
-          this.#sortedFilms = [...this.#films].sort((prevCard, succCard) => new Date(prevCard.releaseDate) - new Date(succCard.releaseDate));
-          break;
-        case  SORT_TYPE.byRating:
-          this.#sortedFilms = [...this.#films].sort((prevCard, succCard) => prevCard.totalRating - succCard.totalRating);
-          break;
-      }
-
-      this.#listHead = 0;
-      this.#listTail = Math.min(this.#films.length, LIST_FILMS_CHUNK);
-      this.#filmsListPresenter.init();
-
-      const listFilmsSampling = this.#sortedFilms.slice(this.#listHead, this.#listTail);
-      this.#filmsListPresenter.addChunk(listFilmsSampling);
-      this.#filmsListPresenter.renderList();
-      const newMenuSort = new Sort(this.#sortType);
-      replace(newMenuSort, this.#menuSort);
-      this.#menuSort = newMenuSort;
-      this.#menuSort.setExternalHandlers(this.changeSort);
+  renderFilmsList(filterValue) {
+    this.#filteredSelection = filterValue;
+    switch (this.#filteredSelection) {
+      case FILTERS.allMovies:
+        this.#films = this.#moviesModel.films;
+        break;
+      case FILTERS.watchlist:
+        this.#films = this.#moviesModel.watchlist;
+        break;
+      case FILTERS.history:
+        this.#films = this.#moviesModel.history;
+        break;
+      case FILTERS.favorites:
+        this.#films = this.#moviesModel.favorites;
+        break;
     }
-  };
 
-  renderFilmsListsContent(listsContainer) {
-
-    this.#menuSort = new Sort(this.#sortType);
-    render(this.#main, this.#menuSort);
-    render(this.#main, listsContainer);
-
-    const listFilms = new MoviesContainer('All movies. Upcoming', false);
-    const listTopRated = new MoviesContainer('Top rated');
-    const listMostCommented = new MoviesContainer('Most commented');
-
-    render(listsContainer, listFilms);
-    render(listsContainer, listTopRated);
-    render(listsContainer, listMostCommented);
-
-    const listFilmsSampling = this.#sortedFilms.slice(this.#listHead, this.#listTail);
-    const listTopRatedSampling = this.#films.slice(0, LIST_EXTRAS_CHUNK);
-    const listMostCommentedSampling = this.#films.slice(0, LIST_EXTRAS_CHUNK);
-
-    this.#filmsListPresenter = new ListPresenter(listFilms.cardsContainer);
-    this.#filmsListPresenter.setExternalHandlers(this.cardHandlers, this.subscriptionOnFilmChanges);
-    this.#filmsListPresenter.addChunk(listFilmsSampling);
-    this.#filmsListPresenter.renderList();
-    this.#menuSort.setExternalHandlers(this.changeSort);
-    const topRatedList = new ListPresenter(listTopRated.cardsContainer);
-    topRatedList.setExternalHandlers(this.cardHandlers, this.subscriptionOnFilmChanges);
-    topRatedList.addChunk(listTopRatedSampling);
-    topRatedList.renderList();
-    const mostCommentedList = new ListPresenter(listMostCommented.cardsContainer);
-    mostCommentedList.setExternalHandlers(this.cardHandlers, this.subscriptionOnFilmChanges);
-    mostCommentedList.addChunk(listMostCommentedSampling);
-    mostCommentedList.renderList();
-
-    if (this.#films.length > this.#listTail) {
-      this.#more.setExternalHandlers({clickMore: this.onClickShowMoreHandler(this.#filmsListPresenter)});
-      render(listFilms, this.#more);
-    }
+    this.renderByDefault();
   }
 
-  renderEmptyListsContent(listsContainer){
-    const filmsEmpty = new FilmsEmpty();
-
-    filmsEmpty.init(FILTERS.allMovies);
-    render(this.#main, listsContainer);
-    render(listsContainer, filmsEmpty);
+  renderTopRatedFilms() {
+    const FILMS_LIST_PRESENTER_PROPS = {
+      container: this.#listTopRated.cardsContainer,
+      cardHandlers: this.#cardHandlers,
+    };
+    this.#topRatedListPresenter = new ListPresenter(FILMS_LIST_PRESENTER_PROPS);
+    this.#topRatedListPresenter.addChunk([...this.#moviesModel.topRated].slice(0, LIST_EXTRAS_CHUNK));
   }
 
-  renderContent() {
-    render(this.#header, new UserProfile());
-    render(this.#main, new MainMenu(this.#watchInfo));
+  renderMostCommentedFilms() {
+    const FILMS_LIST_PRESENTER_PROPS = {
+      container: this.#listMostCommented.cardsContainer,
+      cardHandlers: this.#cardHandlers,
+    };
+    this.#mostCommentedListPresenter = new ListPresenter(FILMS_LIST_PRESENTER_PROPS);
+    this.#mostCommentedListPresenter.addChunk([...this.#moviesModel.mostCommented].slice(0, LIST_EXTRAS_CHUNK));
+  }
 
-    const listsContainer = new ListsContainer();
-
-    if (this.#films.length > 0) {
-      this.renderFilmsListsContent(listsContainer);
+  renderInitContent() {
+    if (this.#moviesModel.films < 1) {
+      render(this.#container, new DatabaseIsEmpty());
     } else {
-      this.renderEmptyListsContent(listsContainer);
-    }
+      this.renderMenuSort();
+      this.renderListsContainer();
 
-    render(this.#footer, new FooterStatistics(this.#films.length));
+      this.#listFilms = new MoviesContainer('All movies. Upcoming', false);
+      this.#listTopRated = new MoviesContainer('Top rated');
+      this.#listMostCommented = new MoviesContainer('Most commented');
+
+      render(this.#listsContainer, this.#listFilms);
+      render(this.#listsContainer, this.#listTopRated);
+      render(this.#listsContainer, this.#listMostCommented);
+
+      this.renderFilmsList(FILTERS.allMovies);
+      this.renderTopRatedFilms();
+      this.renderMostCommentedFilms();
+    }
   }
 }

@@ -5,6 +5,8 @@ const createElement = (template) => {
   return newElement.firstChild;
 };
 
+const SHAKE_ANIMATION_TIMEOUT = 600;
+
 export default class AbstractView {
   #element = null;
   _externalHandlers = {};
@@ -32,5 +34,12 @@ export default class AbstractView {
       this.#element.remove();
     }
     this.#element = null;
+  }
+
+  shake() {
+    this.element.style.animation = `shake ${SHAKE_ANIMATION_TIMEOUT / 1000}s`;
+    setTimeout(() => {
+      this.element.style.animation = '';
+    }, SHAKE_ANIMATION_TIMEOUT);
   }
 }

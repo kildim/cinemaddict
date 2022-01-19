@@ -1,45 +1,79 @@
-import {remove, render} from '../utils/render';
 import FilmDetails from '../view/film-details';
+import {removeChildren, render, replace} from '../utils/render';
+import {Loader} from '../view/loader';
+import CommentsList from '../view/comments-list';
 
 export default class DetailsPresenter {
-  #details = null;
-  #detailsHandlers = {};
-  #subscribeOnFileChanges = null;
-  #unSubscribeOnFileChanges = null;
   #container = null;
+  #details = null;
+  #commentsList = null;
+  #detailsHandlers = {};
+  #commentListHandlers = {};
+  isCommentsLoading = null;
 
-  constructor(container) {
+  constructor(props) {
+    const {container, detailsHandlers, commentListHandlers} = {...props};
     this.#container = container;
+    this.#detailsHandlers = detailsHandlers;
+    this.#commentListHandlers = commentListHandlers;
   }
 
-  init(detailsHandlers, subscriptionOnFilmChanges) {
-    this.#detailsHandlers = {...detailsHandlers, closeDetailsHandler: this.closeDetails};
-    this.#subscribeOnFileChanges = subscriptionOnFilmChanges.subscribeOnFilmChanges;
-    this.#unSubscribeOnFileChanges = subscriptionOnFilmChanges.unSubscribeOnFilmChanges;
-    this.#subscribeOnFileChanges(this, this.onFilmChanges);
-  }
+  renderDetails = (film) => {
+    const newFilmDetails = new FilmDetails(film, this.#detailsHandlers);
+    if (this.#details === null) {
+      render(this.#container, newFilmDetails);
 
-  closeDetails = () => () => {
-    this.#details.removeElement();
-    this.#details = null;
-  }
-
-  onFilmChanges = (film) => {
-    if (this.#details && this.#details.id === film.id) {
-      remove (this.#details);
-      this.renderDetails(film);
+    } else {
+      this.#details.removeElement();
+      replace(newFilmDetails, this.#details);
+    }
+    this.#details = newFilmDetails;
+    if (this.isCommentsLoading) {
+      render(this.#details.commentsContainer, new Loader());
     }
   }
 
-  renderDetails(film) {
-    if (this.#details) {this.#details.removeElement();}
-    this.#details = new FilmDetails();
-    this.#details.init(film);
-    this.#details.setExternalHandlers(this.#detailsHandlers);
-    render(this.#container, this.#details);
+  renderComments = (comments) => {
+    if (this.#details) {
+      removeChildren(this.#details.commentsContainer);
+
+      const COMMENTS_LIST_PROPS = {
+        comments: comments,
+        commentListHandlers: this.#commentListHandlers,
+      };
+      this.#commentsList = new CommentsList(COMMENTS_LIST_PROPS);
+      render(this.#details.commentsContainer, this.#commentsList);
+    }
   }
 
-  destruct() {
-    this.#unSubscribeOnFileChanges(this);
+  get filmId() {
+    return this.#details !== null ? this.#details.filmId : null;
+  }
+
+  updateDetails(film) {
+    if (this.#details !== null && this.filmId === film.id) {
+      this.renderDetails(film);
+      render(this.#details.commentsContainer, this.#commentsList);
+    }
+  }
+
+  shake = () => {
+    this.#details.shake();
+  }
+
+  blockCommentControls = () => {
+    this.#commentsList.editCommentControls.forEach((control) => {control.setAttribute('disabled', 'disabled');});
+  };
+
+  unblockCommentControls = () => {
+    this.#commentsList.editCommentControls.forEach((control) => {control.removeAttribute('disabled');});
+  }
+
+  removeDetails() {
+    if (this.#details !== null) {
+      this.#commentsList.removeElement();
+      this.#details.removeElement();
+    }
+    this.#details = null;
   }
 }

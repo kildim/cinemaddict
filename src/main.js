@@ -1,17 +1,11 @@
-import {getFilms, getWatchInfo} from './data/data-adapter';
-import MoviesPresenter from './presenters/movies-presenter';
+import AppPresenter from './presenters/app-presenter';
+import MoviesModel from './model/movies-model';
+import DataProvider from './data-provider/data-provider';
+import {AUTHORIZATION, BASE_URL} from './constants';
 
-export const LIST_FILMS_CHUNK = 5;
-export const LIST_EXTRAS_CHUNK = 2;
+const dataProvider = new DataProvider(BASE_URL, AUTHORIZATION);
+const moviesModel = new MoviesModel(dataProvider);
+const appPresenter = new AppPresenter(moviesModel);
 
-
-const films = getFilms;
-const watchInfo = getWatchInfo;
-
-const headerElement = document.querySelector('.header');
-const mainElement = document.querySelector('.main');
-const footerElement = document.querySelector('.footer');
-
-const moviesPresenter = new MoviesPresenter(headerElement, mainElement, footerElement);
-moviesPresenter.init(films, watchInfo);
-moviesPresenter.renderContent();
+appPresenter.init();
+moviesModel.loadMovies();

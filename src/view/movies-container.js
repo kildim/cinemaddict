@@ -27,6 +27,10 @@ export default class MoviesContainer extends AbstractView {
     return this.#cardsContainer;
   }
 
+  get titleElement() {
+    return this.element.querySelector('h2');
+  }
+
   get template() {
     const visibilityClass = this.#isExtras ? '' : 'visually-hidden';
     const extrasClass = this.#isExtras ? 'films-list--extra' : '';
