@@ -1,6 +1,5 @@
 import Card from '../view/card';
-import {remove, render, replace} from '../utils/render';
-import {removeChildren} from '../utils/render';
+import {render, replace} from '../utils/render';
 const NOT_FOUND = -1;
 
 export default class ListPresenter {
