@@ -198,7 +198,7 @@ export default class MoviesPresenter {
   onClickShowMoreHandler = (list) => () => {
     this.#listHead = this.#listTail;
     this.#listTail += LIST_FILMS_CHUNK;
-    if (this.#listTail > this.#sortedFilms.length) {
+    if (this.#listTail >= this.#sortedFilms.length) {
       this.#listTail = this.#sortedFilms.length;
       this.#showMore.removeElement();
     }

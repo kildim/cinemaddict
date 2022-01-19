@@ -167,35 +167,32 @@ export default class AppPresenter {
     this.#moviesModel.changeFavoriteFlag(film);
   }
 
-  renderAllMovies = () => {
+  renderFilms = (filter) => {
     this.#moviesPresenter.clearContent();
-    this.#menuSelection = FILTERS.allMovies;
+    this.#menuSelection = filter;
     this.#moviesPresenter.renderFilmsContent();
 
     this.#moviesPresenter.renderFilmsList(this.#menuSelection);
     this.#moviesPresenter.renderTopRatedFilms();
     this.#moviesPresenter.renderMostCommentedFilms();
 
-    // this.#moviesPresenter.renderFilmsList(this.#menuSelection);
     this.renderMainMenu();
+  }
+
+  renderAllMovies = () => {
+    this.renderFilms(FILTERS.allMovies);
   }
 
   renderWatchList = () => {
-    this.#menuSelection = FILTERS.watchlist;
-    this.#moviesPresenter.renderFilmsList(this.#menuSelection);
-    this.renderMainMenu();
+    this.renderFilms(FILTERS.watchlist);
   }
 
   renderHistory = () => {
-    this.#menuSelection = FILTERS.history;
-    this.#moviesPresenter.renderFilmsList(this.#menuSelection);
-    this.renderMainMenu();
+    this.renderFilms(FILTERS.history);
   }
 
   renderFavorites = () => {
-    this.#menuSelection = FILTERS.favorites;
-    this.#moviesPresenter.renderFilmsList(this.#menuSelection);
-    this.renderMainMenu();
+    this.renderFilms(FILTERS.favorites);
   }
 
   renderStats = () => {
@@ -309,7 +306,6 @@ export default class AppPresenter {
     } else {
       this.#moviesPresenter.renderDatabaseIsEmpty();
     }
-
 
     this.renderFooterStats();
   }
