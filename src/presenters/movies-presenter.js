@@ -1,6 +1,6 @@
 import {FILTERS, LIST_EXTRAS_CHUNK, LIST_FILMS_CHUNK, SORT_TYPE} from '../constants';
 import MenuSort from '../view/menu-sort';
-import {render, replace} from '../utils/render';
+import {removeChildren, render, replace} from '../utils/render';
 import ListsContainer from '../view/lists-container';
 import MoviesContainer from '../view/movies-container';
 import ListPresenter from './list-presenter';
@@ -38,6 +38,13 @@ export default class MoviesPresenter {
 
     this.#container = container;
     this.#cardHandlers = cardHandlers;
+  }
+
+  clearContent() {
+    removeChildren(this.#container);
+    this.#menuSort = null;
+    this.#listsContainer = null;
+    this.#showMore = null;
   }
 
   updateCard(film) {
@@ -91,8 +98,9 @@ export default class MoviesPresenter {
     if (this.#sortedFilms.length > 1) {
       this.renderMenuSort();
     } else {
-      if (this.#menuSort !== null)
-      {this.removeMenuSort();}
+      if (this.#menuSort !== null) {
+        this.removeMenuSort();
+      }
     }
   }
 
@@ -100,11 +108,11 @@ export default class MoviesPresenter {
 
     this.checkMenuSortVisibility();
     this.checkTitle(this.#films.length);
-    const FILMS_LIST_PRESENTER_PROPS = {
+
+    this.#filmsListPresenter = new ListPresenter({
       container: this.#listFilms.cardsContainer,
       cardHandlers: this.#cardHandlers,
-    };
-    this.#filmsListPresenter = new ListPresenter(FILMS_LIST_PRESENTER_PROPS);
+    });
 
     this.#listHead = 0;
     this.#listTail = Math.min(this.#sortedFilms.length, LIST_FILMS_CHUNK);
@@ -141,15 +149,14 @@ export default class MoviesPresenter {
   }
 
   renderMenuSort = () => {
-    const MENU_SORT_PROPS = {
+    const newMenuSort = new MenuSort({
       sortSelection: this.#sortSelection,
       menuSortHandlers: {
         clickByDefaultHandler: this.renderByDefault,
         clickByDateHandler: this.renderByDate,
         clickByRatingHandler: this.renderByRating,
       }
-    };
-    const newMenuSort = new MenuSort(MENU_SORT_PROPS);
+    });
 
     if (this.#menuSort === null) {
       render(this.#container, newMenuSort, 'afterbegin');
@@ -220,41 +227,37 @@ export default class MoviesPresenter {
   }
 
   renderTopRatedFilms() {
-    const FILMS_LIST_PRESENTER_PROPS = {
+    this.#topRatedListPresenter = new ListPresenter({
       container: this.#listTopRated.cardsContainer,
       cardHandlers: this.#cardHandlers,
-    };
-    this.#topRatedListPresenter = new ListPresenter(FILMS_LIST_PRESENTER_PROPS);
+    });
     this.#topRatedListPresenter.addChunk([...this.#moviesModel.topRated].slice(0, LIST_EXTRAS_CHUNK));
   }
 
   renderMostCommentedFilms() {
-    const FILMS_LIST_PRESENTER_PROPS = {
+    this.#mostCommentedListPresenter = new ListPresenter({
       container: this.#listMostCommented.cardsContainer,
       cardHandlers: this.#cardHandlers,
-    };
-    this.#mostCommentedListPresenter = new ListPresenter(FILMS_LIST_PRESENTER_PROPS);
+    });
     this.#mostCommentedListPresenter.addChunk([...this.#moviesModel.mostCommented].slice(0, LIST_EXTRAS_CHUNK));
   }
 
-  renderInitContent() {
+  renderFilmsContent = () => {
+    this.renderMenuSort();
+    this.renderListsContainer();
+
+    this.#listFilms = new MoviesContainer('All movies. Upcoming', false);
+    this.#listTopRated = new MoviesContainer('Top rated');
+    this.#listMostCommented = new MoviesContainer('Most commented');
+
+    render(this.#listsContainer, this.#listFilms);
+    render(this.#listsContainer, this.#listTopRated);
+    render(this.#listsContainer, this.#listMostCommented);
+  }
+
+  renderDatabaseIsEmpty() {
     if (this.#moviesModel.films < 1) {
       render(this.#container, new DatabaseIsEmpty());
-    } else {
-      this.renderMenuSort();
-      this.renderListsContainer();
-
-      this.#listFilms = new MoviesContainer('All movies. Upcoming', false);
-      this.#listTopRated = new MoviesContainer('Top rated');
-      this.#listMostCommented = new MoviesContainer('Most commented');
-
-      render(this.#listsContainer, this.#listFilms);
-      render(this.#listsContainer, this.#listTopRated);
-      render(this.#listsContainer, this.#listMostCommented);
-
-      this.renderFilmsList(FILTERS.allMovies);
-      this.renderTopRatedFilms();
-      this.renderMostCommentedFilms();
     }
   }
 }

@@ -51,6 +51,12 @@ export const remove = (component) => {
 };
 
 export const removeChildren = (component) => {
+  if (component === null) {
+    return;
+  }
+  if (component instanceof AbstractView) {
+    component = component.element;
+  }
   while (component.firstChild) {
     removeChildren(component.firstChild);
     remove(component.firstChild);

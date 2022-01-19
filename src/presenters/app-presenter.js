@@ -1,4 +1,4 @@
-import {render, replace} from '../utils/render';
+import {removeChildren, render, replace} from '../utils/render';
 import UserProfile from '../view/user-profile';
 import MainMenu from '../view/main-menu';
 import MoviesPresenter from './movies-presenter';
@@ -168,8 +168,15 @@ export default class AppPresenter {
   }
 
   renderAllMovies = () => {
+    this.#moviesPresenter.clearContent();
     this.#menuSelection = FILTERS.allMovies;
+    this.#moviesPresenter.renderFilmsContent();
+
     this.#moviesPresenter.renderFilmsList(this.#menuSelection);
+    this.#moviesPresenter.renderTopRatedFilms();
+    this.#moviesPresenter.renderMostCommentedFilms();
+
+    // this.#moviesPresenter.renderFilmsList(this.#menuSelection);
     this.renderMainMenu();
   }
 
@@ -194,11 +201,12 @@ export default class AppPresenter {
   renderStats = () => {
     this.#menuSelection = FILTERS.stats;
     this.renderMainMenu();
+    removeChildren(this.#contentWrapper);
   }
 
   onFilmsLoaded = () => {
     this.#isDataLoading = false;
-    this.#contentWrapper.clear();
+    removeChildren(this.#contentWrapper);
     this.renderInitContent();
   }
 
@@ -296,7 +304,12 @@ export default class AppPresenter {
     this.renderProfile();
     this.renderMainMenu();
 
-    this.#moviesPresenter.renderInitContent();
+    if (this.#moviesModel.films.length > 0) {
+      this.renderAllMovies();
+    } else {
+      this.#moviesPresenter.renderDatabaseIsEmpty();
+    }
+
 
     this.renderFooterStats();
   }
