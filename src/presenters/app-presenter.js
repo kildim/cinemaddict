@@ -35,15 +35,14 @@ export default class AppPresenter {
 
     this.#moviesPresenter = new MoviesPresenter(this.#moviesModel);
 
-    const DETAIL_PRESENTER_PROPS = {
+    this.#detailsPresenter = new DetailsPresenter({
       container: this.#detailsWrapper,
       detailsHandlers: {
         clickWatchListHandler: this.switchWatchListFlag,
         clickWatchedHandler: this.switchWatchedFlag,
         clickFavoriteHandler: this.switchFavoriteFlag
       }
-    };
-    this.#detailsPresenter = new DetailsPresenter(DETAIL_PRESENTER_PROPS);
+    });
 
     this.#moviesModel.addObserver({
       observerType: OBSERVER_TYPE.filmsLoaded,
@@ -98,13 +97,12 @@ export default class AppPresenter {
 
   addComment = (comment) => {
     this.#detailsPresenter.blockCommentControls();
-    const ADD_COMMENT_PARAMS = {
+    this.#moviesModel.addComment({
       filmId: this.#detailsPresenter.filmId,
       comment: comment,
       addCommentCB: this.onCommentAdded,
       addCommentFailCB: this.onCommentAddFail,
-    };
-    this.#moviesModel.addComment(ADD_COMMENT_PARAMS);
+    });
   }
 
   onCommentAdded = () => {

@@ -11,20 +11,11 @@ export const OBSERVER_TYPE = {
 export default class MoviesModel {
   #films = null;
   #dataProvider = null;
-  // #filmsLoadedSpotters = null;
-  #watchedFlagChangesSpotters = null;
-  #watchlistFlagChangesSpotters = null;
-  #favoriteFlagChangesSpotters = null;
   #spotters = {};
 
   constructor(dataProvider) {
     this.#dataProvider = dataProvider;
     this.#films = [];
-    // this.#filmsLoadedSpotters = new AbstractObservable();
-    // this.#watchedFlagChangesSpotters = new AbstractObservable();
-    // this.#watchlistFlagChangesSpotters = new AbstractObservable();
-    // this.#favoriteFlagChangesSpotters = new AbstractObservable();
-
     this.#spotters = {
       [OBSERVER_TYPE.filmsLoaded]: new AbstractObservable(),
       [OBSERVER_TYPE.watchedFlagChanges]: new AbstractObservable(),
@@ -42,38 +33,6 @@ export default class MoviesModel {
     const {spotterType, observer} = {...params};
     this.spotters[spotterType].removeObserver(observer);
   }
-
-  // addWatchedFlagChangesObserver(observer) {
-  //   this.#watchedFlagChangesSpotters.addObserver(observer);
-  // }
-  //
-  // removeWatchedFlagChangesObserver(observer) {
-  //   this.#watchedFlagChangesSpotters.removeObserver(observer);
-  // }
-  //
-  // addWatchListFlagChangesObserver(observer) {
-  //   this.#watchlistFlagChangesSpotters.addObserver(observer);
-  // }
-  //
-  // removeWatchListFlagChangesObserver(observer) {
-  //   this.#watchlistFlagChangesSpotters.removeObserver(observer);
-  // }
-  //
-  // addFavoriteFlagChangesObserver(observer) {
-  //   this.#favoriteFlagChangesSpotters.addObserver(observer);
-  // }
-  //
-  // removeFavoriteFlagChangesObserver(observer) {
-  //   this.#favoriteFlagChangesSpotters.removeObserver(observer);
-  // }
-
-  // addFilmsLoadedObserver(observer) {
-  //   this.#filmsLoadedSpotters.addObserver(observer);
-  // }
-
-  // removeFilmsLoadedObserver(observer) {
-  //   this.#filmsLoadedSpotters.removeObserver(observer);
-  // }
 
   get watchInfo() {
     const watchInfo = {
