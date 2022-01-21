@@ -16,3 +16,11 @@ export const SORT_TYPE = {
   byDate: 'Sort by date',
   byRating: 'Sort by rating',
 };
+
+export const PERIOD = {
+  allTime: 'all-time',
+  today: 'today',
+  week: 'week',
+  month: 'month',
+  year: 'year',
+};

@@ -133,7 +133,12 @@ export default class MoviesModel {
     return this.#films.filter((film) => film.favorite);
   }
 
+  getStats(period) {
+    // const periodStart = getPeriodStart(period);
+  }
+
   get userRank() {
+    // TODO оптимизировать, реализовать не алгоритмическим путём, а предоставлением статической структуры данных
     let rank = '';
     const watchedCount = this.history.length;
     if (watchedCount > 20) {

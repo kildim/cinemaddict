@@ -3,11 +3,12 @@ import UserProfile from '../view/user-profile';
 import MainMenu from '../view/main-menu';
 import MoviesPresenter from './movies-presenter';
 import FooterStatistics from '../view/footer-statistics';
-import {FILTERS} from '../constants';
+import {FILTERS, PERIOD} from '../constants';
 import {Loader} from '../view/loader';
 import ContentWrapper from '../view/content-wrapper';
 import DetailsPresenter from './details-presenter';
 import {OBSERVER_TYPE} from '../model/movies-model';
+import StatisticsPresenter from './statistics-presenter';
 
 export default class AppPresenter {
   #header = null;
@@ -23,6 +24,7 @@ export default class AppPresenter {
   #contentWrapper = null;
   #detailsWrapper = null;
   #detailsPresenter = null;
+  #statsPresenter = null;
 
   constructor(moviesModel) {
     this.#header = document.querySelector('.header');
@@ -89,6 +91,10 @@ export default class AppPresenter {
         clickDeleteHandler: this.deleteComment,
         clickSubmitCommentHandler: this.addComment,
       },
+    });
+    this.#statsPresenter = new StatisticsPresenter({
+      moviesModel: this.#moviesModel,
+      container: this.#contentWrapper
     });
 
     this.#isDataLoading = true;
@@ -196,9 +202,11 @@ export default class AppPresenter {
   }
 
   renderStats = () => {
+    this.#statsPresenter.clearContent();
     this.#menuSelection = FILTERS.stats;
+
+    this.#statsPresenter.onPeriodChanges(PERIOD.allTime);
     this.renderMainMenu();
-    removeChildren(this.#contentWrapper);
   }
 
   onFilmsLoaded = () => {

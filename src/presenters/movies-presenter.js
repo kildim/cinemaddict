@@ -179,12 +179,11 @@ export default class MoviesPresenter {
 
   renderShowMore = () => {
     if (this.#sortedFilms.length > this.#listTail) {
-      const SHOW_MORE_PROPS = {
+      const newShowMore = new ShowMore({
         showMoreHandlers: {
           clickMore: this.onClickShowMoreHandler(this.#filmsListPresenter),
         }
-      };
-      const newShowMore = new ShowMore(SHOW_MORE_PROPS);
+      });
 
       if (this.#showMore === null) {
         render(this.#listFilms, newShowMore);
