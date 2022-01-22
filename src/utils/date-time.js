@@ -20,10 +20,8 @@ export const getPeriod = (period) => {
       return {start: startDate.subtract(1, 'month').add(1, 'day').toDate(), end: nowDate};
     case PERIOD.year:
       return {start: startDate.subtract(1, 'year').add(1, 'day').toDate(), end: nowDate};
-
     case PERIOD.week:
       return {start: startDate.subtract(1, 'week').add(1, 'day').toDate(), end: nowDate};
-
     case PERIOD.today:
       return {start: startDate.toDate(), end: nowDate.toDate()};
   }

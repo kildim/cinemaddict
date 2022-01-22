@@ -1,11 +1,18 @@
 import AbstractObservable from './abstract-observable';
 import {parseFromServerFormat, parseToServerFormat} from '../utils/adapters';
+import {range} from '../utils/range';
 
 export const OBSERVER_TYPE = {
   filmsLoaded: 'filmsLoaded',
   watchedFlagChanges: 'watchedFlagChanges',
   watchlistFlagChanges: 'watchlistFlagChanges',
   favoriteFlagChanges: 'favoriteFlagChanges',
+};
+
+const RANK = {
+  'novice': range(1, 9),
+  'fan': range(10, 19),
+  'movie buff': range(20, Infinity),
 };
 
 export default class MoviesModel {
@@ -138,20 +145,11 @@ export default class MoviesModel {
   }
 
   get userRank() {
-    // TODO оптимизировать, реализовать не алгоритмическим путём, а предоставлением статической структуры данных
-    let rank = '';
     const watchedCount = this.history.length;
-    if (watchedCount > 20) {
-      rank = 'movie buff';
-    } else {
-      if (watchedCount > 10) {
-        rank = 'fan';
-      } else {
-        if (watchedCount > 0) {
-          rank = 'novice';
-        }
-      }
+
+    for (const key in RANK) {
+      if (RANK[key](watchedCount)) {return key;}
     }
-    return (rank);
+    return '';
   }
 }

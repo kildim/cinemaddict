@@ -1,9 +1,8 @@
-import {remove, removeChildren, render} from '../utils/render';
+import {removeChildren, render} from '../utils/render';
 import Statistics from '../view/statistics';
 import Chart from 'chart.js';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 import {PERIOD} from '../constants';
-import {getPeriod} from '../utils/date-time';
 
 export default class StatisticsPresenter {
   #selectedStats = null;
@@ -20,14 +19,15 @@ export default class StatisticsPresenter {
 
   clearContent = () => {
     removeChildren(this.#container);
+    this.#statisticElement = null;
   }
 
   renderChart(params) {
-    const {statisticElement, genresStats} = {...params}
+    const {statisticElement, genresStats} = {...params};
     const BAR_HEIGHT = 50;
     const statisticCtx = statisticElement.chartContainer;
 
-    // Обязательно рассчитайте высоту canvas, она зависит от количества элементов диаграммы
+    //TODO Обязательно рассчитайте высоту canvas, она зависит от количества элементов диаграммы
     statisticCtx.height = BAR_HEIGHT * 5;
 
     const myChart = new Chart(statisticCtx, {
@@ -90,6 +90,9 @@ export default class StatisticsPresenter {
   }
 
   renderStatsContent = () => {
+    this.clearContent();
+    //TODO получить данные из модели и первести их данные в данные для представления Statistics и renderChart
+    // вместо моков
     const generalStats = {
       rank: this.#moviesModel.userRank,
       watched: 10,
@@ -102,11 +105,9 @@ export default class StatisticsPresenter {
       counts : [13, 11, 9]
     };
 
-    if (this.#statisticElement === null) {
-      remove(this.#statisticElement);
-    }
     this.#statisticElement = new Statistics({
-      generalStats,
+      activeMenu: this.#selectedStats,
+      stats: generalStats,
       externalHandlers: {
         onPeriodChanges: this.onPeriodChanges,
       },
@@ -117,9 +118,6 @@ export default class StatisticsPresenter {
 
   onPeriodChanges = (period) => {
     this.#selectedStats = period;
-    console.log(getPeriod(period).start.toString());
-
     this.renderStatsContent();
-
   }
 }
