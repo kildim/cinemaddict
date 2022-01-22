@@ -58,10 +58,6 @@ export default class DetailsPresenter {
     }
   }
 
-  get film() {
-    return this.#details !== null ? this.#details.film : null;
-  }
-
   shake = () => {
     this.#details.shake();
   }
