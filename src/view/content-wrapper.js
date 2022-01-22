@@ -1,5 +1,4 @@
 import AbstractView from './abstract-view';
-import {removeChildren} from '../utils/render';
 
 const createContentWrapperTemplate = () => (
   `

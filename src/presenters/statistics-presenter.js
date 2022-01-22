@@ -31,8 +31,7 @@ export default class StatisticsPresenter {
     const statisticCtx = statisticElement.chartContainer;
 
     statisticCtx.height = BAR_HEIGHT * genresStats.genres.length;
-
-    const myChart = new Chart(statisticCtx, {
+    new Chart(statisticCtx, {
       plugins: [ChartDataLabels],
       type: 'horizontalBar',
       data: {
@@ -109,8 +108,6 @@ export default class StatisticsPresenter {
       genres: Array.from(genresMap.keys()),
       counts : Array.from(genresMap.values()),
     };
-
-    console.log(genresMap);
 
     this.#statisticElement = new Statistics({
       activeMenu: this.#selectedStats,
