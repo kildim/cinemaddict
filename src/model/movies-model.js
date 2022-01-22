@@ -140,8 +140,8 @@ export default class MoviesModel {
     return this.#films.filter((film) => film.favorite);
   }
 
-  getStats(period) {
-    // const periodStart = getPeriodStart(period);
+  getWatched(period) {
+    return this.#films.filter((film) => period(film.watchingDate));
   }
 
   get userRank() {

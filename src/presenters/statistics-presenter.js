@@ -3,6 +3,9 @@ import Statistics from '../view/statistics';
 import Chart from 'chart.js';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 import {PERIOD} from '../constants';
+import {getPeriod} from '../utils/date-time';
+import {range} from '../utils/range';
+import {getGenresMap, getTopGenre, getWatchedCount, getWatchedDuration} from '../utils/stats';
 
 export default class StatisticsPresenter {
   #selectedStats = null;
@@ -27,8 +30,7 @@ export default class StatisticsPresenter {
     const BAR_HEIGHT = 50;
     const statisticCtx = statisticElement.chartContainer;
 
-    //TODO Обязательно рассчитайте высоту canvas, она зависит от количества элементов диаграммы
-    statisticCtx.height = BAR_HEIGHT * 5;
+    statisticCtx.height = BAR_HEIGHT * genresStats.genres.length;
 
     const myChart = new Chart(statisticCtx, {
       plugins: [ChartDataLabels],
@@ -91,19 +93,24 @@ export default class StatisticsPresenter {
 
   renderStatsContent = () => {
     this.clearContent();
-    //TODO получить данные из модели и первести их данные в данные для представления Statistics и renderChart
-    // вместо моков
+
+    const period = getPeriod(this.#selectedStats);
+    const selectedFilms = this.#moviesModel.getWatched(range(period.start, period.end));
+    const genresMap = getGenresMap(selectedFilms);
+
     const generalStats = {
       rank: this.#moviesModel.userRank,
-      watched: 10,
-      totalDuration: 123,
-      topGenre: 'Thriller',
+      watched: getWatchedCount(selectedFilms),
+      totalDuration: getWatchedDuration(selectedFilms),
+      topGenre: getTopGenre(genresMap),
     };
 
     const genresStats = {
-      genres: ['Drama', 'Thriller', 'Animation'],
-      counts : [13, 11, 9]
+      genres: Array.from(genresMap.keys()),
+      counts : Array.from(genresMap.values()),
     };
+
+    console.log(genresMap);
 
     this.#statisticElement = new Statistics({
       activeMenu: this.#selectedStats,
