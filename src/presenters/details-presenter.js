@@ -48,7 +48,7 @@ export default class DetailsPresenter {
   }
 
   get filmId() {
-    return this.#details !== null ? this.#details.filmId : null;
+    return this.#details !== null ? this.#details.film.id : null;
   }
 
   updateDetails(film) {
@@ -56,6 +56,10 @@ export default class DetailsPresenter {
       this.renderDetails(film);
       render(this.#details.commentsContainer, this.#commentsList);
     }
+  }
+
+  get film() {
+    return this.#details !== null ? this.#details.film : null;
   }
 
   shake = () => {

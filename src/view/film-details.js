@@ -141,8 +141,8 @@ export default class FilmDetails extends SmartView{
     document.addEventListener('keydown', this.#onKeyDownHandler);
   }
 
-  get filmId() {
-    return this.#film.id;
+  get film() {
+    return this.#film;
   }
 
   get commentsContainer() {
@@ -176,9 +176,9 @@ export default class FilmDetails extends SmartView{
     }
   };
 
-  get id() {
-    return this.#film.id;
-  }
+  // get id() {
+  //   return this.#film.id;
+  // }
 
   get template() {
     return createFilmDetailsTemplate(this.#film);

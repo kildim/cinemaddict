@@ -127,6 +127,7 @@ export default class AppPresenter {
     this.#moviesModel.deleteComment({
       commentId: commentId,
       deleteCommentCB: this.onCommentDeleted,
+      filmId: this.#detailsPresenter.filmId,
     });
   }
 
@@ -151,6 +152,7 @@ export default class AppPresenter {
   onCommentsLoaded = (comments) => {
     this.#detailsPresenter.isCommentsLoading = false;
     this.#detailsPresenter.renderComments(comments);
+    this.#moviesPresenter.renderMostCommentedFilms();
   }
 
   updateDetails = (film) => {

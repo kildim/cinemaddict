@@ -71,14 +71,32 @@ export default class MoviesModel {
     });
   }
 
+  updateFilmData = (newFilmData) => {
+    const filmIndex = this.#films.findIndex((movie) => movie.id === newFilmData.movie.id);
+    this.#films[filmIndex] = parseFromServerFormat(newFilmData.movie);
+  }
+
   addComment(params) {
     const {filmId, comment, addCommentCB, addCommentFailCB} = {...params};
-    this.#dataProvider.addComment({filmId, comment}).then(() => addCommentCB()).catch((error) => addCommentFailCB(error));
+    this.#dataProvider.addComment({filmId, comment}).then((responce) => {
+      this.updateFilmData(responce);
+      addCommentCB();
+    }).catch((error) => addCommentFailCB(error));
+  }
+
+  deleteCommentInModel = (filmId, commentId) => {
+    const filmIndex = this.#films.findIndex((movie) => movie.id === filmId);
+    const filmComments = this.#films[filmIndex].comments;
+    const commentIndex = filmComments.findIndex((comment) => comment === commentId);
+    filmComments.splice(commentIndex, 1);
   }
 
   deleteComment(params) {
-    const {commentId, deleteCommentCB} = { ...params};
-    this.#dataProvider.deleteComment(commentId).then(() => deleteCommentCB());
+    const {commentId, deleteCommentCB, filmId} = { ...params};
+    this.#dataProvider.deleteComment(commentId).then(() => {
+      this.deleteCommentInModel(filmId, commentId);
+      deleteCommentCB();
+    });
   }
 
   loadComments(params) {
