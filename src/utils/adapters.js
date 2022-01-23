@@ -52,5 +52,5 @@ export const parseToServerFormat = (movie) => ({
       'already_watched': movie.watched,
       'watching_date': movie.watchingDate.toISOString(),
       'favorite': movie.favorite,
-    }
+    },
 });
