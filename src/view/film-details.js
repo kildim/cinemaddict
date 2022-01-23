@@ -176,10 +176,6 @@ export default class FilmDetails extends SmartView{
     }
   };
 
-  // get id() {
-  //   return this.#film.id;
-  // }
-
   get template() {
     return createFilmDetailsTemplate(this.#film);
   }

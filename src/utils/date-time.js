@@ -1,14 +1,15 @@
 import dayjs from 'dayjs';
-import objectSupport from 'dayjs/plugin/objectSupport';
+import relativeTime from 'dayjs/plugin/relativeTime';
 import {PERIOD} from '../constants';
 
-dayjs.extend(objectSupport);
+dayjs.extend(relativeTime);
 
 const CINEMA_BIRTHDAY = '1895-12-28';
 
 export const formatTime = (time) => dayjs({minute: time}).format('H[h] m[m]');
 export const formatDate = (date) => dayjs(date).format('DD MMM YYYY');
-export const formatCommentDataTime = (date) => dayjs(date).format('YYYY[/]MM[/]DD HH[:]mm');
+export const formatCommentDataTime = (date) => dayjs(date).fromNow();
+
 export const getPeriod = (period) => {
   const nowDate = dayjs(new Date());
   const startDate = dayjs(new Date());
