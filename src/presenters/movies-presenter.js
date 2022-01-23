@@ -1,4 +1,4 @@
-import {FILTERS, LIST_EXTRAS_CHUNK, LIST_FILMS_CHUNK, SORT_TYPE} from '../constants';
+import {Filters, LIST_EXTRAS_CHUNK, LIST_FILMS_CHUNK, SortType} from '../constants';
 import MenuSort from '../view/menu-sort';
 import {removeChildren, render, replace} from '../utils/render';
 import ListsContainer from '../view/lists-container';
@@ -29,7 +29,7 @@ export default class MoviesPresenter {
   #moviesModel = null;
 
   constructor(moviesModel) {
-    this.#sortSelection = SORT_TYPE.default;
+    this.#sortSelection = SortType.DEFAULT;
     this.#moviesModel = moviesModel;
   }
 
@@ -64,16 +64,16 @@ export default class MoviesPresenter {
   generateEmptyTitleMessage = (filter) => {
     let message;
     switch (filter) {
-      case FILTERS.allMovies:
+      case Filters.ALL_MOVES:
         message = 'There are no movies in our database';
         break;
-      case FILTERS.watchlist:
+      case Filters.WATCHLIST:
         message = 'There are no movies to watch now';
         break;
-      case FILTERS.history:
+      case Filters.HISTORY:
         message = 'There are no watched movies now';
         break;
-      case FILTERS.favorites:
+      case Filters.FAVORITES:
         message = 'There are no favorite movies now';
         break;
     }
@@ -131,19 +131,19 @@ export default class MoviesPresenter {
   };
 
   renderByDefault = () => {
-    this.#sortSelection = SORT_TYPE.default;
+    this.#sortSelection = SortType.DEFAULT;
     this.#sortedFilms = [...this.#films];
     this.renderSorted();
   }
 
   renderByDate = () => {
-    this.#sortSelection = SORT_TYPE.byDate;
+    this.#sortSelection = SortType.BY_DATE;
     this.#sortedFilms = [...this.#films].sort((prevCard, succCard) => new Date(succCard.releaseDate) - new Date(prevCard.releaseDate));
     this.renderSorted();
   }
 
   renderByRating = () => {
-    this.#sortSelection = SORT_TYPE.byRating;
+    this.#sortSelection = SortType.BY_RATING;
     this.#sortedFilms = [...this.#films].sort((prevCard, succCard) => succCard.totalRating - prevCard.totalRating);
     this.renderSorted();
   }
@@ -208,16 +208,16 @@ export default class MoviesPresenter {
   renderFilmsList(filterValue) {
     this.#filteredSelection = filterValue;
     switch (this.#filteredSelection) {
-      case FILTERS.allMovies:
+      case Filters.ALL_MOVES:
         this.#films = this.#moviesModel.films;
         break;
-      case FILTERS.watchlist:
+      case Filters.WATCHLIST:
         this.#films = this.#moviesModel.watchlist;
         break;
-      case FILTERS.history:
+      case Filters.HISTORY:
         this.#films = this.#moviesModel.history;
         break;
-      case FILTERS.favorites:
+      case Filters.FAVORITES:
         this.#films = this.#moviesModel.favorites;
         break;
     }
@@ -226,19 +226,28 @@ export default class MoviesPresenter {
   }
 
   renderTopRatedFilms() {
-    this.#topRatedListPresenter = new ListPresenter({
-      container: this.#listTopRated.cardsContainer,
-      cardHandlers: this.#cardHandlers,
-    });
-    this.#topRatedListPresenter.addChunk([...this.#moviesModel.topRated].slice(0, LIST_EXTRAS_CHUNK));
+    if (this.#moviesModel.topRated.length > 0) {
+      this.#topRatedListPresenter = new ListPresenter({
+        container: this.#listTopRated.cardsContainer,
+        cardHandlers: this.#cardHandlers,
+      });
+      this.#topRatedListPresenter.addChunk([...this.#moviesModel.topRated].slice(0, LIST_EXTRAS_CHUNK));
+    } else {
+      this.#listTopRated.element.remove();
+    }
+
   }
 
   renderMostCommentedFilms() {
-    this.#mostCommentedListPresenter = new ListPresenter({
-      container: this.#listMostCommented.cardsContainer,
-      cardHandlers: this.#cardHandlers,
-    });
-    this.#mostCommentedListPresenter.addChunk([...this.#moviesModel.mostCommented].slice(0, LIST_EXTRAS_CHUNK));
+    if (this.#moviesModel.mostCommented.length > 0) {
+      this.#mostCommentedListPresenter = new ListPresenter({
+        container: this.#listMostCommented.cardsContainer,
+        cardHandlers: this.#cardHandlers,
+      });
+      this.#mostCommentedListPresenter.addChunk([...this.#moviesModel.mostCommented].slice(0, LIST_EXTRAS_CHUNK));
+    } else {
+      this.#listMostCommented.element.remove();
+    }
   }
 
   renderFilmsContent = () => {

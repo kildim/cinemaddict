@@ -124,21 +124,21 @@ export default class FilmDetails extends SmartView{
     this.#closeButton = this.element.querySelector('.film-details__close-btn');
     this.#commentsContainer = this.element.querySelector('.film-details__bottom-container');
 
-    this._externalHandlers.closeDetails = externalHandlers.closeDetailsHandler;
-    this._externalHandlers.clickWatchList = externalHandlers.clickWatchListHandler(this.#film);
-    this._externalHandlers.clickWatched = externalHandlers.clickWatchedHandler(this.#film);
-    this._externalHandlers.clickFavorite = externalHandlers.clickFavoriteHandler(this.#film);
+    this._externalHandlers.detailsCloseHandler = externalHandlers.detailsCloseHandler;
+    this._externalHandlers.watchListClickHandler = externalHandlers.watchListClickHandler(this.#film);
+    this._externalHandlers.watchedClickHandler = externalHandlers.watchedClickHandler(this.#film);
+    this._externalHandlers.favoriteClickHandler = externalHandlers.favoriteClickHandler(this.#film);
 
     const watchlistButton = this.element.querySelector('.film-details__control-button--watchlist');
     const watchedButton = this.element.querySelector('.film-details__control-button--watched');
     const favoriteButton = this.element.querySelector('.film-details__control-button--favorite');
 
-    watchlistButton.addEventListener('click', this.#clickWatchList);
-    watchedButton.addEventListener('click', this.#clickWatched);
-    favoriteButton.addEventListener('click', this.#clickFavorite);
+    watchlistButton.addEventListener('click', this.#watchListClickHandler);
+    watchedButton.addEventListener('click', this.#watchedClickHandler);
+    favoriteButton.addEventListener('click', this.#favoriteClickHandler);
 
-    this.#closeButton.addEventListener('click', this.#clickCloseHandler);
-    document.addEventListener('keydown', this.#onKeyDownHandler);
+    this.#closeButton.addEventListener('click', this.#closeClickHandler);
+    document.addEventListener('keydown', this.#documentKeyDownHandler);
   }
 
   get film() {
@@ -149,30 +149,30 @@ export default class FilmDetails extends SmartView{
     return this.#commentsContainer;
   }
 
-  #clickWatchList = (event) => {
+  #watchListClickHandler = (event) => {
     event.preventDefault();
-    this._externalHandlers.clickWatchList(this.#film);
+    this._externalHandlers.watchListClickHandler(this.#film);
   }
 
-  #clickWatched = (event) => {
+  #watchedClickHandler = (event) => {
     event.preventDefault();
-    this._externalHandlers.clickWatched(this.#film);
+    this._externalHandlers.watchedClickHandler(this.#film);
   }
 
-  #clickFavorite = (event) => {
+  #favoriteClickHandler = (event) => {
     event.preventDefault();
-    this._externalHandlers.clickFavorite(this.#film);
+    this._externalHandlers.favoriteClickHandler(this.#film);
   }
 
-  #clickCloseHandler = (event) => {
+  #closeClickHandler = (event) => {
     event.preventDefault();
-    this._externalHandlers.closeDetails();
+    this._externalHandlers.detailsCloseHandler();
   }
 
-  #onKeyDownHandler = (event) => {
+  #documentKeyDownHandler = (event) => {
     if (event.key === 'Escape' || event.key === 'Esc') {
       event.preventDefault();
-      this._externalHandlers.closeDetails();
+      this._externalHandlers.detailsCloseHandler();
     }
   };
 
@@ -181,7 +181,7 @@ export default class FilmDetails extends SmartView{
   }
 
   removeElement() {
-    document.removeEventListener('keydown', this.#onKeyDownHandler);
+    document.removeEventListener('keydown', this.#documentKeyDownHandler);
     super.removeElement();
   }
 }

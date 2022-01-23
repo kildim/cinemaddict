@@ -1,7 +1,7 @@
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import objectSupport from 'dayjs/plugin/objectSupport';
-import {PERIOD} from '../constants';
+import {Period} from '../constants';
 
 dayjs.extend(relativeTime);
 dayjs.extend(objectSupport);
@@ -17,15 +17,15 @@ export const getPeriod = (period) => {
   const startDate = dayjs(new Date());
 
   switch (period) {
-    case PERIOD.allTime:
+    case Period.ALL_TIME:
       return {start: dayjs(CINEMA_BIRTHDAY).toDate(), end: nowDate};
-    case PERIOD.month:
+    case Period.MONTH:
       return {start: startDate.subtract(1, 'month').add(1, 'day').toDate(), end: nowDate};
-    case PERIOD.year:
+    case Period.YEAR:
       return {start: startDate.subtract(1, 'year').add(1, 'day').toDate(), end: nowDate};
-    case PERIOD.week:
+    case Period.WEEK:
       return {start: startDate.subtract(1, 'week').add(1, 'day').toDate(), end: nowDate};
-    case PERIOD.today:
+    case Period.TODAY:
       return {start: startDate.toDate(), end: nowDate.toDate()};
   }
 };

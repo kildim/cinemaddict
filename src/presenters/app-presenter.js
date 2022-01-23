@@ -3,11 +3,11 @@ import UserProfile from '../view/user-profile';
 import MainMenu from '../view/main-menu';
 import MoviesPresenter from './movies-presenter';
 import FooterStatistics from '../view/footer-statistics';
-import {FILTERS, PERIOD} from '../constants';
-import {Loader} from '../view/loader';
+import {Filters, Period} from '../constants';
+import Loader from '../view/loader';
 import ContentWrapper from '../view/content-wrapper';
 import DetailsPresenter from './details-presenter';
-import {OBSERVER_TYPE} from '../model/movies-model';
+import {ObserverType} from '../model/movies-model';
 import StatisticsPresenter from './statistics-presenter';
 
 export default class AppPresenter {
@@ -32,7 +32,7 @@ export default class AppPresenter {
     this.#footer = document.querySelector('.footer');
     this.#detailsWrapper = document.querySelector('.film-details');
     this.#moviesModel = moviesModel;
-    this.#menuSelection = FILTERS.allMovies;
+    this.#menuSelection = Filters.ALL_MOVES;
 
 
     this.#moviesPresenter = new MoviesPresenter(this.#moviesModel);
@@ -40,26 +40,26 @@ export default class AppPresenter {
     this.#detailsPresenter = new DetailsPresenter({
       container: this.#detailsWrapper,
       detailsHandlers: {
-        clickWatchListHandler: this.switchWatchListFlag,
-        clickWatchedHandler: this.switchWatchedFlag,
-        clickFavoriteHandler: this.switchFavoriteFlag
+        watchListClickHandler: this.switchWatchListFlagClickHandler,
+        watchedClickHandler: this.switchWatchedFlagClickHandler,
+        favoriteClickHandler: this.switchFavoriteFlagClickHandler
       }
     });
 
     this.#moviesModel.addObserver({
-      observerType: OBSERVER_TYPE.filmsLoaded,
+      observerType: ObserverType.FILMS_LOADED,
       observer: this.onFilmsLoaded
     });
     this.#moviesModel.addObserver({
-      observerType: OBSERVER_TYPE.watchedFlagChanges,
+      observerType: ObserverType.WATCHED_FLAG_CHANGES,
       observer: this.onWatchedFlagChanges
     });
     this.#moviesModel.addObserver({
-      observerType: OBSERVER_TYPE.watchlistFlagChanges,
+      observerType: ObserverType.WATCHLIST_FLAG_CHANGES,
       observer: this.onWatchListFlagChanges
     });
     this.#moviesModel.addObserver({
-      observerType: OBSERVER_TYPE.favoriteFlagChanges,
+      observerType: ObserverType.FAVORITE_FLAG_CHANGES,
       observer: this.onFavoriteFlagChanges
     });
   }
@@ -72,24 +72,24 @@ export default class AppPresenter {
     this.#moviesPresenter.init({
       container: this.#contentWrapper,
       cardHandlers: {
-        clickCardHandler: this.onRenderDetails,
-        clickWatchListHandler: this.switchWatchListFlag,
-        clickWatchedHandler: this.switchWatchedFlag,
-        clickFavoriteHandler: this.switchFavoriteFlag
+        cardClickHandler: this.renderDetailsClickHandler,
+        watchListClickHandler: this.switchWatchListFlagClickHandler,
+        watchedClickHandler: this.switchWatchedFlagClickHandler,
+        favoriteClickHandler: this.switchFavoriteFlagClickHandler
       },
     });
 
     this.#detailsPresenter = new DetailsPresenter({
       container: this.#detailsWrapper,
       detailsHandlers: {
-        closeDetailsHandler: this.onCloseDetailsAction,
-        clickWatchListHandler: this.switchWatchListFlag,
-        clickWatchedHandler: this.switchWatchedFlag,
-        clickFavoriteHandler: this.switchFavoriteFlag,
+        detailsCloseHandler: this.closeDetailsClickHandler,
+        watchListClickHandler: this.switchWatchListFlagClickHandler,
+        watchedClickHandler: this.switchWatchedFlagClickHandler,
+        favoriteClickHandler: this.switchFavoriteFlagClickHandler,
       },
       commentListHandlers: {
-        clickDeleteHandler: this.deleteComment,
-        clickSubmitCommentHandler: this.addComment,
+        deleteCommentClickHandler: this.deleteCommentClickHandler,
+        submitCommentClickHandler: this.submitCommentClickHandler,
       },
     });
     this.#statsPresenter = new StatisticsPresenter({
@@ -101,7 +101,7 @@ export default class AppPresenter {
     this.renderLoader();
   }
 
-  addComment = (comment) => {
+  submitCommentClickHandler = (comment) => {
     this.#detailsPresenter.blockCommentControls();
     this.#moviesModel.addComment({
       filmId: this.#detailsPresenter.filmId,
@@ -123,7 +123,7 @@ export default class AppPresenter {
     this.#detailsPresenter.unblockCommentControls();
   }
 
-  deleteComment = (commentId) => {
+  deleteCommentClickHandler = (commentId) => {
     this.#moviesModel.deleteComment({
       commentId: commentId,
       deleteCommentCB: this.onCommentDeleted,
@@ -131,7 +131,7 @@ export default class AppPresenter {
     });
   }
 
-  onRenderDetails = (film) => () => {
+  renderDetailsClickHandler = (film) => () => {
     this.#detailsPresenter.isCommentsLoading = true;
     this.#detailsPresenter.renderDetails(film);
 
@@ -159,19 +159,19 @@ export default class AppPresenter {
     this.#detailsPresenter.updateDetails(film);
   }
 
-  onCloseDetailsAction = () => {
+  closeDetailsClickHandler = () => {
     this.#detailsPresenter.removeDetails();
   }
 
-  switchWatchListFlag = (film) => () => {
+  switchWatchListFlagClickHandler = (film) => () => {
     this.#moviesModel.changeWatchedListFlag(film);
   }
 
-  switchWatchedFlag = (film) => () => {
+  switchWatchedFlagClickHandler = (film) => () => {
     this.#moviesModel.changeFilmsWatchedFlag(film);
   }
 
-  switchFavoriteFlag = (film) => () => {
+  switchFavoriteFlagClickHandler = (film) => () => {
     this.#moviesModel.changeFavoriteFlag(film);
   }
 
@@ -187,27 +187,27 @@ export default class AppPresenter {
     this.renderMainMenu();
   }
 
-  renderAllMovies = () => {
-    this.renderFilms(FILTERS.allMovies);
+  allMoviesClickHandler = () => {
+    this.renderFilms(Filters.ALL_MOVES);
   }
 
-  renderWatchList = () => {
-    this.renderFilms(FILTERS.watchlist);
+  watchListClickHandler = () => {
+    this.renderFilms(Filters.WATCHLIST);
   }
 
-  renderHistory = () => {
-    this.renderFilms(FILTERS.history);
+  historyClickHandler = () => {
+    this.renderFilms(Filters.HISTORY);
   }
 
-  renderFavorites = () => {
-    this.renderFilms(FILTERS.favorites);
+  favoritesClickHandler = () => {
+    this.renderFilms(Filters.FAVORITES);
   }
 
-  renderStats = () => {
+  statsClickHandler = () => {
     this.#statsPresenter.clearContent();
-    this.#menuSelection = FILTERS.stats;
+    this.#menuSelection = Filters.STATS;
 
-    this.#statsPresenter.onPeriodChanges(PERIOD.allTime);
+    this.#statsPresenter.changePeriodClickHandler(Period.ALL_TIME);
     this.renderMainMenu();
   }
 
@@ -221,30 +221,31 @@ export default class AppPresenter {
     this.updateDetails(film);
     this.renderMainMenu();
     this.renderProfile();
-    if (this.#menuSelection !== FILTERS.history) {
-      this.#moviesPresenter.updateCard(film);
-    } else {
+    if (this.#menuSelection === Filters.HISTORY) {
       this.#moviesPresenter.removeCardFromFilmsList(film);
+    } else {
+      this.#moviesPresenter.updateCard(film);
     }
   }
 
   onWatchListFlagChanges = (film) => {
     this.updateDetails(film);
     this.renderMainMenu();
-    if (this.#menuSelection === FILTERS.allMovies) {
-      this.#moviesPresenter.updateCard(film);
-    } else {
+    if (this.#menuSelection === Filters.WATCHLIST) {
       this.#moviesPresenter.removeCardFromFilmsList(film);
+
+    } else {
+      this.#moviesPresenter.updateCard(film);
     }
   }
 
   onFavoriteFlagChanges = (film) => {
     this.updateDetails(film);
     this.renderMainMenu();
-    if (this.#menuSelection === FILTERS.allMovies) {
-      this.#moviesPresenter.updateCard(film);
-    } else {
+    if (this.#menuSelection === Filters.FAVORITES) {
       this.#moviesPresenter.removeCardFromFilmsList(film);
+    } else {
+      this.#moviesPresenter.updateCard(film);
     }
   }
 
@@ -257,11 +258,11 @@ export default class AppPresenter {
       watchInfo: this.#moviesModel.watchInfo,
       activeMenu: this.#menuSelection,
       mainMenuHandlers: {
-        clickAllMoviesHandler: this.renderAllMovies,
-        clickWatchListHandler: this.renderWatchList,
-        clickHistoryHandler: this.renderHistory,
-        clickFavoritesHandler: this.renderFavorites,
-        clickStatsHandler: this.renderStats,
+        allMoviesClickHandler: this.allMoviesClickHandler,
+        watchListClickHandler: this.watchListClickHandler,
+        historyClickHandler: this.historyClickHandler,
+        favoritesClickHandler: this.favoritesClickHandler,
+        statsClickHandler: this.statsClickHandler,
       }
     };
     if (this.#mainMenu === null) {
@@ -312,7 +313,7 @@ export default class AppPresenter {
     this.renderMainMenu();
 
     if (this.#moviesModel.films.length > 0) {
-      this.renderAllMovies();
+      this.allMoviesClickHandler();
     } else {
       this.#moviesPresenter.renderDatabaseIsEmpty();
     }

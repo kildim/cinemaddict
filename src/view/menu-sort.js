@@ -1,13 +1,13 @@
 import AbstractView from './abstract-view';
-import {SORT_TYPE} from '../constants';
+import {SortType} from '../constants';
 
 const getRelevantActiveClass = (isActiveFlag) => isActiveFlag ? 'sort__button--active' : '';
 
 const createSortTemplate = (sortType) => `
   <ul class="sort">
-    <li><a href="#" class="sort__button ${getRelevantActiveClass(sortType === SORT_TYPE.default)}">Sort by default</a></li>
-    <li><a href="#" class="sort__button ${getRelevantActiveClass(sortType === SORT_TYPE.byDate)}">Sort by date</a></li>
-    <li><a href="#" class="sort__button ${getRelevantActiveClass(sortType === SORT_TYPE.byRating)}">Sort by rating</a></li>
+    <li><a href="#" class="sort__button ${getRelevantActiveClass(sortType === SortType.DEFAULT)}">Sort by default</a></li>
+    <li><a href="#" class="sort__button ${getRelevantActiveClass(sortType === SortType.BY_DATE)}">Sort by date</a></li>
+    <li><a href="#" class="sort__button ${getRelevantActiveClass(sortType === SortType.BY_RATING)}">Sort by rating</a></li>
   </ul>
 `;
 

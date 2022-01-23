@@ -1,6 +1,6 @@
 import FilmDetails from '../view/film-details';
 import {removeChildren, render} from '../utils/render';
-import {Loader} from '../view/loader';
+import Loader from '../view/loader';
 import CommentsList from '../view/comments-list';
 
 export default class DetailsPresenter {

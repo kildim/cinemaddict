@@ -2,7 +2,7 @@ import {removeChildren, render} from '../utils/render';
 import Statistics from '../view/statistics';
 import Chart from 'chart.js';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
-import {PERIOD} from '../constants';
+import {Period} from '../constants';
 import {getPeriod} from '../utils/date-time';
 import {range} from '../utils/range';
 import {getGenresMap, getTopGenre, getWatchedCount, getWatchedDuration} from '../utils/stats';
@@ -16,7 +16,7 @@ export default class StatisticsPresenter {
   constructor(params) {
     const {moviesModel, container} = {...params};
     this.#container = container;
-    this.#selectedStats = PERIOD.allTime;
+    this.#selectedStats = Period.ALL_TIME;
     this.#moviesModel = moviesModel;
   }
 
@@ -113,14 +113,14 @@ export default class StatisticsPresenter {
       activeMenu: this.#selectedStats,
       stats: generalStats,
       externalHandlers: {
-        onPeriodChanges: this.onPeriodChanges,
+        changePeriodClickHandler: this.changePeriodClickHandler,
       },
     });
     render(this.#container, this.#statisticElement);
     this.renderChart({statisticElement: this.#statisticElement, genresStats});
   }
 
-  onPeriodChanges = (period) => {
+  changePeriodClickHandler = (period) => {
     this.#selectedStats = period;
     this.renderStatsContent();
   }

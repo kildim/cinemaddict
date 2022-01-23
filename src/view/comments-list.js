@@ -92,23 +92,23 @@ export default class CommentsList extends AbstractView {
     this.#editCommentControls = [...Array.from(this.element.querySelectorAll('.film-details__emoji-item')),
       this.element.querySelector('.film-details__comment-input')];
     const deleteButtons = this.element.querySelectorAll('.film-details__comment-delete');
-    this._externalHandlers.deleteComment = commentListHandlers.clickDeleteHandler;
-    this._externalHandlers.submitComment = commentListHandlers.clickSubmitCommentHandler;
+    this._externalHandlers.deleteCommentClickHandler = commentListHandlers.deleteCommentClickHandler;
+    this._externalHandlers.submitCommentClickHandler = commentListHandlers.submitCommentClickHandler;
 
-    this.#emojis.forEach((emojiLabel) => emojiLabel.addEventListener('click', this.#clickEmotion));
-    deleteButtons.forEach((deleteButton) => deleteButton.addEventListener('click', this.#clickDeleteComment));
+    this.#emojis.forEach((emojiLabel) => emojiLabel.addEventListener('click', this.#emotionClickHandler));
+    deleteButtons.forEach((deleteButton) => deleteButton.addEventListener('click', this.#deleteCommentClickHandler));
 
     document.addEventListener('keydown', this.#onKeyDownHandler);
   }
 
-  #clickDeleteComment = (event) => {
+  #deleteCommentClickHandler = (event) => {
     event.preventDefault();
     event.target.textContent = 'Deleting...';
     event.target.setAttribute('disabled', 'disabled');
-    this._externalHandlers.deleteComment(event.target.dataset.commentId);
+    this._externalHandlers.deleteCommentClickHandler(event.target.dataset.commentId);
   }
 
-  #clickEmotion = (event) => {
+  #emotionClickHandler = (event) => {
     const emoji = event.currentTarget.attributes.for.value;
     const prevEmotion = this.#emojisPlace.firstChild;
 
@@ -143,7 +143,7 @@ export default class CommentsList extends AbstractView {
         comment: commentText.value,
         emotion: emojisContainer.dataset.emotion,
       };
-      this._externalHandlers.submitComment(newComment);
+      this._externalHandlers.submitCommentClickHandler(newComment);
     }
   }
 

@@ -1,5 +1,5 @@
 import AbstractView from './abstract-view';
-import {PERIOD} from '../constants';
+import {Period} from '../constants';
 
 const MINUTES_PER_HOUR = 60;
 const createStatisticsTemplate = (activeMenu, stats) => (
@@ -15,23 +15,23 @@ const createStatisticsTemplate = (activeMenu, stats) => (
       <p class="statistic__filters-description">Show stats:</p>
 
       <input type="radio" class="statistic__filters-input visually-hidden" name="statistic-filter" id="statistic-all-time" 
-        value="all-time" ${activeMenu === PERIOD.allTime ? 'checked' : '' }>
+        value="all-time" ${activeMenu === Period.ALL_TIME ? 'checked' : '' }>
       <label for="statistic-all-time" class="statistic__filters-label">All time</label>
 
       <input type="radio" class="statistic__filters-input visually-hidden" name="statistic-filter" id="statistic-today" 
-        value="today" ${activeMenu === PERIOD.today ? 'checked' : '' }>
+        value="today" ${activeMenu === Period.TODAY ? 'checked' : '' }>
       <label for="statistic-today" class="statistic__filters-label">Today</label>
 
       <input type="radio" class="statistic__filters-input visually-hidden" name="statistic-filter" id="statistic-week" 
-        value="week" ${activeMenu === PERIOD.week ? 'checked' : '' }>
+        value="week" ${activeMenu === Period.WEEK ? 'checked' : '' }>
       <label for="statistic-week" class="statistic__filters-label">Week</label>
 
       <input type="radio" class="statistic__filters-input visually-hidden" name="statistic-filter" id="statistic-month" 
-        value="month" ${activeMenu === PERIOD.month ? 'checked' : '' }>
+        value="month" ${activeMenu === Period.MONTH ? 'checked' : '' }>
       <label for="statistic-month" class="statistic__filters-label">Month</label>
 
       <input type="radio" class="statistic__filters-input visually-hidden" name="statistic-filter" id="statistic-year" 
-        value="year" ${activeMenu === PERIOD.year ? 'checked' : '' }>
+        value="year" ${activeMenu === Period.YEAR ? 'checked' : '' }>
       <label for="statistic-year" class="statistic__filters-label">Year</label>
     </form>
 
@@ -71,18 +71,18 @@ export default class Statistics extends AbstractView{
     super();
     this.#activeMenu = activeMenu;
     this.#stats = stats;
-    this._externalHandlers.changePeriod = externalHandlers.onPeriodChanges;
+    this._externalHandlers.changePeriodClickHandler = externalHandlers.changePeriodClickHandler;
 
     const statMenuItems = this.element.querySelectorAll('.statistic__filters-input');
-    statMenuItems.forEach((item) => item.addEventListener('change', this.#changePeriod));
+    statMenuItems.forEach((item) => item.addEventListener('change', this.#changePeriodClickHandler));
 
     this.#chartContainer = this.element.querySelector('.statistic__chart');
   }
 
-  #changePeriod = (event) => {
+  #changePeriodClickHandler = (event) => {
     event.preventDefault();
     const period = event.target.value;
-    this._externalHandlers.changePeriod(period);
+    this._externalHandlers.changePeriodClickHandler(period);
   }
 
   get chartContainer() {

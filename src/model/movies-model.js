@@ -2,14 +2,14 @@ import AbstractObservable from './abstract-observable';
 import {parseFromServerFormat, parseToServerFormat} from '../utils/adapters';
 import {range} from '../utils/range';
 
-export const OBSERVER_TYPE = {
-  filmsLoaded: 'filmsLoaded',
-  watchedFlagChanges: 'watchedFlagChanges',
-  watchlistFlagChanges: 'watchlistFlagChanges',
-  favoriteFlagChanges: 'favoriteFlagChanges',
+export const ObserverType = {
+  FILMS_LOADED: 'filmsLoaded',
+  WATCHED_FLAG_CHANGES: 'watchedFlagChanges',
+  WATCHLIST_FLAG_CHANGES: 'watchlistFlagChanges',
+  FAVORITE_FLAG_CHANGES: 'favoriteFlagChanges',
 };
 
-const RANK = {
+const Rank = {
   'novice': range(1, 9),
   'fan': range(10, 19),
   'movie buff': range(20, Infinity),
@@ -24,10 +24,10 @@ export default class MoviesModel {
     this.#dataProvider = dataProvider;
     this.#films = [];
     this.#spotters = {
-      [OBSERVER_TYPE.filmsLoaded]: new AbstractObservable(),
-      [OBSERVER_TYPE.watchedFlagChanges]: new AbstractObservable(),
-      [OBSERVER_TYPE.watchlistFlagChanges]: new AbstractObservable(),
-      [OBSERVER_TYPE.favoriteFlagChanges]: new AbstractObservable(),
+      [ObserverType.FILMS_LOADED]: new AbstractObservable(),
+      [ObserverType.WATCHED_FLAG_CHANGES]: new AbstractObservable(),
+      [ObserverType.WATCHLIST_FLAG_CHANGES]: new AbstractObservable(),
+      [ObserverType.FAVORITE_FLAG_CHANGES]: new AbstractObservable(),
     };
   }
 
@@ -67,7 +67,7 @@ export default class MoviesModel {
   loadMovies() {
     this.#dataProvider.loadFilms().then((films) => {
       this.#films = films.map((film) => parseFromServerFormat(film));
-      this.#spotters[OBSERVER_TYPE.filmsLoaded]._notify();
+      this.#spotters[ObserverType.FILMS_LOADED]._notify();
     });
   }
 
@@ -114,7 +114,7 @@ export default class MoviesModel {
     this.#dataProvider.updateFilm(changedFilm).then((movie) => {
       const updatedFilm = parseFromServerFormat(movie);
       this.replaceFilm(updatedFilm);
-      this.#spotters[OBSERVER_TYPE.watchedFlagChanges]._notify(updatedFilm);
+      this.#spotters[ObserverType.WATCHED_FLAG_CHANGES]._notify(updatedFilm);
     });
   }
 
@@ -123,7 +123,7 @@ export default class MoviesModel {
     this.#dataProvider.updateFilm(changedFilm).then((movie) => {
       const updatedFilm = parseFromServerFormat(movie);
       this.replaceFilm(updatedFilm);
-      this.#spotters[OBSERVER_TYPE.watchlistFlagChanges]._notify(updatedFilm);
+      this.#spotters[ObserverType.WATCHLIST_FLAG_CHANGES]._notify(updatedFilm);
     });
   }
 
@@ -132,7 +132,7 @@ export default class MoviesModel {
     this.#dataProvider.updateFilm(changedFilm).then((movie) => {
       const updatedFilm = parseFromServerFormat(movie);
       this.replaceFilm(updatedFilm);
-      this.#spotters[OBSERVER_TYPE.favoriteFlagChanges]._notify(updatedFilm);
+      this.#spotters[ObserverType.FAVORITE_FLAG_CHANGES]._notify(updatedFilm);
     });
   }
 
@@ -142,8 +142,12 @@ export default class MoviesModel {
   }
 
   get mostCommented() {
-    const films = [...this.#films];
-    return films.sort((filmPred, filmSucc) => filmSucc.comments.length - filmPred.comments.length);
+    let films = [...this.#films];
+    films.sort((filmPred, filmSucc) => filmSucc.comments.length - filmPred.comments.length);
+    if (films[0].comments.length === 0) {
+      films = [];
+    }
+    return films;
   }
 
   get history() {
@@ -165,8 +169,8 @@ export default class MoviesModel {
   get userRank() {
     const watchedCount = this.history.length;
 
-    for (const key in RANK) {
-      if (RANK[key](watchedCount)) {return key;}
+    for (const key in Rank) {
+      if (Rank[key](watchedCount)) {return key;}
     }
     return '';
   }

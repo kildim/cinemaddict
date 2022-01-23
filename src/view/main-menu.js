@@ -1,8 +1,8 @@
 import AbstractView from './abstract-view';
-import {FILTERS} from '../constants';
+import {Filters} from '../constants';
 
 const getRelevantActiveClass = (isActiveFlag) => {
-  if (isActiveFlag === FILTERS.stats) {
+  if (isActiveFlag === Filters.STATS) {
     return 'main-navigation__additional--active';
   }
   return isActiveFlag ? 'main-navigation__item--active' : '';
@@ -14,12 +14,12 @@ const createMainMenuTemplate = (watchInfo, activeMenu) => {
     `
   <nav class="main-navigation">
     <div class="main-navigation__items">
-      <a href="#all" class="main-navigation__item ${getRelevantActiveClass(activeMenu === FILTERS.allMovies)}">All movies</a>
-      <a href="#watchlist" class="main-navigation__item ${getRelevantActiveClass(activeMenu === FILTERS.watchlist)}">Watchlist <span class="main-navigation__item-count">${watchlist}</span></a>
-      <a href="#history" class="main-navigation__item ${getRelevantActiveClass(activeMenu === FILTERS.history)}">History <span class="main-navigation__item-count">${history}</span></a>
-      <a href="#favorites" class="main-navigation__item ${getRelevantActiveClass(activeMenu === FILTERS.favorites)}">Favorites <span class="main-navigation__item-count">${favorites}</span></a>
+      <a href="#all" class="main-navigation__item ${getRelevantActiveClass(activeMenu === Filters.ALL_MOVES)}">All movies</a>
+      <a href="#watchlist" class="main-navigation__item ${getRelevantActiveClass(activeMenu === Filters.WATCHLIST)}">Watchlist <span class="main-navigation__item-count">${watchlist}</span></a>
+      <a href="#history" class="main-navigation__item ${getRelevantActiveClass(activeMenu === Filters.HISTORY)}">History <span class="main-navigation__item-count">${history}</span></a>
+      <a href="#favorites" class="main-navigation__item ${getRelevantActiveClass(activeMenu === Filters.FAVORITES)}">Favorites <span class="main-navigation__item-count">${favorites}</span></a>
     </div>
-    <a href="#stats" class="main-navigation__additional ${getRelevantActiveClass(activeMenu === FILTERS.stats)}">Stats</a>
+    <a href="#stats" class="main-navigation__additional ${getRelevantActiveClass(activeMenu === Filters.STATS)}">Stats</a>
   </nav>
 `
   ) ;
@@ -35,44 +35,44 @@ export default class MainMenu extends AbstractView{
     this.#watchInfo = watchInfo;
     this.#activeMenu = activeMenu;
 
-    this._externalHandlers.clickAllMovies = mainMenuHandlers.clickAllMoviesHandler;
-    this._externalHandlers.clickWatchList = mainMenuHandlers.clickWatchListHandler;
-    this._externalHandlers.clickHistory = mainMenuHandlers.clickHistoryHandler;
-    this._externalHandlers.clickFavorites = mainMenuHandlers.clickFavoritesHandler;
-    this._externalHandlers.clickStats = mainMenuHandlers.clickStatsHandler;
+    this._externalHandlers.allMoviesClickHandler = mainMenuHandlers.allMoviesClickHandler;
+    this._externalHandlers.watchListClickHandler = mainMenuHandlers.watchListClickHandler;
+    this._externalHandlers.historyClickHandler = mainMenuHandlers.historyClickHandler;
+    this._externalHandlers.favoritesClickHandler = mainMenuHandlers.favoritesClickHandler;
+    this._externalHandlers.statsClickHandler = mainMenuHandlers.statsClickHandler;
 
     const [allMovies, watchlist, history, favorites, stats] = this.element.querySelectorAll('a');
 
-    allMovies.addEventListener('click', this.#clickAllMovies);
-    watchlist.addEventListener('click', this.#clickWatchList);
-    history.addEventListener('click', this.#clickHistory);
-    favorites.addEventListener('click', this.#clickFavorites);
-    stats.addEventListener('click', this.#clickStats);
+    allMovies.addEventListener('click', this.#allMoviesClickHandler);
+    watchlist.addEventListener('click', this.#watchListClickHandler);
+    history.addEventListener('click', this.#historyClickHandler);
+    favorites.addEventListener('click', this.#favoritesClickHandler);
+    stats.addEventListener('click', this.#statsClickHandler);
   }
 
-  #clickAllMovies = (event) => {
+  #allMoviesClickHandler = (event) => {
     event.preventDefault();
-    this._externalHandlers.clickAllMovies();
+    this._externalHandlers.allMoviesClickHandler();
   }
 
-  #clickWatchList = (event) => {
+  #watchListClickHandler = (event) => {
     event.preventDefault();
-    this._externalHandlers.clickWatchList();
+    this._externalHandlers.watchListClickHandler();
   }
 
-  #clickHistory = (event) => {
+  #historyClickHandler = (event) => {
     event.preventDefault();
-    this._externalHandlers.clickHistory();
+    this._externalHandlers.historyClickHandler();
   }
 
-  #clickFavorites = (event) => {
+  #favoritesClickHandler = (event) => {
     event.preventDefault();
-    this._externalHandlers.clickFavorites();
+    this._externalHandlers.favoritesClickHandler();
   }
 
-  #clickStats = (event) => {
+  #statsClickHandler = (event) => {
     event.preventDefault();
-    this._externalHandlers.clickStats();
+    this._externalHandlers.statsClickHandler();
   }
 
   get template() {
