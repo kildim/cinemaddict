@@ -1,8 +1,10 @@
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
+import objectSupport from 'dayjs/plugin/objectSupport';
 import {PERIOD} from '../constants';
 
 dayjs.extend(relativeTime);
+dayjs.extend(objectSupport);
 
 const CINEMA_BIRTHDAY = '1895-12-28';
 
