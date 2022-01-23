@@ -32,11 +32,10 @@ export default class ListPresenter {
   addChunk(chunk) {
     chunk.forEach((film) => {
 
-      const CARD_PROPS ={
+      const card = new Card({
         film: film,
         externalHandlers: this.#cardHandlers,
-      };
-      const card = new Card(CARD_PROPS);
+      });
 
       this.#cards.push(card);
     });

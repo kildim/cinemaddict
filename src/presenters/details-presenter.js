@@ -1,5 +1,5 @@
 import FilmDetails from '../view/film-details';
-import {removeChildren, render, replace} from '../utils/render';
+import {removeChildren, render} from '../utils/render';
 import {Loader} from '../view/loader';
 import CommentsList from '../view/comments-list';
 
@@ -20,34 +20,35 @@ export default class DetailsPresenter {
 
   renderDetails = (film) => {
     const newFilmDetails = new FilmDetails(film, this.#detailsHandlers);
-    if (this.#details === null) {
-      render(this.#container, newFilmDetails);
-
-    } else {
+    if (this.#details !== null) {
       this.#details.removeElement();
-      replace(newFilmDetails, this.#details);
     }
+    render(this.#container, newFilmDetails);
     this.#details = newFilmDetails;
+
     if (this.isCommentsLoading) {
       render(this.#details.commentsContainer, new Loader());
     }
   }
 
   renderComments = (comments) => {
-    if (this.#details) {
-      removeChildren(this.#details.commentsContainer);
+    if (this.#commentsList !== null) {
+      this.#commentsList.removeElement();
+    }
 
-      const COMMENTS_LIST_PROPS = {
+    removeChildren(this.#details.commentsContainer);
+
+    if (this.#details) {
+      this.#commentsList = new CommentsList({
         comments: comments,
         commentListHandlers: this.#commentListHandlers,
-      };
-      this.#commentsList = new CommentsList(COMMENTS_LIST_PROPS);
+      });
       render(this.#details.commentsContainer, this.#commentsList);
     }
   }
 
   get filmId() {
-    return this.#details !== null ? this.#details.filmId : null;
+    return this.#details !== null ? this.#details.film.id : null;
   }
 
   updateDetails(film) {
@@ -62,11 +63,15 @@ export default class DetailsPresenter {
   }
 
   blockCommentControls = () => {
-    this.#commentsList.editCommentControls.forEach((control) => {control.setAttribute('disabled', 'disabled');});
+    this.#commentsList.editCommentControls.forEach((control) => {
+      control.setAttribute('disabled', 'true');
+    });
   };
 
   unblockCommentControls = () => {
-    this.#commentsList.editCommentControls.forEach((control) => {control.removeAttribute('disabled');});
+    this.#commentsList.editCommentControls.forEach((control) => {
+      control.removeAttribute('disabled');
+    });
   }
 
   removeDetails() {

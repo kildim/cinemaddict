@@ -1,12 +1,14 @@
-import {render, replace} from '../utils/render';
+import {removeChildren, render, replace} from '../utils/render';
 import UserProfile from '../view/user-profile';
 import MainMenu from '../view/main-menu';
 import MoviesPresenter from './movies-presenter';
 import FooterStatistics from '../view/footer-statistics';
-import {FILTERS} from '../constants';
+import {FILTERS, PERIOD} from '../constants';
 import {Loader} from '../view/loader';
 import ContentWrapper from '../view/content-wrapper';
 import DetailsPresenter from './details-presenter';
+import {OBSERVER_TYPE} from '../model/movies-model';
+import StatisticsPresenter from './statistics-presenter';
 
 export default class AppPresenter {
   #header = null;
@@ -22,6 +24,7 @@ export default class AppPresenter {
   #contentWrapper = null;
   #detailsWrapper = null;
   #detailsPresenter = null;
+  #statsPresenter = null;
 
   constructor(moviesModel) {
     this.#header = document.querySelector('.header');
@@ -34,20 +37,31 @@ export default class AppPresenter {
 
     this.#moviesPresenter = new MoviesPresenter(this.#moviesModel);
 
-    const DETAIL_PRESENTER_PROPS = {
+    this.#detailsPresenter = new DetailsPresenter({
       container: this.#detailsWrapper,
       detailsHandlers: {
         clickWatchListHandler: this.switchWatchListFlag,
         clickWatchedHandler: this.switchWatchedFlag,
         clickFavoriteHandler: this.switchFavoriteFlag
       }
-    };
-    this.#detailsPresenter = new DetailsPresenter(DETAIL_PRESENTER_PROPS);
+    });
 
-    this.#moviesModel.addFilmsLoadedObserver(this.onFilmsLoaded);
-    this.#moviesModel.addWatchedFlagChangesObserver(this.onWatchedFlagChanges);
-    this.#moviesModel.addWatchListFlagChangesObserver(this.onWatchListFlagChanges);
-    this.#moviesModel.addFavoriteFlagChangesObserver(this.onFavoriteFlagChanges);
+    this.#moviesModel.addObserver({
+      observerType: OBSERVER_TYPE.filmsLoaded,
+      observer: this.onFilmsLoaded
+    });
+    this.#moviesModel.addObserver({
+      observerType: OBSERVER_TYPE.watchedFlagChanges,
+      observer: this.onWatchedFlagChanges
+    });
+    this.#moviesModel.addObserver({
+      observerType: OBSERVER_TYPE.watchlistFlagChanges,
+      observer: this.onWatchListFlagChanges
+    });
+    this.#moviesModel.addObserver({
+      observerType: OBSERVER_TYPE.favoriteFlagChanges,
+      observer: this.onFavoriteFlagChanges
+    });
   }
 
   init() {
@@ -55,7 +69,7 @@ export default class AppPresenter {
     this.renderContentWrapper();
     this.renderFooterStats();
 
-    const MOVIES_PRESENTER_PROPS = {
+    this.#moviesPresenter.init({
       container: this.#contentWrapper,
       cardHandlers: {
         clickCardHandler: this.onRenderDetails,
@@ -63,10 +77,9 @@ export default class AppPresenter {
         clickWatchedHandler: this.switchWatchedFlag,
         clickFavoriteHandler: this.switchFavoriteFlag
       },
-    };
-    this.#moviesPresenter.init(MOVIES_PRESENTER_PROPS);
+    });
 
-    const DETAILS_PRESENTER_PROPS = {
+    this.#detailsPresenter = new DetailsPresenter({
       container: this.#detailsWrapper,
       detailsHandlers: {
         closeDetailsHandler: this.onCloseDetailsAction,
@@ -78,8 +91,11 @@ export default class AppPresenter {
         clickDeleteHandler: this.deleteComment,
         clickSubmitCommentHandler: this.addComment,
       },
-    };
-    this.#detailsPresenter = new DetailsPresenter(DETAILS_PRESENTER_PROPS);
+    });
+    this.#statsPresenter = new StatisticsPresenter({
+      moviesModel: this.#moviesModel,
+      container: this.#contentWrapper
+    });
 
     this.#isDataLoading = true;
     this.renderLoader();
@@ -87,21 +103,19 @@ export default class AppPresenter {
 
   addComment = (comment) => {
     this.#detailsPresenter.blockCommentControls();
-    const ADD_COMMENT_PARAMS = {
+    this.#moviesModel.addComment({
       filmId: this.#detailsPresenter.filmId,
       comment: comment,
       addCommentCB: this.onCommentAdded,
       addCommentFailCB: this.onCommentAddFail,
-    };
-    this.#moviesModel.addComment(ADD_COMMENT_PARAMS);
+    });
   }
 
   onCommentAdded = () => {
-    const LOAD_COMMENTS_PARAMS = {
+    this.#moviesModel.loadComments({
       filmId: this.#detailsPresenter.filmId,
       loadCommentsCB: this.onCommentsLoaded,
-    };
-    this.#moviesModel.loadComments(LOAD_COMMENTS_PARAMS);
+    });
   }
 
   onCommentAddFail = () => {
@@ -110,37 +124,35 @@ export default class AppPresenter {
   }
 
   deleteComment = (commentId) => {
-
-    const DELETE_COMMENTS_PARAMS = {
+    this.#moviesModel.deleteComment({
       commentId: commentId,
       deleteCommentCB: this.onCommentDeleted,
-    };
-    this.#moviesModel.deleteComment(DELETE_COMMENTS_PARAMS);
+      filmId: this.#detailsPresenter.filmId,
+    });
   }
 
   onRenderDetails = (film) => () => {
     this.#detailsPresenter.isCommentsLoading = true;
     this.#detailsPresenter.renderDetails(film);
 
-    const LOAD_COMMENTS_PARAMS = {
+    this.#moviesModel.loadComments({
       filmId: film.id,
       loadCommentsCB: this.onCommentsLoaded,
-    };
-    this.#moviesModel.loadComments(LOAD_COMMENTS_PARAMS);
+    });
   }
 
   onCommentDeleted = () => {
 
-    const LOAD_COMMENTS_PARAMS = {
+    this.#moviesModel.loadComments({
       filmId: this.#detailsPresenter.filmId,
       loadCommentsCB: this.onCommentsLoaded,
-    };
-    this.#moviesModel.loadComments(LOAD_COMMENTS_PARAMS);
+    });
   }
 
   onCommentsLoaded = (comments) => {
     this.#detailsPresenter.isCommentsLoading = false;
     this.#detailsPresenter.renderComments(comments);
+    this.#moviesPresenter.renderMostCommentedFilms();
   }
 
   updateDetails = (film) => {
@@ -163,38 +175,45 @@ export default class AppPresenter {
     this.#moviesModel.changeFavoriteFlag(film);
   }
 
-  renderAllMovies = () => {
-    this.#menuSelection = FILTERS.allMovies;
+  renderFilms = (filter) => {
+    this.#moviesPresenter.clearContent();
+    this.#menuSelection = filter;
+    this.#moviesPresenter.renderFilmsContent();
+
     this.#moviesPresenter.renderFilmsList(this.#menuSelection);
+    this.#moviesPresenter.renderTopRatedFilms();
+    this.#moviesPresenter.renderMostCommentedFilms();
+
     this.renderMainMenu();
+  }
+
+  renderAllMovies = () => {
+    this.renderFilms(FILTERS.allMovies);
   }
 
   renderWatchList = () => {
-    this.#menuSelection = FILTERS.watchlist;
-    this.#moviesPresenter.renderFilmsList(this.#menuSelection);
-    this.renderMainMenu();
+    this.renderFilms(FILTERS.watchlist);
   }
 
   renderHistory = () => {
-    this.#menuSelection = FILTERS.history;
-    this.#moviesPresenter.renderFilmsList(this.#menuSelection);
-    this.renderMainMenu();
+    this.renderFilms(FILTERS.history);
   }
 
   renderFavorites = () => {
-    this.#menuSelection = FILTERS.favorites;
-    this.#moviesPresenter.renderFilmsList(this.#menuSelection);
-    this.renderMainMenu();
+    this.renderFilms(FILTERS.favorites);
   }
 
   renderStats = () => {
+    this.#statsPresenter.clearContent();
     this.#menuSelection = FILTERS.stats;
+
+    this.#statsPresenter.onPeriodChanges(PERIOD.allTime);
     this.renderMainMenu();
   }
 
   onFilmsLoaded = () => {
     this.#isDataLoading = false;
-    this.#contentWrapper.clear();
+    removeChildren(this.#contentWrapper);
     this.renderInitContent();
   }
 
@@ -292,7 +311,11 @@ export default class AppPresenter {
     this.renderProfile();
     this.renderMainMenu();
 
-    this.#moviesPresenter.renderInitContent();
+    if (this.#moviesModel.films.length > 0) {
+      this.renderAllMovies();
+    } else {
+      this.#moviesPresenter.renderDatabaseIsEmpty();
+    }
 
     this.renderFooterStats();
   }

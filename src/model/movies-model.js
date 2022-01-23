@@ -1,53 +1,44 @@
 import AbstractObservable from './abstract-observable';
 import {parseFromServerFormat, parseToServerFormat} from '../utils/adapters';
+import {range} from '../utils/range';
+
+export const OBSERVER_TYPE = {
+  filmsLoaded: 'filmsLoaded',
+  watchedFlagChanges: 'watchedFlagChanges',
+  watchlistFlagChanges: 'watchlistFlagChanges',
+  favoriteFlagChanges: 'favoriteFlagChanges',
+};
+
+const RANK = {
+  'novice': range(1, 9),
+  'fan': range(10, 19),
+  'movie buff': range(20, Infinity),
+};
 
 export default class MoviesModel {
   #films = null;
   #dataProvider = null;
-  #filmsLoadedSpotters = null;
-  #watchedFlagChangesSpotters = null;
-  #watchlistFlagChangesSpotters = null;
-  #favoriteFlagChangesSpotters = null;
+  #spotters = {};
 
   constructor(dataProvider) {
     this.#dataProvider = dataProvider;
     this.#films = [];
-    this.#filmsLoadedSpotters = new AbstractObservable();
-    this.#watchedFlagChangesSpotters = new AbstractObservable();
-    this.#watchlistFlagChangesSpotters = new AbstractObservable();
-    this.#favoriteFlagChangesSpotters = new AbstractObservable();
+    this.#spotters = {
+      [OBSERVER_TYPE.filmsLoaded]: new AbstractObservable(),
+      [OBSERVER_TYPE.watchedFlagChanges]: new AbstractObservable(),
+      [OBSERVER_TYPE.watchlistFlagChanges]: new AbstractObservable(),
+      [OBSERVER_TYPE.favoriteFlagChanges]: new AbstractObservable(),
+    };
   }
 
-  addWatchedFlagChangesObserver(observer) {
-    this.#watchedFlagChangesSpotters.addObserver(observer);
+  addObserver(params) {
+    const {observerType, observer} = {...params};
+    this.#spotters[observerType].addObserver(observer);
   }
 
-  removeWatchedFlagChangesObserver(observer) {
-    this.#watchedFlagChangesSpotters.removeObserver(observer);
-  }
-
-  addWatchListFlagChangesObserver(observer) {
-    this.#watchlistFlagChangesSpotters.addObserver(observer);
-  }
-
-  removeWatchListFlagChangesObserver(observer) {
-    this.#watchlistFlagChangesSpotters.removeObserver(observer);
-  }
-
-  addFavoriteFlagChangesObserver(observer) {
-    this.#favoriteFlagChangesSpotters.addObserver(observer);
-  }
-
-  removeFavoriteFlagChangesObserver(observer) {
-    this.#favoriteFlagChangesSpotters.removeObserver(observer);
-  }
-
-  addFilmsLoadedObserver(observer) {
-    this.#filmsLoadedSpotters.addObserver(observer);
-  }
-
-  removeFilmsLoadedObserver(observer) {
-    this.#filmsLoadedSpotters.removeObserver(observer);
+  removeObserver(params) {
+    const {spotterType, observer} = {...params};
+    this.spotters[spotterType].removeObserver(observer);
   }
 
   get watchInfo() {
@@ -76,18 +67,36 @@ export default class MoviesModel {
   loadMovies() {
     this.#dataProvider.loadFilms().then((films) => {
       this.#films = films.map((film) => parseFromServerFormat(film));
-      this.#filmsLoadedSpotters._notify();
+      this.#spotters[OBSERVER_TYPE.filmsLoaded]._notify();
     });
+  }
+
+  updateFilmData = (newFilmData) => {
+    const filmIndex = this.#films.findIndex((movie) => movie.id === newFilmData.movie.id);
+    this.#films[filmIndex] = parseFromServerFormat(newFilmData.movie);
   }
 
   addComment(params) {
     const {filmId, comment, addCommentCB, addCommentFailCB} = {...params};
-    this.#dataProvider.addComment({filmId, comment}).then(() => addCommentCB()).catch((error) => addCommentFailCB(error));
+    this.#dataProvider.addComment({filmId, comment}).then((responce) => {
+      this.updateFilmData(responce);
+      addCommentCB();
+    }).catch((error) => addCommentFailCB(error));
+  }
+
+  deleteCommentInModel = (filmId, commentId) => {
+    const filmIndex = this.#films.findIndex((movie) => movie.id === filmId);
+    const filmComments = this.#films[filmIndex].comments;
+    const commentIndex = filmComments.findIndex((comment) => comment === commentId);
+    filmComments.splice(commentIndex, 1);
   }
 
   deleteComment(params) {
-    const {commentId, deleteCommentCB} = { ...params};
-    this.#dataProvider.deleteComment(commentId).then(() => deleteCommentCB());
+    const {commentId, deleteCommentCB, filmId} = { ...params};
+    this.#dataProvider.deleteComment(commentId).then(() => {
+      this.deleteCommentInModel(filmId, commentId);
+      deleteCommentCB();
+    });
   }
 
   loadComments(params) {
@@ -105,7 +114,7 @@ export default class MoviesModel {
     this.#dataProvider.updateFilm(changedFilm).then((movie) => {
       const updatedFilm = parseFromServerFormat(movie);
       this.replaceFilm(updatedFilm);
-      this.#watchedFlagChangesSpotters._notify(updatedFilm);
+      this.#spotters[OBSERVER_TYPE.watchedFlagChanges]._notify(updatedFilm);
     });
   }
 
@@ -114,7 +123,7 @@ export default class MoviesModel {
     this.#dataProvider.updateFilm(changedFilm).then((movie) => {
       const updatedFilm = parseFromServerFormat(movie);
       this.replaceFilm(updatedFilm);
-      this.#watchlistFlagChangesSpotters._notify(updatedFilm);
+      this.#spotters[OBSERVER_TYPE.watchlistFlagChanges]._notify(updatedFilm);
     });
   }
 
@@ -123,7 +132,7 @@ export default class MoviesModel {
     this.#dataProvider.updateFilm(changedFilm).then((movie) => {
       const updatedFilm = parseFromServerFormat(movie);
       this.replaceFilm(updatedFilm);
-      this.#favoriteFlagChangesSpotters._notify(updatedFilm);
+      this.#spotters[OBSERVER_TYPE.favoriteFlagChanges]._notify(updatedFilm);
     });
   }
 
@@ -149,20 +158,16 @@ export default class MoviesModel {
     return this.#films.filter((film) => film.favorite);
   }
 
+  getWatched(period) {
+    return this.#films.filter((film) => period(film.watchingDate));
+  }
+
   get userRank() {
-    let rank = '';
     const watchedCount = this.history.length;
-    if (watchedCount > 20) {
-      rank = 'movie buff';
-    } else {
-      if (watchedCount > 10) {
-        rank = 'fan';
-      } else {
-        if (watchedCount > 0) {
-          rank = 'novice';
-        }
-      }
+
+    for (const key in RANK) {
+      if (RANK[key](watchedCount)) {return key;}
     }
-    return (rank);
+    return '';
   }
 }
