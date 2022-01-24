@@ -185,12 +185,12 @@ export default class MoviesPresenter {
         }
       });
 
-      if (this.#showMore === null) {
-        render(this.#listFilms, newShowMore);
-      } else {
-        replace(newShowMore, this.#showMore);
+      if (this.#showMore !== null) {
+        this.#showMore.removeElement();
       }
+
       this.#showMore = newShowMore;
+      render(this.#listFilms, newShowMore);
     }
   }
 
