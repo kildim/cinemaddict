@@ -137,8 +137,12 @@ export default class MoviesModel {
   }
 
   get topRated() {
-    const films = [...this.#films];
-    return films.sort((filmPred, filmSucc) => filmSucc.totalRating - filmPred.totalRating);
+    let films = [...this.#films];
+    films.sort((filmPred, filmSucc) => filmSucc.totalRating - filmPred.totalRating);
+    if (!films[0].totalRating) {
+      films = [];
+    }
+    return films;
   }
 
   get mostCommented() {
